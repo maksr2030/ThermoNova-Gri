@@ -3,591 +3,393 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ThermoNova Grid v8</title>
+<title>ThermoNova v8 Industrial Thermodynamic Engine</title>
+
 <style>
-*{box-sizing:border-box}
+
 body{
-  margin:0;
-  font-family:Arial,Helvetica,sans-serif;
-  background:#eef3f9;
-  color:#1f2937;
-  line-height:1.75;
+font-family:Arial;
+background:#eef2f7;
+margin:0;
+padding:30px;
+color:#1f2937;
 }
+
 .container{
-  max-width:1440px;
-  margin:auto;
-  padding:24px;
+max-width:1300px;
+margin:auto;
 }
-.hero{
-  background:linear-gradient(135deg,#1e3a8a,#0f766e);
-  color:#fff;
-  padding:34px;
-  border-radius:24px;
-  margin-bottom:22px;
+
+.header{
+background:linear-gradient(135deg,#1e3a8a,#0f766e);
+color:white;
+padding:30px;
+border-radius:20px;
+margin-bottom:20px;
 }
-.hero h1{
-  margin:0 0 12px 0;
-  font-size:40px;
+
+.header h1{
+margin:0;
+font-size:34px;
 }
-.hero p{
-  margin:8px 0;
-  font-size:22px;
-}
+
 .card{
-  background:#fff;
-  border-radius:18px;
-  padding:24px;
-  margin-bottom:20px;
-  box-shadow:0 8px 24px rgba(15,23,42,0.08);
+background:white;
+padding:22px;
+border-radius:14px;
+margin-bottom:18px;
+box-shadow:0 6px 20px rgba(0,0,0,0.06);
 }
-.card h2{
-  margin-top:0;
-  margin-bottom:16px;
-  font-size:30px;
-  color:#1d4ed8;
+
+button{
+padding:14px 18px;
+border:none;
+border-radius:10px;
+background:#2563eb;
+color:white;
+font-size:18px;
+cursor:pointer;
+margin-right:10px;
 }
-.card h3{
-  font-size:23px;
-  margin:10px 0 14px 0;
-  color:#0f766e;
+
+button.secondary{
+background:#475569;
 }
-.controls{
-  display:flex;
-  flex-wrap:wrap;
-  gap:14px;
-  align-items:center;
+
+button.green{
+background:#15803d;
 }
-button,.file-label{
-  display:inline-block;
-  background:#2563eb;
-  color:#fff;
-  padding:16px 22px;
-  border:none;
-  border-radius:14px;
-  cursor:pointer;
-  font-size:21px;
-  text-decoration:none;
-}
-button.secondary,.file-label.secondary{background:#475569}
-button.green{background:#15803d}
-input[type="file"]{display:none}
+
 .status{
-  margin-top:16px;
-  background:#e0ecff;
-  color:#1e3a8a;
-  border-radius:14px;
-  padding:15px;
-  font-size:19px;
+background:#e0ecff;
+padding:14px;
+border-radius:10px;
+margin-top:10px;
 }
-.metrics{
-  display:grid;
-  grid-template-columns:repeat(4,minmax(0,1fr));
-  gap:16px;
+
+.metric-grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+gap:16px;
 }
+
 .metric{
-  background:#f8fafc;
-  border:1px solid #dbeafe;
-  border-radius:16px;
-  padding:18px;
+background:#f8fafc;
+padding:16px;
+border-radius:12px;
+border:1px solid #dbeafe;
 }
-.metric .label{
-  font-size:17px;
-  color:#475569;
+
+.metric-value{
+font-size:28px;
+font-weight:bold;
 }
-.metric .value{
-  font-size:31px;
-  font-weight:700;
-  margin-top:10px;
-  color:#0f172a;
+
+.table-container{
+overflow-x:auto;
+border:1px solid #dbeafe;
+border-radius:10px;
 }
-.notice{
-  background:#f0fdf4;
-  border:1px solid #bbf7d0;
-  color:#166534;
-  border-radius:14px;
-  padding:15px;
-  font-size:20px;
-  margin-top:16px;
-}
-.warning{
-  background:#fff7ed;
-  border:1px solid #fdba74;
-  color:#9a3412;
-  border-radius:14px;
-  padding:15px;
-  font-size:19px;
-  margin-top:16px;
-}
-.info-grid{
-  display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:16px;
-}
-.info-box{
-  background:#f8fafc;
-  border:1px solid #dbeafe;
-  border-radius:16px;
-  padding:18px;
-}
-.info-box p{
-  margin:8px 0;
-  font-size:19px;
-}
-.table-wrap{
-  overflow-x:auto;
-  overflow-y:hidden;
-  border:1px solid #dbeafe;
-  border-radius:14px;
-  margin-top:16px;
-  background:#fff;
-}
+
 table{
-  width:100%;
-  min-width:2300px;
-  border-collapse:collapse;
+border-collapse:collapse;
+min-width:1400px;
+width:100%;
 }
+
 th,td{
-  padding:12px;
-  border-bottom:1px solid #e5e7eb;
-  text-align:left;
-  font-size:18px;
-  vertical-align:top;
+padding:10px;
+border-bottom:1px solid #e5e7eb;
+font-size:14px;
 }
+
 th{
-  background:#dbeafe;
-  color:#1e3a8a;
-  position:sticky;
-  top:0;
+background:#dbeafe;
 }
-.chart-grid{
-  display:grid;
-  grid-template-columns:1fr;
-  gap:20px;
+
+.chart-box{
+margin-top:25px;
 }
-.chart-card{
-  background:#f8fafc;
-  border:1px solid #dbeafe;
-  border-radius:16px;
-  padding:16px;
-}
-.notes{
-  width:100%;
-  min-height:250px;
-  padding:16px;
-  font-size:18px;
-  border-radius:14px;
-  border:1px solid #cbd5e1;
-  background:#f8fafc;
-}
-.badge{
-  display:inline-block;
-  padding:6px 10px;
-  border-radius:999px;
-  color:#fff;
-  font-size:15px;
-}
-.badge.high{background:#b91c1c}
-.badge.medium{background:#b45309}
-.badge.low{background:#15803d}
-.badge.ready-high{background:#15803d}
-.badge.ready-medium{background:#b45309}
-.badge.ready-low{background:#b91c1c}
-.badge.good{background:#15803d}
-.badge.warn{background:#b45309}
-.badge.bad{background:#b91c1c}
-.badge.path1{background:#1d4ed8}
-.badge.path2{background:#0f766e}
-.badge.path3{background:#7c3aed}
-.badge.path4{background:#b45309}
-.profile-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(360px,1fr));
-  gap:18px;
-}
-.profile-card{
-  background:#f8fafc;
-  border:1px solid #dbeafe;
-  border-radius:16px;
-  padding:18px;
-}
-.profile-card p{
-  margin:8px 0;
-  font-size:18px;
-}
-.footer{
-  text-align:center;
-  color:#64748b;
-  padding:18px 0 28px 0;
-  font-size:18px;
-}
+
 canvas{
-  width:100%;
-  max-width:100%;
-  background:#fff;
-  border-radius:12px;
+background:white;
+border-radius:12px;
+padding:10px;
 }
-@media (max-width:950px){
-  .metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .info-grid{grid-template-columns:1fr}
-  .hero h1{font-size:31px}
-  .hero p{font-size:20px}
-  .card h2{font-size:25px}
-  th,td{font-size:16px}
-  .metric .value{font-size:26px}
-  button,.file-label{font-size:18px;width:100%;text-align:center}
-}
+
 </style>
 </head>
+
 <body>
+
 <div class="container">
 
-  <div class="hero">
-    <h1>ThermoNova Grid v8</h1>
-    <p>Industrial Thermodynamic Engine</p>
-    <p>Thermal interpretation, recovery path recommendation, auto-formatted report generation, and embedded charts</p>
-  </div>
-
-  <div class="card">
-    <h2>1. Data Input</h2>
-    <div class="controls">
-      <label class="file-label" for="csvFile">Choose CSV File</label>
-      <input id="csvFile" type="file" accept=".csv,text/csv">
-      <button class="secondary" id="loadExampleBtn">Load Example Dataset</button>
-      <button class="green" id="runBtn">Run Analysis</button>
-      <button class="secondary" id="downloadReportBtn">Download HTML Report</button>
-    </div>
-    <div class="status" id="statusBox">Waiting for dataset.</div>
-  </div>
-
-  <div class="card">
-    <h2>2. Executive Summary</h2>
-    <div class="metrics">
-      <div class="metric"><div class="label">Total Sources</div><div class="value" id="mTotal">0</div></div>
-      <div class="metric"><div class="label">Valid Opportunities</div><div class="value" id="mValid">0</div></div>
-      <div class="metric"><div class="label">Top Electrical Power</div><div class="value" id="mTopPower">0 kW</div></div>
-      <div class="metric"><div class="label">Total Annual Value</div><div class="value" id="mAnnual">$0</div></div>
-      <div class="metric"><div class="label">Best Payback</div><div class="value" id="mPayback">-</div></div>
-      <div class="metric"><div class="label">Best NPV</div><div class="value" id="mNPV">$0</div></div>
-      <div class="metric"><div class="label">Average IRR</div><div class="value" id="mIRR">0%</div></div>
-      <div class="metric"><div class="label">Annual CO2 Avoided</div><div class="value" id="mCO2">0 t</div></div>
-    </div>
-    <div class="notice" id="topOpportunity">No analysis yet.</div>
-  </div>
-
-  <div class="card">
-    <h2>3. Best Thermal Opportunity Explanation</h2>
-    <div class="info-grid">
-      <div class="info-box">
-        <h3>Opportunity Identity</h3>
-        <p id="bestOppIdentity">Not generated yet.</p>
-        <p id="bestOppTech">-</p>
-        <p id="bestOppPower">-</p>
-        <p id="bestOppValue">-</p>
-        <p id="bestOppConfidence">-</p>
-        <p id="bestOppDataQuality">-</p>
-        <p id="bestOppPath">-</p>
-      </div>
-      <div class="info-box">
-        <h3>Why It Is the Best</h3>
-        <p id="bestOppReason1">-</p>
-        <p id="bestOppReason2">-</p>
-        <p id="bestOppReason3">-</p>
-        <p id="bestOppReason4">-</p>
-        <p id="bestOppRisk">-</p>
-      </div>
-    </div>
-    <div class="warning" id="bestOppImplementation">No implementation narrative generated yet.</div>
-  </div>
-
-  <div class="card">
-    <h2>4. Thermodynamic Interpretation</h2>
-    <div class="profile-grid" id="thermoCards"></div>
-  </div>
-
-  <div class="card">
-    <h2>5. Engineering and Investment Charts</h2>
-    <div class="chart-grid">
-      <div class="chart-card">
-        <h3>Electrical Power by Source</h3>
-        <canvas id="powerChart" height="130"></canvas>
-      </div>
-      <div class="chart-card">
-        <h3>Annual Value by Source</h3>
-        <canvas id="valueChart" height="130"></canvas>
-      </div>
-      <div class="chart-card">
-        <h3>CO2 Avoided by Source</h3>
-        <canvas id="co2Chart" height="130"></canvas>
-      </div>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>6. Ranked Opportunities</h2>
-    <div class="table-wrap">
-      <table id="resultsTable">
-        <thead>
-          <tr>
-            <th>Rank</th>
-            <th>Source ID</th>
-            <th>Plant Unit</th>
-            <th>Equipment Type</th>
-            <th>Process Criticality</th>
-            <th>Mass Flow</th>
-            <th>Cp</th>
-            <th>T Hot</th>
-            <th>T Cold</th>
-            <th>DeltaT</th>
-            <th>Pressure</th>
-            <th>Heat Grade</th>
-            <th>Heat Quality</th>
-            <th>Recovery Path</th>
-            <th>Technology</th>
-            <th>Thermal Power kW</th>
-            <th>Electrical Power kW</th>
-            <th>Annual Value USD</th>
-            <th>CAPEX USD</th>
-            <th>Payback Years</th>
-            <th>NPV USD</th>
-            <th>IRR %</th>
-            <th>CO2 Avoided t/y</th>
-            <th>Priority Score</th>
-            <th>Risk Penalty</th>
-            <th>Adjusted Score</th>
-            <th>Execution Readiness</th>
-            <th>Confidence Score</th>
-            <th>Data Quality</th>
-            <th>Risk Note</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>7. Technical Notes</h2>
-    <textarea class="notes" id="notesBox" readonly>Upload a CSV file or load the example dataset, then press Run Analysis.</textarea>
-  </div>
-
-  <div class="footer">ThermoNova Grid v8 - Industrial Thermodynamic Engine</div>
+<div class="header">
+<h1>ThermoNova v8</h1>
+Industrial Thermodynamic Engine
 </div>
 
+<div class="card">
+
+<h2>Data Input</h2>
+
+<input type="file" id="csvFile">
+
+<br><br>
+
+<button id="loadExample">Load Example Dataset</button>
+<button class="green" id="runAnalysis">Run Analysis</button>
+<button class="secondary" id="downloadReport">Download HTML Report</button>
+
+<div class="status" id="statusBox">
+Waiting for dataset
+</div>
+
+</div>
+
+<div class="card">
+
+<h2>Executive Summary</h2>
+
+<div class="metric-grid">
+
+<div class="metric">
+Total Sources
+<div class="metric-value" id="totalSources">0</div>
+</div>
+
+<div class="metric">
+Top Electrical Power
+<div class="metric-value" id="topPower">0</div>
+</div>
+
+<div class="metric">
+Annual Value
+<div class="metric-value" id="annualValue">$0</div>
+</div>
+
+<div class="metric">
+CO2 Avoided
+<div class="metric-value" id="co2Avoided">0</div>
+</div>
+
+</div>
+
+</div>
+
+<div class="card">
+
+<h2>Opportunity Ranking</h2>
+
+<div class="table-container">
+<table id="resultsTable">
+
+<thead>
+<tr>
+<th>Rank</th>
+<th>Source</th>
+<th>Plant Unit</th>
+<th>Technology</th>
+<th>Power kW</th>
+<th>Annual Value</th>
+<th>Payback</th>
+<th>NPV</th>
+<th>IRR</th>
+<th>CO2 Avoided</th>
+</tr>
+</thead>
+
+<tbody></tbody>
+
+</table>
+</div>
+
+</div>
+
+<div class="card">
+
+<h2>Charts</h2>
+
+<div class="chart-box">
+<canvas id="powerChart"></canvas>
+</div>
+
+<div class="chart-box">
+<canvas id="valueChart"></canvas>
+</div>
+
+</div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
+
 const exampleCsv = `source_id,plant_unit,equipment_type,process_criticality,mass_flow,cp,t_hot,t_cold,pressure,operating_state,operating_hours,electricity_price,grid_emission_factor,maintenance_window
-SRC001,Boiler_A,Furnace,High,3.2,4.18,250,120,7.5,1,7200,0.11,0.47,Q3_Shutdown
-SRC002,Boiler_A,Exhaust_Duct,Medium,2.7,4.18,210,95,6.8,1,7000,0.11,0.47,Q3_Shutdown
-SRC003,Turbine_B,Process_Heater,Medium,2.1,4.18,230,100,5.5,1,7500,0.11,0.47,Q4_Shutdown
-SRC004,Furnace_C,Furnace,High,3.6,4.18,270,140,8.1,1,6800,0.11,0.47,Q2_Shutdown
-SRC005,Process_Line_D,Heat_Recovery_Loop,Low,2.0,4.18,195,90,4.6,1,6500,0.11,0.47,Q2_Shutdown
-SRC006,Compressor_E,Exhaust_Stream,Medium,2.4,4.18,215,105,5.2,1,7200,0.11,0.47,Q1_Shutdown
-SRC007,Reactor_F,Process_Heater,High,3.0,4.18,240,110,6.9,1,7600,0.11,0.47,Q4_Shutdown
-SRC008,Boiler_G,Flue_Gas,Medium,2.9,4.18,225,105,6.3,1,7000,0.11,0.47,Q3_Shutdown
-SRC009,Distillation_H,Column_Reboiler,High,3.4,4.18,260,130,7.8,1,7400,0.11,0.47,Q2_Shutdown
-SRC010,Furnace_I,Furnace,Medium,2.8,4.18,235,100,6.5,1,7100,0.11,0.47,Q1_Shutdown`;
+SRC001,Boiler_A,Furnace,High,3.2,4.18,250,120,7.5,1,7200,0.11,0.47,Q3
+SRC002,Furnace_B,Furnace,High,3.6,4.18,270,140,8.1,1,6800,0.11,0.47,Q2
+SRC003,Reactor_C,Heater,Medium,3.0,4.18,240,110,6.9,1,7600,0.11,0.47,Q4
+SRC004,Column_D,Reboiler,High,3.4,4.18,260,130,7.8,1,7400,0.11,0.47,Q2`;
 
-let currentCsvText = "";
-let lastResults = null;
-let powerChartInstance = null;
-let valueChartInstance = null;
-let co2ChartInstance = null;
+let csvData = "";
 
-function splitCsvLine(line){
-  const out = [];
-  let cur = "";
-  let inQuotes = false;
-  for(let i=0;i<line.length;i++){
-    const ch = line[i];
-    if(ch === '"'){ inQuotes = !inQuotes; }
-    else if(ch === ',' && !inQuotes){ out.push(cur); cur = ""; }
-    else { cur += ch; }
-  }
-  out.push(cur);
-  return out;
+document.getElementById("loadExample").onclick = () => {
+csvData = exampleCsv;
+statusBox.innerText="Example dataset loaded";
 }
 
-function parseCSV(text){
-  const cleaned = text.replace(/\r\n/g,"\n").replace(/\r/g,"\n").trim();
-  const lines = cleaned.split("\n").filter(line => line.trim() !== "");
-  if(lines.length < 2) throw new Error("CSV file is empty or missing data rows.");
-  const headers = splitCsvLine(lines[0]).map(h => h.trim());
-  const rows = [];
-  for(let i=1;i<lines.length;i++){
-    const parts = splitCsvLine(lines[i]);
-    if(parts.length !== headers.length) continue;
-    const obj = {};
-    headers.forEach((h,idx) => obj[h] = (parts[idx] || "").trim());
-    rows.push(obj);
-  }
-  return {headers, rows};
+document.getElementById("csvFile").onchange = async e => {
+csvData = await e.target.files[0].text();
+statusBox.innerText="CSV file loaded";
 }
 
-function normalizeRow(r){
-  return {
-    source_id: r.source_id || "UNKNOWN",
-    plant_unit: r.plant_unit || "UNKNOWN",
-    equipment_type: r.equipment_type || "UNKNOWN",
-    process_criticality: r.process_criticality || "Medium",
-    mass_flow: Number(r.mass_flow ?? 0),
-    cp: Number(r.cp ?? 0),
-    t_hot: Number(r.t_hot ?? 0),
-    t_cold: Number(r.t_cold ?? 0),
-    pressure: Number(r.pressure ?? 0),
-    operating_state: Number(r.operating_state ?? 1),
-    operating_hours: Number(r.operating_hours ?? 0),
-    electricity_price: Number(r.electricity_price ?? 0),
-    grid_emission_factor: Number(r.grid_emission_factor ?? 0),
-    maintenance_window: r.maintenance_window || "Not specified"
-  };
+document.getElementById("runAnalysis").onclick = () => {
+
+let rows = csvData.trim().split("\n").slice(1);
+
+let results=[];
+
+rows.forEach(r=>{
+
+let p=r.split(",")
+
+let mass=parseFloat(p[4])
+let cp=parseFloat(p[5])
+let th=parseFloat(p[6])
+let tc=parseFloat(p[7])
+
+let delta=th-tc
+
+let thermal=mass*cp*delta
+
+let power=thermal*0.22
+
+let annual=power*7200*0.11
+
+let capex=power*1800
+
+let payback=capex/annual
+
+let npv=annual*6
+
+let irr=(annual/capex)*100
+
+let co2=power*7200*0.47/1000
+
+results.push({
+source:p[0],
+plant:p[1],
+power,
+annual,
+payback,
+npv,
+irr,
+co2
+})
+
+})
+
+results.sort((a,b)=>b.power-a.power)
+
+renderTable(results)
+
+renderCharts(results)
+
+updateSummary(results)
+
+statusBox.innerText="Analysis completed"
+
 }
 
-function qualityBadgeClass(v){
-  if(v === "Good") return "good";
-  if(v === "Warning") return "warn";
-  return "bad";
+function renderTable(rows){
+
+let tbody=document.querySelector("#resultsTable tbody")
+
+tbody.innerHTML=""
+
+rows.forEach((r,i)=>{
+
+tbody.innerHTML+=`
+<tr>
+<td>${i+1}</td>
+<td>${r.source}</td>
+<td>${r.plant}</td>
+<td>ORC</td>
+<td>${r.power.toFixed(1)}</td>
+<td>$${r.annual.toFixed(0)}</td>
+<td>${r.payback.toFixed(2)}</td>
+<td>$${r.npv.toFixed(0)}</td>
+<td>${r.irr.toFixed(1)}%</td>
+<td>${r.co2.toFixed(1)}</td>
+</tr>
+`
+
+})
+
 }
 
-function heatQuality(deltaT){
-  if(deltaT >= 130) return "High";
-  if(deltaT >= 90) return "Medium";
-  return "Low";
+function updateSummary(rows){
+
+totalSources.innerText=rows.length
+
+topPower.innerText=rows[0].power.toFixed(1)+" kW"
+
+let annual=rows.reduce((a,b)=>a+b.annual,0)
+
+annualValue.innerText="$"+annual.toFixed(0)
+
+let co2=rows.reduce((a,b)=>a+b.co2,0)
+
+co2Avoided.innerText=co2.toFixed(1)+" t"
+
 }
 
-function heatGrade(deltaT, tHot){
-  if(tHot >= 240 && deltaT >= 120) return "High-grade";
-  if(tHot >= 200 && deltaT >= 90) return "Medium-grade";
-  return "Low-grade";
+function renderCharts(rows){
+
+new Chart(powerChart,{
+type:'bar',
+data:{
+labels:rows.map(r=>r.source),
+datasets:[{
+label:'Electrical Power',
+data:rows.map(r=>r.power),
+backgroundColor:'#2563eb'
+}]
+}
+})
+
+new Chart(valueChart,{
+type:'bar',
+data:{
+labels:rows.map(r=>r.source),
+datasets:[{
+label:'Annual Value',
+data:rows.map(r=>r.annual),
+backgroundColor:'#16a34a'
+}]
+}
+})
+
 }
 
-function chooseRecoveryPath(grade, equipmentType, processCriticality){
-  if(grade === "High-grade" && processCriticality === "High"){
-    return "Power Recovery with Hybrid Cycle";
-  }
-  if(grade === "High-grade"){
-    return "Steam-to-Power Recovery";
-  }
-  if(grade === "Medium-grade" && equipmentType.includes("Exhaust")){
-    return "ORC Exhaust Recovery";
-  }
-  if(grade === "Medium-grade"){
-    return "ORC Closed Loop Recovery";
-  }
-  return "Direct Heat Reuse / Exchanger";
+document.getElementById("downloadReport").onclick=()=>{
+
+let report=document.documentElement.outerHTML
+
+let blob=new Blob([report],{type:"text/html"})
+
+let a=document.createElement("a")
+
+a.href=URL.createObjectURL(blob)
+
+a.download="ThermoNova_Report.html"
+
+a.click()
+
 }
 
-function recoveryBadgeClass(path){
-  if(path === "Power Recovery with Hybrid Cycle") return "path1";
-  if(path === "Steam-to-Power Recovery") return "path2";
-  if(path === "ORC Exhaust Recovery") return "path3";
-  return "path4";
-}
+</script>
 
-function chooseTechnology(deltaT, grade, path){
-  if(path === "Power Recovery with Hybrid Cycle"){
-    return {name:"Steam / ORC Hybrid", eff:0.24, readiness:"High"};
-  }
-  if(path === "Steam-to-Power Recovery"){
-    return {name:"Steam Recovery System", eff:0.22, readiness:"High"};
-  }
-  if(path === "ORC Exhaust Recovery" || path === "ORC Closed Loop Recovery"){
-    return {name:"Organic Rankine Cycle", eff:0.20, readiness:"Medium-High"};
-  }
-  return {name:"Direct Heat Exchanger Recovery", eff:0.12, readiness:"Medium"};
-}
-
-function estimateCapex(powerKW){
-  return powerKW * 1800;
-}
-
-function estimateOpex(capex){
-  return capex * 0.04;
-}
-
-function estimateNPV(netAnnual, capex, years=10, rate=0.10){
-  let npv = -capex;
-  for(let t=1;t<=years;t++){
-    npv += netAnnual / Math.pow(1 + rate, t);
-  }
-  return npv;
-}
-
-function estimateIRR(netAnnual, capex){
-  if(capex <= 0) return 0;
-  const ratio = netAnnual / capex;
-  return Math.max(0, Math.min(60, ratio * 100));
-}
-
-function estimateCO2Avoided(annualEnergyKWh, emissionFactor){
-  return (annualEnergyKWh * emissionFactor) / 1000;
-}
-
-function deriveDataQuality(row){
-  let issues = 0;
-  if(row.mass_flow <= 0) issues++;
-  if(row.cp <= 0) issues++;
-  if(row.t_hot <= row.t_cold) issues++;
-  if(row.operating_hours <= 0 || row.operating_hours > 8760) issues++;
-  if(row.electricity_price <= 0) issues++;
-  if(row.grid_emission_factor < 0) issues++;
-  if(issues === 0) return "Good";
-  if(issues <= 2) return "Warning";
-  return "Poor";
-}
-
-function calculateConfidenceScore(row){
-  let score = 100;
-  if(row.deltaT < 95) score -= 10;
-  if(row.operating_hours < 6000) score -= 10;
-  if(row.electrical_power_kw < 220) score -= 10;
-  if(row.payback_years > 4) score -= 15;
-  if(row.execution_readiness === "Medium") score -= 10;
-  if(row.data_quality === "Warning") score -= 8;
-  if(row.data_quality === "Poor") score -= 18;
-  if(row.process_criticality === "High") score -= 3;
-  return Math.max(50, Math.min(98, score));
-}
-
-function buildRiskNote(row){
-  const risks = [];
-  if(row.heat_grade === "High-grade"){
-    risks.push("high-temperature integration requires exchanger material and fouling review");
-  } else if(row.heat_grade === "Medium-grade"){
-    risks.push("medium-temperature recovery requires efficiency validation under variable load");
-  } else {
-    risks.push("low-grade heat recovery may be more suitable for direct reuse than power conversion");
-  }
-  if(row.operating_hours < 6000) risks.push("operating-hours uncertainty may affect annual savings");
-  if(row.payback_years > 3.5) risks.push("economic sensitivity to electricity tariff is moderate");
-  if(row.execution_readiness === "Medium") risks.push("implementation complexity may be higher due to process integration constraints");
-  if(row.process_criticality === "High") risks.push("source is process-critical and may require stricter shutdown coordination");
-  if(row.data_quality === "Warning") risks.push("data quality warning requires engineering validation");
-  if(row.data_quality === "Poor") risks.push("poor input quality materially weakens decision confidence");
-  return risks.join("; ");
-}
-
-function calculateRiskPenalty(row){
-  let penalty = 0;
-  if(row.execution_readiness === "Medium") penalty += 0.05;
-  if(row.payback_years > 3.5) penalty += 0.04;
-  if(row.process_criticality === "High") penalty += 0.03;
-  if(row.data_quality === "Warning") penalty += 0.03;
-  if(row.data_quality === "Poor") penalty += 0.08;
-  return penalty;
-}
-
-function buildSensitivity(row){
-  return {
-    annual_value_low_price: row.annual_value_usd * 0.85,
-    annual_value_high_price: row.annual_value_usd * 1.15,
-    annual_value_low_hours: row.annual_value_usd * 0.90,
-    annual_value_high_hours: row.annual_value_usd * 1.10
-  };
-}
-
-function validateAndAnalyze(text){
-  const parsed = parseCSV(text);
-  const headers = parsed.headers;
-  const rows = parsed.rows;
-
-  const required = [
-   
+</body>
+</html>
