@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ThermoNova v13 Industrial Energy Intelligence Platform</title>
+<title>ThermoNova v13.1 Source Identity Fix + Robust Column Mapping</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 *{box-sizing:border-box}
@@ -23,14 +23,14 @@ h3{margin:0 0 12px 0;color:#0f766e;font-size:22px;line-height:1.3}
 .metric .value{font-size:26px;font-weight:700;margin-top:8px;line-height:1.15}
 .control-box,.box,.chart-card{background:#f8fafc;border:1px solid #dbeafe;border-radius:16px;padding:16px}
 .control-row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
-.btn,.file-label,select{
+.btn,.file-label,select,input[type=text]{
 appearance:none;-webkit-appearance:none;display:inline-flex;align-items:center;justify-content:center;
 min-height:56px;padding:14px 18px;border:none;border-radius:14px;font-size:18px;text-decoration:none
 }
 .btn{background:#2563eb;color:#fff;cursor:pointer}
 .btn.secondary{background:#475569}.btn.green{background:#15803d}.btn.orange{background:#b45309}
 .file-label{background:#2563eb;color:#fff;cursor:pointer;width:100%}
-select{width:100%;background:#fff;color:#111827;border:1px solid #cbd5e1}
+select,input[type=text]{width:100%;background:#fff;color:#111827;border:1px solid #cbd5e1}
 .hidden-file{display:none !important}
 .file-state,.status,.notice,.warning{margin-top:14px;border-radius:12px;padding:14px;font-size:17px}
 .file-state{background:#eef2ff;color:#1e3a8a}
@@ -47,8 +47,9 @@ th{background:#dbeafe;color:#1e3a8a;position:sticky;top:0}
 .codebox{background:#0f172a;color:#e2e8f0;border-radius:14px;padding:14px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;line-height:1.55;white-space:pre-wrap;overflow:auto;min-height:150px}
 textarea{width:100%;min-height:180px;padding:14px;border-radius:14px;border:1px solid #cbd5e1;background:#f8fafc;font-size:16px}
 .small{font-size:13px;color:#64748b}
+.mapping-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 @media (max-width:1100px){
-  .grid2,.grid3{grid-template-columns:1fr}
+  .grid2,.grid3,.mapping-grid{grid-template-columns:1fr}
   .metric-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media (max-width:640px){
@@ -58,7 +59,7 @@ textarea{width:100%;min-height:180px;padding:14px;border-radius:14px;border:1px 
   .hero p{font-size:19px}
   h2{font-size:26px}
   h3{font-size:20px}
-  .btn,.file-label,select{width:100%;font-size:18px;min-height:54px}
+  .btn,.file-label,select,input[type=text]{width:100%;font-size:18px;min-height:54px}
   .metric .value{font-size:24px}
 }
 </style>
@@ -66,9 +67,9 @@ textarea{width:100%;min-height:180px;padding:14px;border-radius:14px;border:1px 
 <body>
 <div class="container">
   <div class="hero">
-    <h1>ThermoNova v13</h1>
-    <p>Industrial Energy Intelligence Platform</p>
-    <p>Waste-heat classification, technology recommendation, power sizing, grid export estimation, and investment feasibility in one platform</p>
+    <h1>ThermoNova v13.1</h1>
+    <p>Source Identity Fix + Robust Column Mapping</p>
+    <p>Fixes undefined source names, adds resilient column detection, and stabilizes industrial dataset ingestion</p>
   </div>
 
   <div class="card">
@@ -107,7 +108,31 @@ textarea{width:100%;min-height:180px;padding:14px;border-radius:14px;border:1px 
   </div>
 
   <div class="card">
-    <h2>2. Portfolio Summary</h2>
+    <h2>2. Source Identity Mapping</h2>
+    <div class="mapping-grid">
+      <div class="box">
+        <h3>Auto-Detection Priority</h3>
+        <p class="small">ThermoNova will search for source identity using the following columns in order:</p>
+        <div class="codebox">source_id
+source
+id
+asset_id
+asset
+tag
+name
+unit_id</div>
+      </div>
+      <div class="box">
+        <h3>Manual Override</h3>
+        <p class="small">If your industrial file uses a different identity column name, enter it here. Leave blank to use auto-detection.</p>
+        <input type="text" id="identityOverride" placeholder="Example: equipment_tag or source_name">
+        <div class="notice" id="mappingNotice">No identity column detected yet.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>3. Portfolio Summary</h2>
     <div class="metric-grid">
       <div class="metric"><div class="label">Assets</div><div class="value" id="mAssets">0</div></div>
       <div class="metric"><div class="label">Electrical Potential</div><div class="value" id="mPower">0 MW</div></div>
@@ -120,86 +145,7 @@ textarea{width:100%;min-height:180px;padding:14px;border-radius:14px;border:1px 
   </div>
 
   <div class="card">
-    <h2>3. Heat Classification and Technology Mix</h2>
-    <div class="grid3">
-      <div class="box">
-        <h3>Heat Source Classification</h3>
-        <p id="classHigh">High-grade sources: 0</p>
-        <p id="classMedium">Medium-grade sources: 0</p>
-        <p id="classLow">Low-grade sources: 0</p>
-        <p class="small">High-grade supports steam / hybrid cycles. Medium-grade supports ORC. Low-grade favors direct reuse or low-grade cycle pathways.</p>
-      </div>
-      <div class="box">
-        <h3>Technology Recommendation Mix</h3>
-        <p id="mixSteam">Steam Rankine / Hybrid: 0</p>
-        <p id="mixORC">Organic Rankine Cycle: 0</p>
-        <p id="mixKalina">Kalina-like Low-Grade Cycle: 0</p>
-        <p id="mixReuse">Direct Heat Reuse: 0</p>
-      </div>
-      <div class="box">
-        <h3>Grid Export Opportunity</h3>
-        <p id="gridBase">Base exportable power: 0 MW</p>
-        <p id="gridFirm">Firm exportable power: 0 MW</p>
-        <p id="gridRevenue">Potential export value: $0</p>
-        <p class="small">Grid export assumes a portion of recoverable electrical output can be exported after internal plant consumption.</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>4. Best Opportunity and Plant Sizing</h2>
-    <div class="grid2">
-      <div class="box">
-        <h3>Best Opportunity</h3>
-        <p id="bestIdentity">-</p>
-        <p id="bestThermal">-</p>
-        <p id="bestElectrical">-</p>
-        <p id="bestAnnual">-</p>
-        <p id="bestPayback">-</p>
-        <p id="bestCO2">-</p>
-        <p id="bestGrid">-</p>
-      </div>
-      <div class="box">
-        <h3>Technology and Power Block Sizing</h3>
-        <p id="bestTech">-</p>
-        <p id="bestSizing1">-</p>
-        <p id="bestSizing2">-</p>
-        <p id="bestSizing3">-</p>
-        <p id="bestSizing4">-</p>
-      </div>
-    </div>
-    <div class="warning" id="bestNarrative">No engineering narrative generated yet.</div>
-  </div>
-
-  <div class="card">
-    <h2>5. Investment Feasibility</h2>
-    <div class="grid3">
-      <div class="box">
-        <h3>Financial Model</h3>
-        <p id="finCapex">-</p>
-        <p id="finOpex">-</p>
-        <p id="finNet">-</p>
-        <p id="finNpv">-</p>
-      </div>
-      <div class="box">
-        <h3>Decision View</h3>
-        <p id="finDecision1">-</p>
-        <p id="finDecision2">-</p>
-        <p id="finDecision3">-</p>
-        <p id="finDecision4">-</p>
-      </div>
-      <div class="box">
-        <h3>Electric Utility Relevance</h3>
-        <p id="utility1">-</p>
-        <p id="utility2">-</p>
-        <p id="utility3">-</p>
-        <p id="utility4">-</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>6. Platform Charts</h2>
+    <h2>4. Platform Charts</h2>
     <div class="grid2">
       <div class="chart-card">
         <h3>Electrical Power Ranking</h3>
@@ -210,20 +156,10 @@ textarea{width:100%;min-height:180px;padding:14px;border-radius:14px;border:1px 
         <div class="chart-wrap"><canvas id="valueChart"></canvas></div>
       </div>
     </div>
-    <div class="grid2" style="margin-top:16px">
-      <div class="chart-card">
-        <h3>NPV Ranking</h3>
-        <div class="chart-wrap"><canvas id="npvChart"></canvas></div>
-      </div>
-      <div class="chart-card">
-        <h3>Technology Mix</h3>
-        <div class="chart-wrap"><canvas id="techMixChart"></canvas></div>
-      </div>
-    </div>
   </div>
 
   <div class="card">
-    <h2>7. Asset Ranking Table</h2>
+    <h2>5. Asset Ranking Table</h2>
     <div class="table-wrap">
       <table id="resultsTable">
         <thead>
@@ -236,7 +172,6 @@ textarea{width:100%;min-height:180px;padding:14px;border-radius:14px;border:1px 
             <th>CO2 Avoided</th>
             <th>Heat Grade</th>
             <th>Technology</th>
-            <th>Power Block Size</th>
             <th>Grid Export MW</th>
             <th>CAPEX</th>
             <th>OPEX</th>
@@ -252,12 +187,12 @@ textarea{width:100%;min-height:180px;padding:14px;border-radius:14px;border:1px 
   </div>
 
   <div class="card">
-    <h2>8. Payload Preview</h2>
+    <h2>6. Payload Preview</h2>
     <div class="codebox" id="payloadPreview">No payload loaded.</div>
   </div>
 
   <div class="card">
-    <h2>9. Platform Notes</h2>
+    <h2>7. Platform Notes</h2>
     <textarea id="notesBox" readonly>Load industrial input then run platform analysis.</textarea>
   </div>
 </div>
@@ -271,33 +206,33 @@ SRC004,2.4,4.18,220,110,7200,0.11,0.47
 SRC005,2.0,4.18,195,90,6500,0.11,0.47`;
 
 const jsonExample = JSON.stringify([
-  {"source_id":"SRC101","mass_flow":4.1,"cp":4.05,"t_hot":380,"t_cold":145,"hours":7600,"price":0.12,"co2":0.44},
-  {"source_id":"SRC102","mass_flow":5.3,"cp":4.10,"t_hot":410,"t_cold":160,"hours":7800,"price":0.12,"co2":0.44},
-  {"source_id":"SRC103","mass_flow":2.8,"cp":4.18,"t_hot":240,"t_cold":120,"hours":7000,"price":0.12,"co2":0.44}
+  {"asset_id":"SRC101","mass_flow":4.1,"cp":4.05,"t_hot":380,"t_cold":145,"hours":7600,"price":0.12,"co2":0.44},
+  {"asset_id":"SRC102","mass_flow":5.3,"cp":4.10,"t_hot":410,"t_cold":160,"hours":7800,"price":0.12,"co2":0.44},
+  {"asset_id":"SRC103","mass_flow":2.8,"cp":4.18,"t_hot":240,"t_cold":120,"hours":7000,"price":0.12,"co2":0.44}
 ], null, 2);
 
 const restMock = JSON.stringify({
   connector:"REST_API_MOCK",
   data:[
-    {"source_id":"SRC201","mass_flow":3.9,"cp":4.12,"t_hot":320,"t_cold":150,"hours":7600,"price":0.13,"co2":0.42},
-    {"source_id":"SRC202","mass_flow":4.8,"cp":4.05,"t_hot":430,"t_cold":180,"hours":7900,"price":0.13,"co2":0.42}
+    {"source":"SRC201","mass_flow":3.9,"cp":4.12,"t_hot":320,"t_cold":150,"hours":7600,"price":0.13,"co2":0.42},
+    {"source":"SRC202","mass_flow":4.8,"cp":4.05,"t_hot":430,"t_cold":180,"hours":7900,"price":0.13,"co2":0.42}
   ]
 }, null, 2);
 
 const mqttMock = JSON.stringify({
   connector:"MQTT_MOCK",
   packets:[
-    {"source_id":"SRC301","mass_flow":3.1,"cp":4.00,"t_hot":290,"t_cold":130,"hours":7400,"price":0.10,"co2":0.49},
-    {"source_id":"SRC302","mass_flow":2.5,"cp":4.18,"t_hot":205,"t_cold":100,"hours":7100,"price":0.10,"co2":0.49}
+    {"tag":"SRC301","mass_flow":3.1,"cp":4.00,"t_hot":290,"t_cold":130,"hours":7400,"price":0.10,"co2":0.49},
+    {"tag":"SRC302","mass_flow":2.5,"cp":4.18,"t_hot":205,"t_cold":100,"hours":7100,"price":0.10,"co2":0.49}
   ]
 }, null, 2);
 
 let rawPayload="";
 let results=[];
-let powerChart=null, valueChart=null, npvChart=null, techMixChart=null;
+let powerChart=null, valueChart=null;
 
-function num(x){return Number(x)||0}
-function money(x){return "$"+Number(x).toLocaleString(undefined,{maximumFractionDigits:2})}
+function num(x){ return Number(x) || 0; }
+function money(x){ return "$" + Number(x).toLocaleString(undefined,{maximumFractionDigits:2}); }
 
 function parseCSV(text){
   const lines=text.trim().split(/\r?\n/);
@@ -316,6 +251,38 @@ function parseJSONPayload(text){
   if(Array.isArray(p.packets)) return p.packets;
   return [];
 }
+function normalizeKey(s){
+  return String(s || "").trim().toLowerCase().replace(/\s+/g,"_");
+}
+function detectIdentityColumn(rows){
+  if(!rows.length) return null;
+  const override = document.getElementById("identityOverride").value.trim();
+  const first = rows[0];
+  const keys = Object.keys(first);
+  const keyMap = {};
+  keys.forEach(k => keyMap[normalizeKey(k)] = k);
+
+  if(override){
+    const nk = normalizeKey(override);
+    if(keyMap[nk]) return keyMap[nk];
+  }
+
+  const candidates = ["source_id","source","id","asset_id","asset","tag","name","unit_id"];
+  for(const c of candidates){
+    if(keyMap[c]) return keyMap[c];
+  }
+  return null;
+}
+function valueByPossibleNames(row, names){
+  const keys = Object.keys(row);
+  const keyMap = {};
+  keys.forEach(k => keyMap[normalizeKey(k)] = k);
+  for(const n of names){
+    const nk = normalizeKey(n);
+    if(keyMap[nk] !== undefined) return row[keyMap[nk]];
+  }
+  return undefined;
+}
 function heatGrade(hot,dt){
   if(hot>=300 && dt>=140) return "High";
   if(hot>=200 && dt>=90) return "Medium";
@@ -333,12 +300,6 @@ function capexFactor(tech){
   if(tech==="Kalina-like Low-Grade Cycle") return 2000;
   return 1200;
 }
-function powerBlockSize(electrical){
-  if(electrical>=5000) return "5+ MW power block";
-  if(electrical>=2000) return "2–5 MW power block";
-  if(electrical>=500) return "0.5–2 MW power block";
-  return "<0.5 MW modular block";
-}
 function exportFraction(electrical){
   if(electrical>=3000) return 0.45;
   if(electrical>=1000) return 0.35;
@@ -353,30 +314,41 @@ function score(row){
   return (row.npv/200000)+(row.value/100000)+(row.co2/2000)+(row.gridExportMW*2)-(row.payback*1.1);
 }
 function analyze(rows){
+  const idCol = detectIdentityColumn(rows);
+  if(!idCol){
+    throw new Error("No valid source identity column detected. Add a column such as source_id, source, id, asset_id, asset, tag, or set a manual override.");
+  }
+  document.getElementById("mappingNotice").textContent = "Detected source identity column: " + idCol;
+
   const out=[];
-  rows.forEach(r=>{
-    const mass=num(r.mass_flow), cp=num(r.cp), hot=num(r.t_hot), cold=num(r.t_cold);
+  rows.forEach((r,idx)=>{
+    const sourceName = valueByPossibleNames(r, [idCol]) ?? ("UNMAPPED_SOURCE_" + (idx+1));
+    const mass=num(valueByPossibleNames(r,["mass_flow","flow","massflow"]));
+    const cp=num(valueByPossibleNames(r,["cp","specific_heat","heat_capacity"]));
+    const hot=num(valueByPossibleNames(r,["t_hot","temp_hot","temperature_hot","hot_temp"]));
+    const cold=num(valueByPossibleNames(r,["t_cold","temp_cold","temperature_cold","cold_temp"]));
+    const hours=num(valueByPossibleNames(r,["hours","operating_hours","runtime"]));
+    const price=num(valueByPossibleNames(r,["price","electricity_price","tariff"]));
+    const co2=num(valueByPossibleNames(r,["co2","co2_factor","emissions"]));
+
     const dt=hot-cold;
     const grade=heatGrade(hot,dt);
     const t=chooseTechnology(grade,hot);
     const tech=t[0], eff=t[1];
     const thermal=mass*cp*dt;
     const electrical=thermal*eff;
-    const hours=num(r.hours), price=num(r.price), co2=num(r.co2);
     const energy=electrical*hours;
     const value=energy*price;
     const co2saved=energy*co2/1000;
     const capex=electrical*capexFactor(tech);
     const opex=capex*0.04;
     const net=value-opex;
-    const payback=capex/net;
+    const payback=net>0 ? capex/net : 999;
     const npvVal=npv(net,capex);
-    const block=powerBlockSize(electrical);
     const gridExportMW=(electrical*exportFraction(electrical))/1000;
     out.push({
-      source:r.source_id,
-      thermal,electrical,value,co2:co2saved,grade,tech,capex,opex,net,payback,npv:npvVal,
-      block,gridExportMW
+      source:String(sourceName),
+      thermal,electrical,value,co2:co2saved,grade,tech,capex,opex,net,payback,npv:npvVal,gridExportMW
     });
   });
   out.forEach(r=>r.score=score(r));
@@ -388,164 +360,100 @@ function previewPayload(payload){
   document.getElementById("payloadPreview").textContent = payload || "No payload loaded.";
 }
 function runAnalysis(){
-  if(!rawPayload){
-    document.getElementById("statusBox").textContent="Load industrial input first.";
-    return;
-  }
-  let rows=[];
-  const mode=document.getElementById("sourceMode").value;
-  if(mode==="csv") rows=parseCSV(rawPayload); else rows=parseJSONPayload(rawPayload);
-  results=analyze(rows);
+  try{
+    if(!rawPayload){
+      document.getElementById("statusBox").textContent="Load industrial input first.";
+      return;
+    }
+    let rows=[];
+    const mode=document.getElementById("sourceMode").value;
+    if(mode==="csv") rows=parseCSV(rawPayload); else rows=parseJSONPayload(rawPayload);
+    results=analyze(rows);
 
-  const totalPower=results.reduce((a,b)=>a+b.electrical,0);
-  const totalValue=results.reduce((a,b)=>a+b.value,0);
-  const totalCO2=results.reduce((a,b)=>a+b.co2,0);
-  const best=results[0];
-  const bestNPV=Math.max(...results.map(r=>r.npv));
-  const totalGrid=results.reduce((a,b)=>a+b.gridExportMW,0);
-  const firmGrid=totalGrid*0.60;
-  const gridRevenue=firmGrid*1000*7000*0.07;
+    const totalPower=results.reduce((a,b)=>a+b.electrical,0);
+    const totalValue=results.reduce((a,b)=>a+b.value,0);
+    const totalCO2=results.reduce((a,b)=>a+b.co2,0);
+    const best=results[0];
+    const bestNPV=Math.max(...results.map(r=>r.npv));
+    const totalGrid=results.reduce((a,b)=>a+b.gridExportMW,0);
 
-  document.getElementById("mAssets").textContent=results.length;
-  document.getElementById("mPower").textContent=(totalPower/1000).toFixed(2)+" MW";
-  document.getElementById("mValue").textContent=money(totalValue);
-  document.getElementById("mCO2").textContent=totalCO2.toFixed(0)+" t";
-  document.getElementById("mNPV").textContent=money(bestNPV);
-  document.getElementById("mGrid").textContent=totalGrid.toFixed(2)+" MW";
-  document.getElementById("summaryNote").textContent=
-    "Best opportunity: "+best.source+". Technology: "+best.tech+". Power block: "+best.block+
-    ". Annual value: "+money(best.value)+". Grid export estimate: "+best.gridExportMW.toFixed(2)+" MW.";
+    document.getElementById("mAssets").textContent=results.length;
+    document.getElementById("mPower").textContent=(totalPower/1000).toFixed(2)+" MW";
+    document.getElementById("mValue").textContent=money(totalValue);
+    document.getElementById("mCO2").textContent=totalCO2.toFixed(0)+" t";
+    document.getElementById("mNPV").textContent=money(bestNPV);
+    document.getElementById("mGrid").textContent=totalGrid.toFixed(2)+" MW";
+    document.getElementById("summaryNote").textContent=
+      "Best opportunity: "+best.source+". Technology: "+best.tech+
+      ". Annual value: "+money(best.value)+". Grid export estimate: "+best.gridExportMW.toFixed(2)+" MW.";
 
-  const high=results.filter(r=>r.grade==="High").length;
-  const medium=results.filter(r=>r.grade==="Medium").length;
-  const low=results.filter(r=>r.grade==="Low").length;
-  const steam=results.filter(r=>r.tech==="Steam Rankine / Hybrid").length;
-  const orc=results.filter(r=>r.tech==="Organic Rankine Cycle").length;
-  const kalina=results.filter(r=>r.tech==="Kalina-like Low-Grade Cycle").length;
-  const reuse=results.filter(r=>r.tech==="Direct Heat Reuse").length;
+    document.querySelector("#resultsTable tbody").innerHTML=results.map(r=>`
+      <tr>
+        <td>${r.rank}</td>
+        <td>${r.source}</td>
+        <td>${r.thermal.toFixed(0)}</td>
+        <td>${r.electrical.toFixed(0)}</td>
+        <td>${money(r.value)}</td>
+        <td>${r.co2.toFixed(0)}</td>
+        <td><span class="badge ${r.grade.toLowerCase()}">${r.grade}</span></td>
+        <td>${r.tech}</td>
+        <td>${r.gridExportMW.toFixed(2)}</td>
+        <td>${money(r.capex)}</td>
+        <td>${money(r.opex)}</td>
+        <td>${money(r.net)}</td>
+        <td>${r.payback.toFixed(2)} yr</td>
+        <td>${money(r.npv)}</td>
+        <td>${r.score.toFixed(2)}</td>
+      </tr>`).join("");
 
-  document.getElementById("classHigh").textContent="High-grade sources: "+high;
-  document.getElementById("classMedium").textContent="Medium-grade sources: "+medium;
-  document.getElementById("classLow").textContent="Low-grade sources: "+low;
-  document.getElementById("mixSteam").textContent="Steam Rankine / Hybrid: "+steam;
-  document.getElementById("mixORC").textContent="Organic Rankine Cycle: "+orc;
-  document.getElementById("mixKalina").textContent="Kalina-like Low-Grade Cycle: "+kalina;
-  document.getElementById("mixReuse").textContent="Direct Heat Reuse: "+reuse;
-  document.getElementById("gridBase").textContent="Base exportable power: "+totalGrid.toFixed(2)+" MW";
-  document.getElementById("gridFirm").textContent="Firm exportable power: "+firmGrid.toFixed(2)+" MW";
-  document.getElementById("gridRevenue").textContent="Potential export value: "+money(gridRevenue);
+    const top20=results.slice(0,20);
+    if(powerChart) powerChart.destroy();
+    if(valueChart) valueChart.destroy();
+    powerChart = new Chart(document.getElementById("powerChart"), {
+      type:"bar",
+      data:{labels:top20.map(r=>r.source),datasets:[{label:"Electrical kW",data:top20.map(r=>r.electrical)}]},
+      options:{responsive:true,maintainAspectRatio:false}
+    });
+    valueChart = new Chart(document.getElementById("valueChart"), {
+      type:"bar",
+      data:{labels:top20.map(r=>r.source),datasets:[{label:"Annual Value USD",data:top20.map(r=>r.value)}]},
+      options:{responsive:true,maintainAspectRatio:false}
+    });
 
-  document.getElementById("bestIdentity").textContent="Best source: "+best.source+" / Heat grade: "+best.grade;
-  document.getElementById("bestThermal").textContent="Thermal potential: "+best.thermal.toFixed(2)+" kW";
-  document.getElementById("bestElectrical").textContent="Electrical potential: "+best.electrical.toFixed(2)+" kW";
-  document.getElementById("bestAnnual").textContent="Annual value: "+money(best.value)+" / NPV: "+money(best.npv);
-  document.getElementById("bestPayback").textContent="Payback: "+best.payback.toFixed(2)+" years";
-  document.getElementById("bestCO2").textContent="CO2 avoided: "+best.co2.toFixed(2)+" t/year";
-  document.getElementById("bestGrid").textContent="Estimated exportable power: "+best.gridExportMW.toFixed(2)+" MW";
+    document.getElementById("notesBox").value =
+`ThermoNova v13.1 Source Identity Fix + Robust Column Mapping
 
-  document.getElementById("bestTech").textContent="Technology: "+best.tech;
-  document.getElementById("bestSizing1").textContent="Recommended power block size: "+best.block;
-  document.getElementById("bestSizing2").textContent="Indicative recovery architecture: hot-side exchanger + "+best.tech+" block";
-  document.getElementById("bestSizing3").textContent="Indicative CAPEX: "+money(best.capex);
-  document.getElementById("bestSizing4").textContent="Indicative plant/grid export split: "+(best.gridExportMW*1000).toFixed(0)+" kW exportable";
-
-  document.getElementById("bestNarrative").textContent=
-    "ThermoNova v13 selected "+best.source+" because it combines strong thermal availability, appropriate heat grade, high annual value, attractive NPV, and meaningful exportable electrical potential. This makes it suitable not only for internal energy efficiency but also for utility-facing power export scenarios.";
-
-  document.getElementById("finCapex").textContent="CAPEX: "+money(best.capex);
-  document.getElementById("finOpex").textContent="OPEX: "+money(best.opex)+" per year";
-  document.getElementById("finNet").textContent="Net annual benefit: "+money(best.net);
-  document.getElementById("finNpv").textContent="10-year NPV: "+money(best.npv);
-  document.getElementById("finDecision1").textContent="Use NPV and payback together rather than electrical power alone.";
-  document.getElementById("finDecision2").textContent="Prioritize high-grade assets with stable operating hours.";
-  document.getElementById("finDecision3").textContent="Use modular blocks for smaller assets and dedicated power blocks for larger assets.";
-  document.getElementById("finDecision4").textContent="Evaluate exportability for assets above internal process demand.";
-  document.getElementById("utility1").textContent="This platform can identify exportable industrial power capacity for utilities.";
-  document.getElementById("utility2").textContent="It can support distributed generation and virtual power plant concepts.";
-  document.getElementById("utility3").textContent="It helps utilities rank industrial partners by firm export potential.";
-  document.getElementById("utility4").textContent="It supports carbon reduction programs and industrial efficiency initiatives.";
-
-  const top20=results.slice(0,20);
-  document.querySelector("#resultsTable tbody").innerHTML=results.map(r=>`
-    <tr>
-      <td>${r.rank}</td>
-      <td>${r.source}</td>
-      <td>${r.thermal.toFixed(0)}</td>
-      <td>${r.electrical.toFixed(0)}</td>
-      <td>${money(r.value)}</td>
-      <td>${r.co2.toFixed(0)}</td>
-      <td><span class="badge ${r.grade.toLowerCase()}">${r.grade}</span></td>
-      <td>${r.tech}</td>
-      <td>${r.block}</td>
-      <td>${r.gridExportMW.toFixed(2)}</td>
-      <td>${money(r.capex)}</td>
-      <td>${money(r.opex)}</td>
-      <td>${money(r.net)}</td>
-      <td>${r.payback.toFixed(2)} yr</td>
-      <td>${money(r.npv)}</td>
-      <td>${r.score.toFixed(2)}</td>
-    </tr>`).join("");
-
-  if(powerChart) powerChart.destroy();
-  if(valueChart) valueChart.destroy();
-  if(npvChart) npvChart.destroy();
-  if(techMixChart) techMixChart.destroy();
-
-  powerChart = new Chart(document.getElementById("powerChart"), {
-    type:"bar",
-    data:{labels:top20.map(r=>r.source),datasets:[{label:"Electrical kW",data:top20.map(r=>r.electrical)}]},
-    options:{responsive:true,maintainAspectRatio:false}
-  });
-  valueChart = new Chart(document.getElementById("valueChart"), {
-    type:"bar",
-    data:{labels:top20.map(r=>r.source),datasets:[{label:"Annual Value USD",data:top20.map(r=>r.value)}]},
-    options:{responsive:true,maintainAspectRatio:false}
-  });
-  npvChart = new Chart(document.getElementById("npvChart"), {
-    type:"bar",
-    data:{labels:top20.map(r=>r.source),datasets:[{label:"NPV USD",data:top20.map(r=>r.npv)}]},
-    options:{responsive:true,maintainAspectRatio:false}
-  });
-  techMixChart = new Chart(document.getElementById("techMixChart"), {
-    type:"pie",
-    data:{labels:["Steam Rankine / Hybrid","Organic Rankine Cycle","Kalina-like Low-Grade Cycle","Direct Heat Reuse"],
-      datasets:[{data:[steam,orc,kalina,reuse]}]},
-    options:{responsive:true,maintainAspectRatio:false}
-  });
-
-  document.getElementById("notesBox").value =
-`ThermoNova v13 Industrial Energy Intelligence Platform
-
-Active mode: ${mode.toUpperCase()}
 Assets analyzed: ${results.length}
+Detected source identity column: ${document.getElementById("mappingNotice").textContent.replace("Detected source identity column: ","")}
 Best source: ${best.source}
-Heat grade: ${best.grade}
 Technology: ${best.tech}
-Power block size: ${best.block}
-Electrical potential: ${best.electrical.toFixed(2)} kW
 Annual value: ${money(best.value)}
-NPV: ${money(best.npv)}
-Estimated exportable power: ${best.gridExportMW.toFixed(2)} MW
+Grid export: ${best.gridExportMW.toFixed(2)} MW
 
-Platform intelligence layers:
-1. Heat source classification engine
-2. Technology recommendation engine
-3. Power plant sizing engine
-4. Grid export estimator
-5. Investment feasibility model`;
+This version fixes:
+1. Undefined source names
+2. Fragile source_id-only logic
+3. Weak industrial CSV mapping
 
-  document.getElementById("statusBox").textContent="Industrial energy platform analysis completed.";
+Supported identity columns:
+source_id, source, id, asset_id, asset, tag, name, unit_id`;
+
+    document.getElementById("statusBox").textContent="Robust column mapping analysis completed.";
+  } catch(err){
+    document.getElementById("statusBox").textContent = "Error: " + err.message;
+    document.getElementById("mappingNotice").textContent = "Mapping error detected. Review your identity column or use manual override.";
+  }
 }
-function loadCsv(){document.getElementById("sourceMode").value="csv";rawPayload=csvExample;document.getElementById("fileState").textContent="CSV example loaded internally.";previewPayload(rawPayload);document.getElementById("statusBox").textContent="CSV example loaded.";}
-function loadJson(){document.getElementById("sourceMode").value="json";rawPayload=jsonExample;document.getElementById("fileState").textContent="JSON example loaded internally.";previewPayload(rawPayload);document.getElementById("statusBox").textContent="JSON example loaded.";}
-function loadApi(){document.getElementById("sourceMode").value="rest";rawPayload=restMock;document.getElementById("fileState").textContent="REST API mock payload loaded.";previewPayload(rawPayload);document.getElementById("statusBox").textContent="REST API mock loaded.";}
-function loadMqtt(){document.getElementById("sourceMode").value="mqtt";rawPayload=mqttMock;document.getElementById("fileState").textContent="MQTT mock payload loaded.";previewPayload(rawPayload);document.getElementById("statusBox").textContent="MQTT mock loaded.";}
+function loadCsv(){document.getElementById("sourceMode").value="csv";rawPayload=csvExample;document.getElementById("fileState").textContent="CSV example loaded internally.";previewPayload(rawPayload);document.getElementById("statusBox").textContent="CSV example loaded.";document.getElementById("mappingNotice").textContent="Ready for auto-detection.";}
+function loadJson(){document.getElementById("sourceMode").value="json";rawPayload=jsonExample;document.getElementById("fileState").textContent="JSON example loaded internally.";previewPayload(rawPayload);document.getElementById("statusBox").textContent="JSON example loaded.";document.getElementById("mappingNotice").textContent="Ready for auto-detection.";}
+function loadApi(){document.getElementById("sourceMode").value="rest";rawPayload=restMock;document.getElementById("fileState").textContent="REST API mock payload loaded.";previewPayload(rawPayload);document.getElementById("statusBox").textContent="REST API mock loaded.";document.getElementById("mappingNotice").textContent="Ready for auto-detection.";}
+function loadMqtt(){document.getElementById("sourceMode").value="mqtt";rawPayload=mqttMock;document.getElementById("fileState").textContent="MQTT mock payload loaded.";previewPayload(rawPayload);document.getElementById("statusBox").textContent="MQTT mock loaded.";document.getElementById("mappingNotice").textContent="Ready for auto-detection.";}
 function downloadReport(){
   if(!results.length){ alert("Run platform analysis first"); return; }
   const blob=new Blob([document.documentElement.outerHTML],{type:"text/html"});
   const a=document.createElement("a");
   a.href=URL.createObjectURL(blob);
-  a.download="ThermoNova_v13_Industrial_Energy_Intelligence_Platform.html";
+  a.download="ThermoNova_v13_1_Source_Identity_Fix.html";
   a.click();
   URL.revokeObjectURL(a.href);
 }
@@ -563,6 +471,7 @@ document.getElementById("uploadInput").addEventListener("change", async e=>{
   previewPayload(rawPayload);
   document.getElementById("sourceMode").value=f.name.toLowerCase().endsWith(".json")?"json":"csv";
   document.getElementById("statusBox").textContent="Industrial dataset uploaded.";
+  document.getElementById("mappingNotice").textContent="Ready for auto-detection.";
 });
 </script>
 </body>
