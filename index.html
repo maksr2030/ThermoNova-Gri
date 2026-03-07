@@ -358,7 +358,7 @@ function splitCsvLine(line){
 }
 
 function parseCSV(text){
-  const lines = text.trim().split(/\\r?\\n/).filter(Boolean);
+  const lines = text.trim().split(/\r?\n/).filter(Boolean);
   if(lines.length < 2) throw new Error("CSV file is empty or missing data rows.");
   const headers = splitCsvLine(lines[0]).map(h => h.trim());
   const rows = [];
