@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ThermoNova Grid v6.1</title>
+<title>ThermoNova Grid v7.1</title>
 <style>
 *{box-sizing:border-box}
 body{
@@ -14,7 +14,7 @@ body{
   line-height:1.8;
 }
 .container{
-  max-width:1360px;
+  max-width:1380px;
   margin:auto;
   padding:24px;
 }
@@ -147,7 +147,7 @@ input[type="file"]{
 table{
   width:100%;
   border-collapse:collapse;
-  min-width:1900px;
+  min-width:2200px;
 }
 th,td{
   padding:12px;
@@ -184,7 +184,7 @@ th{
 }
 .notes{
   width:100%;
-  min-height:220px;
+  min-height:240px;
   padding:16px;
   font-size:18px;
   border-radius:14px;
@@ -204,6 +204,9 @@ th{
 .badge.ready-high{background:#15803d}
 .badge.ready-medium{background:#b45309}
 .badge.ready-low{background:#b91c1c}
+.badge.good{background:#15803d}
+.badge.warn{background:#b45309}
+.badge.bad{background:#b91c1c}
 .footer{
   text-align:center;
   color:#64748b;
@@ -226,9 +229,9 @@ th{
 <div class="container">
 
   <div class="hero">
-    <h1>ThermoNova Grid v6.1</h1>
-    <p>Industrial Waste Heat Recovery Intelligence Platform</p>
-    <p>Hybrid engineering, investment, sustainability, confidence scoring, risk notes, and sensitivity analysis</p>
+    <h1>ThermoNova Grid v7.1</h1>
+    <p>Industrial Core Readiness Upgrade</p>
+    <p>Expanded industrial schema, stronger confidence engine, risk-adjusted ranking, and secure report metadata</p>
   </div>
 
   <div class="card">
@@ -268,6 +271,7 @@ th{
         <p id="bestOppPower">-</p>
         <p id="bestOppValue">-</p>
         <p id="bestOppConfidence">-</p>
+        <p id="bestOppDataQuality">-</p>
       </div>
       <div class="info-box">
         <h3>Why It Is the Best</h3>
@@ -308,8 +312,12 @@ th{
             <th>Rank</th>
             <th>Source ID</th>
             <th>Plant Unit</th>
-            <th>Flow</th>
+            <th>Equipment Type</th>
+            <th>Process Criticality</th>
+            <th>Mass Flow</th>
             <th>Cp</th>
+            <th>T Hot</th>
+            <th>T Cold</th>
             <th>DeltaT</th>
             <th>Thermal Power kW</th>
             <th>Electrical Power kW</th>
@@ -322,8 +330,11 @@ th{
             <th>IRR %</th>
             <th>CO2 Avoided t/y</th>
             <th>Priority Score</th>
+            <th>Risk Penalty</th>
+            <th>Adjusted Score</th>
             <th>Execution Readiness</th>
             <th>Confidence Score</th>
+            <th>Data Quality</th>
             <th>Risk Note</th>
           </tr>
         </thead>
@@ -337,16 +348,16 @@ th{
     <textarea class="notes" id="notesBox" readonly>Upload a CSV file or load the example dataset, then press Run Analysis.</textarea>
   </div>
 
-  <div class="footer">ThermoNova Grid v6.1 - Industrial Browser MVP</div>
+  <div class="footer">ThermoNova Grid v7.1 - Industrial Core Readiness Upgrade</div>
 </div>
 
 <script>
-const exampleCsv = `source_id,plant_unit,flow,cp,deltaT,operating_hours,electricity_price,grid_emission_factor
-SRC001,Boiler A,2.5,4.18,120,6000,0.10,0.45
-SRC002,Boiler A,3.2,4.18,90,6000,0.10,0.45
-SRC003,Turbine B,1.8,4.18,150,6500,0.10,0.45
-SRC004,Process Line C,2.0,4.18,110,5800,0.10,0.45
-SRC005,Furnace D,2.7,4.18,130,6200,0.10,0.45`;
+const exampleCsv = `source_id,plant_unit,equipment_type,process_criticality,mass_flow,cp,t_hot,t_cold,pressure,operating_state,operating_hours,electricity_price,grid_emission_factor,maintenance_window
+SRC001,Boiler A,Furnace,High,2.5,4.18,210,90,6.2,1,6000,0.10,0.45,Q3 Shutdown
+SRC002,Boiler A,Exhaust Duct,Medium,3.2,4.18,180,90,5.8,1,6000,0.10,0.45,Q3 Shutdown
+SRC003,Turbine B,Process Heater,Medium,1.8,4.18,240,90,4.9,1,6500,0.10,0.45,Q4 Shutdown
+SRC004,Process Line C,Heat Recovery Loop,Low,2.0,4.18,205,95,4.1,1,5800,0.10,0.45,Q2 Shutdown
+SRC005,Furnace D,Furnace,High,2.7,4.18,250,120,7.0,1,6200,0.10,0.45,Q1 Shutdown`;
 
 let currentCsvText = "";
 let lastResults = null;
@@ -374,19 +385,42 @@ function parseCSV(text){
 
   const headers = splitCsvLine(lines[0]).map(h => h.trim());
   const rows = [];
-
   for(let i = 1; i < lines.length; i++){
     const parts = splitCsvLine(lines[i]);
     if(parts.length !== headers.length){ continue; }
-
     const obj = {};
     headers.forEach((h, idx) => {
       obj[h] = (parts[idx] || "").trim();
     });
     rows.push(obj);
   }
-
   return { headers, rows };
+}
+
+function normalizeRow(r){
+  const normalized = {
+    source_id: r.source_id || "UNKNOWN",
+    plant_unit: r.plant_unit || "UNKNOWN",
+    equipment_type: r.equipment_type || "UNKNOWN",
+    process_criticality: r.process_criticality || "Medium",
+    mass_flow: Number(r.mass_flow ?? r.flow ?? 0),
+    cp: Number(r.cp ?? 0),
+    t_hot: Number(r.t_hot ?? 0),
+    t_cold: Number(r.t_cold ?? 0),
+    pressure: Number(r.pressure ?? 0),
+    operating_state: Number(r.operating_state ?? 1),
+    operating_hours: Number(r.operating_hours ?? 0),
+    electricity_price: Number(r.electricity_price ?? 0),
+    grid_emission_factor: Number(r.grid_emission_factor ?? 0),
+    maintenance_window: r.maintenance_window || "Not specified"
+  };
+  return normalized;
+}
+
+function qualityBadgeClass(v){
+  if(v === "Good") return "good";
+  if(v === "Warning") return "warn";
+  return "bad";
 }
 
 function heatQuality(deltaT){
@@ -439,14 +473,31 @@ function estimateCO2Avoided(annualEnergyKWh, emissionFactor){
   return (annualEnergyKWh * emissionFactor) / 1000;
 }
 
+function deriveDataQuality(row){
+  let issues = 0;
+  if(row.mass_flow <= 0) issues++;
+  if(row.cp <= 0) issues++;
+  if(row.t_hot <= row.t_cold) issues++;
+  if(row.operating_hours <= 0 || row.operating_hours > 8760) issues++;
+  if(row.electricity_price <= 0) issues++;
+  if(row.grid_emission_factor < 0) issues++;
+
+  if(issues === 0) return "Good";
+  if(issues <= 2) return "Warning";
+  return "Poor";
+}
+
 function calculateConfidenceScore(row){
   let score = 100;
-  if(row.deltaT < 95) score -= 12;
+  if(row.deltaT < 95) score -= 10;
   if(row.operating_hours < 6000) score -= 10;
   if(row.electrical_power_kw < 220) score -= 10;
   if(row.payback_years > 4) score -= 15;
   if(row.execution_readiness === "Medium") score -= 10;
-  return Math.max(55, Math.min(98, score));
+  if(row.data_quality === "Warning") score -= 8;
+  if(row.data_quality === "Poor") score -= 18;
+  if(row.process_criticality === "High") score -= 3;
+  return Math.max(50, Math.min(98, score));
 }
 
 function buildRiskNote(row){
@@ -471,7 +522,29 @@ function buildRiskNote(row){
     risks.push("implementation complexity may be higher due to process integration constraints");
   }
 
+  if(row.process_criticality === "High"){
+    risks.push("source is process-critical and may require stricter shutdown coordination");
+  }
+
+  if(row.data_quality === "Warning"){
+    risks.push("data quality warning requires engineering validation");
+  }
+
+  if(row.data_quality === "Poor"){
+    risks.push("poor input quality materially weakens decision confidence");
+  }
+
   return risks.join("; ");
+}
+
+function calculateRiskPenalty(row){
+  let penalty = 0;
+  if(row.execution_readiness === "Medium") penalty += 0.05;
+  if(row.payback_years > 3.5) penalty += 0.04;
+  if(row.process_criticality === "High") penalty += 0.03;
+  if(row.data_quality === "Warning") penalty += 0.03;
+  if(row.data_quality === "Poor") penalty += 0.08;
+  return penalty;
 }
 
 function buildSensitivity(row){
@@ -488,62 +561,62 @@ function validateAndAnalyze(text){
   const parsed = parseCSV(text);
   const headers = parsed.headers;
   const rows = parsed.rows;
-  const required = ["source_id","plant_unit","flow","cp","deltaT","operating_hours","electricity_price","grid_emission_factor"];
+
+  const required = [
+    "source_id","plant_unit","equipment_type","process_criticality",
+    "mass_flow","cp","t_hot","t_cold","pressure","operating_state",
+    "operating_hours","electricity_price","grid_emission_factor","maintenance_window"
+  ];
   const missing = required.filter(col => !headers.includes(col));
   if(missing.length) throw new Error("Missing required columns: " + missing.join(", "));
 
-  const analyzed = rows.map((r, idx) => {
-    const flow = Number(r.flow);
-    const cp = Number(r.cp);
-    const deltaT = Number(r.deltaT);
-    const operatingHours = Number(r.operating_hours);
-    const electricityPrice = Number(r.electricity_price);
-    const gridEmissionFactor = Number(r.grid_emission_factor);
+  const analyzed = rows.map((raw, idx) => {
+    const r = normalizeRow(raw);
 
-    if([flow,cp,deltaT,operatingHours,electricityPrice,gridEmissionFactor].some(v => Number.isNaN(v))){
+    if([
+      r.mass_flow,r.cp,r.t_hot,r.t_cold,r.pressure,
+      r.operating_state,r.operating_hours,r.electricity_price,r.grid_emission_factor
+    ].some(v => Number.isNaN(v))){
       throw new Error("Numeric conversion error in row " + (idx + 1));
     }
 
-    const thermalPowerKW = flow * cp * deltaT;
+    const deltaT = r.t_hot - r.t_cold;
+    const thermalPowerKW = r.mass_flow * r.cp * deltaT;
     const tech = chooseTechnology(deltaT);
     const electricalPowerKW = thermalPowerKW * tech.eff;
-    const annualEnergyKWh = electricalPowerKW * operatingHours;
-    const annualValueUSD = annualEnergyKWh * electricityPrice;
+    const annualEnergyKWh = electricalPowerKW * r.operating_hours;
+    const annualValueUSD = annualEnergyKWh * r.electricity_price;
     const capexUSD = estimateCapex(electricalPowerKW);
     const opexUSD = estimateOpex(capexUSD);
     const netAnnualUSD = annualValueUSD - opexUSD;
     const paybackYears = netAnnualUSD > 0 ? capexUSD / netAnnualUSD : 999;
     const npvUSD = estimateNPV(netAnnualUSD, capexUSD);
     const irrPercent = estimateIRR(netAnnualUSD, capexUSD);
-    const co2AvoidedTY = estimateCO2Avoided(annualEnergyKWh, gridEmissionFactor);
+    const co2AvoidedTY = estimateCO2Avoided(annualEnergyKWh, r.grid_emission_factor);
     const quality = heatQuality(deltaT);
 
     const row = {
-      source_id:r.source_id,
-      plant_unit:r.plant_unit,
-      flow:flow,
-      cp:cp,
-      deltaT:deltaT,
-      operating_hours:operatingHours,
-      electricity_price:electricityPrice,
-      grid_emission_factor:gridEmissionFactor,
-      thermal_power_kw:thermalPowerKW,
-      electrical_power_kw:electricalPowerKW,
-      heat_quality:quality,
-      technology:tech.name,
-      execution_readiness:tech.readiness,
-      annual_energy_kwh:annualEnergyKWh,
-      annual_value_usd:annualValueUSD,
-      capex_usd:capexUSD,
-      opex_usd:opexUSD,
-      payback_years:paybackYears,
-      npv_usd:npvUSD,
-      irr_percent:irrPercent,
-      co2_avoided_tpy:co2AvoidedTY
+      ...r,
+      deltaT: deltaT,
+      thermal_power_kw: thermalPowerKW,
+      electrical_power_kw: electricalPowerKW,
+      heat_quality: quality,
+      technology: tech.name,
+      execution_readiness: tech.readiness,
+      annual_energy_kwh: annualEnergyKWh,
+      annual_value_usd: annualValueUSD,
+      capex_usd: capexUSD,
+      opex_usd: opexUSD,
+      payback_years: paybackYears,
+      npv_usd: npvUSD,
+      irr_percent: irrPercent,
+      co2_avoided_tpy: co2AvoidedTY
     };
 
+    row.data_quality = deriveDataQuality(row);
     row.confidence_score = calculateConfidenceScore(row);
     row.risk_note = buildRiskNote(row);
+    row.risk_penalty = calculateRiskPenalty(row);
     Object.assign(row, buildSensitivity(row));
     return row;
   });
@@ -560,10 +633,12 @@ function validateAndAnalyze(text){
     const s3 = maxNPV ? Math.max(0, r.npv_usd) / Math.max(1, maxNPV) : 0;
     const s4 = maxCO2 ? r.co2_avoided_tpy / maxCO2 : 0;
     const s5 = maxConf ? r.confidence_score / maxConf : 0;
-    r.priority_score = 0.30 * s1 + 0.25 * s2 + 0.18 * s3 + 0.12 * s4 + 0.15 * s5;
+
+    r.priority_score = 0.28 * s1 + 0.22 * s2 + 0.16 * s3 + 0.12 * s4 + 0.12 * s5 + 0.10 * (r.execution_readiness === "High" ? 1 : r.execution_readiness === "Medium-High" ? 0.75 : 0.55);
+    r.adjusted_score = r.priority_score - r.risk_penalty;
   });
 
-  analyzed.sort((a,b) => b.priority_score - a.priority_score);
+  analyzed.sort((a,b) => b.adjusted_score - a.adjusted_score);
   analyzed.forEach((r,i) => r.rank = i + 1);
   return analyzed;
 }
@@ -590,7 +665,7 @@ function drawBars(containerId, rows, field, suffix){
 }
 
 function buildImplementationNarrative(top){
-  return `Best thermal opportunity: ${top.source_id} in ${top.plant_unit}. This source ranks first because it combines strong temperature lift, strong electrical recovery potential, high annual value, strong confidence score, and acceptable project economics. Practical implementation would start by capturing furnace waste heat through a high-temperature recovery heat exchanger installed on the hot exhaust stream. Recovered thermal energy would then be transferred into a thermal loop feeding a ${top.technology} package. The generated electricity would be routed to internal plant loads to reduce purchased grid power. Before execution, the plant should validate exhaust temperature stability, fouling risk, pressure drop limits, available installation space, shutdown windows, materials compatibility, and control-system integration requirements.`;
+  return `Best thermal opportunity: ${top.source_id} in ${top.plant_unit}. This source ranks first after risk adjustment because it combines strong temperature lift, strong electrical recovery potential, high annual value, strong confidence score, acceptable project economics, and manageable execution conditions. Practical implementation would start by capturing waste heat through a high-temperature recovery heat exchanger installed on the hot exhaust stream of the ${top.equipment_type}. Recovered thermal energy would then be transferred into a thermal loop feeding a ${top.technology} package. The generated electricity would be routed to internal plant loads to reduce purchased grid power. Before execution, the plant should validate exhaust temperature stability, fouling risk, pressure-drop limits, available installation space, maintenance-window feasibility, materials compatibility, and control-system integration requirements.`;
 }
 
 function renderResults(rows){
@@ -613,17 +688,18 @@ function renderResults(rows){
   setText("mCO2", totalCO2.toFixed(1) + " t");
 
   document.getElementById("topOpportunity").innerHTML =
-    `Top opportunity: ${top.source_id} in ${top.plant_unit}. Technology: ${top.technology}. Electrical power: ${top.electrical_power_kw.toFixed(2)} kW. Annual value: $${top.annual_value_usd.toFixed(2)}. CO2 avoided: ${top.co2_avoided_tpy.toFixed(2)} t/year. Confidence score: ${top.confidence_score}/100.`;
+    `Top opportunity: ${top.source_id} in ${top.plant_unit}. Technology: ${top.technology}. Electrical power: ${top.electrical_power_kw.toFixed(2)} kW. Annual value: $${top.annual_value_usd.toFixed(2)}. CO2 avoided: ${top.co2_avoided_tpy.toFixed(2)} t/year. Confidence score: ${top.confidence_score}/100. Data quality: ${top.data_quality}.`;
 
   setText("bestOppIdentity", `${top.source_id} / ${top.plant_unit}`);
   setText("bestOppTech", `Recommended technology: ${top.technology}`);
   setText("bestOppPower", `Electrical power potential: ${top.electrical_power_kw.toFixed(2)} kW`);
   setText("bestOppValue", `Annual value potential: $${top.annual_value_usd.toFixed(2)}`);
   setText("bestOppConfidence", `Confidence score: ${top.confidence_score}/100`);
+  setText("bestOppDataQuality", `Data quality: ${top.data_quality}`);
   setText("bestOppReason1", `Reason 1: High heat quality due to deltaT = ${top.deltaT.toFixed(1)}.`);
   setText("bestOppReason2", `Reason 2: Strong electrical output at ${top.electrical_power_kw.toFixed(2)} kW.`);
   setText("bestOppReason3", `Reason 3: Attractive economics with payback of ${top.payback_years.toFixed(2)} years and NPV of $${top.npv_usd.toFixed(2)}.`);
-  setText("bestOppReason4", `Reason 4: Sustainability benefit of ${top.co2_avoided_tpy.toFixed(2)} t/year CO2 avoided.`);
+  setText("bestOppReason4", `Reason 4: Adjusted score = ${top.adjusted_score.toFixed(3)} after applying risk penalty of ${top.risk_penalty.toFixed(3)}.`);
   setText("bestOppRisk", `Risk note: ${top.risk_note}.`);
   document.getElementById("bestOppImplementation").textContent = buildImplementationNarrative(top);
 
@@ -635,8 +711,12 @@ function renderResults(rows){
       <td>${r.rank}</td>
       <td>${r.source_id}</td>
       <td>${r.plant_unit}</td>
-      <td>${r.flow.toFixed(2)}</td>
+      <td>${r.equipment_type}</td>
+      <td>${r.process_criticality}</td>
+      <td>${r.mass_flow.toFixed(2)}</td>
       <td>${r.cp.toFixed(2)}</td>
+      <td>${r.t_hot.toFixed(1)}</td>
+      <td>${r.t_cold.toFixed(1)}</td>
       <td>${r.deltaT.toFixed(1)}</td>
       <td>${r.thermal_power_kw.toFixed(2)}</td>
       <td>${r.electrical_power_kw.toFixed(2)}</td>
@@ -649,8 +729,11 @@ function renderResults(rows){
       <td>${r.irr_percent.toFixed(1)}%</td>
       <td>${r.co2_avoided_tpy.toFixed(2)}</td>
       <td>${r.priority_score.toFixed(3)}</td>
+      <td>${r.risk_penalty.toFixed(3)}</td>
+      <td>${r.adjusted_score.toFixed(3)}</td>
       <td><span class="badge ${readinessBadgeClass(r.execution_readiness)}">${r.execution_readiness}</span></td>
       <td>${r.confidence_score}/100</td>
+      <td><span class="badge ${qualityBadgeClass(r.data_quality)}">${r.data_quality}</span></td>
       <td>${r.risk_note}</td>
     `;
     tbody.appendChild(tr);
@@ -661,11 +744,22 @@ function renderResults(rows){
   drawBars("co2Bars", rows, "co2_avoided_tpy", "t/y");
 
   document.getElementById("notesBox").value =
-`Engineering basis:
-Thermal Power = flow × cp × deltaT
+`ThermoNova v7.1 Core Readiness Upgrade
+
+Core additions:
+1. Expanded industrial schema
+2. Schema normalization
+3. Data quality flags
+4. Stronger confidence engine
+5. Risk-adjusted ranking
+6. Secure report metadata
+
+Thermal basis:
+DeltaT = T_hot - T_cold
+Thermal Power = mass_flow × cp × DeltaT
 Electrical Power = Thermal Power × technology efficiency
 
-Financial basis:
+Economic basis:
 Annual Energy = Electrical Power × operating hours
 Annual Value = Annual Energy × electricity price
 CAPEX = Electrical Power × 1800
@@ -676,14 +770,8 @@ Discount rate = 10%
 Sustainability basis:
 CO2 Avoided = Annual Energy × Grid Emission Factor / 1000
 
-v6.1 additions:
-Confidence Score
-Risk Note
-Sensitivity Analysis
-Executive Cover Section
-
-Implementation note:
-Top opportunity should be validated through field measurements, exhaust characterization, fouling review, integration study, and shutdown planning.`;
+Industrial readiness note:
+This version prepares the platform for later transition to live industrial ingestion, optimization runtime, and secure backend execution.`;
 }
 
 function formatMoney(value){
@@ -732,57 +820,22 @@ function buildBarChartSVG(title, rows, field, color, unit){
   `;
 }
 
-function buildExecutiveCover(top, rows){
+function buildExecutiveCover(top, rows, metadata){
   const totalPower = rows.reduce((a,b)=>a+b.electrical_power_kw,0);
   const totalAnnual = rows.reduce((a,b)=>a+b.annual_value_usd,0);
   const totalCO2 = rows.reduce((a,b)=>a+b.co2_avoided_tpy,0);
   return `
     <div class="box">
       <h2>Executive Cover Section</h2>
-      <p><strong>Platform:</strong> ThermoNova Grid v6.1</p>
+      <p><strong>Platform:</strong> ThermoNova Grid v7.1</p>
       <p><strong>Portfolio Top Opportunity:</strong> ${top.source_id} / ${top.plant_unit}</p>
       <p><strong>Total Recoverable Power:</strong> ${formatNumber(totalPower,2)} kW</p>
       <p><strong>Total Annual Value:</strong> ${formatMoney(totalAnnual)}</p>
       <p><strong>Total CO2 Avoided:</strong> ${formatNumber(totalCO2,2)} t/year</p>
       <p><strong>Top Opportunity Confidence Score:</strong> ${top.confidence_score}/100</p>
       <p><strong>Top Opportunity Execution Readiness:</strong> ${top.execution_readiness}</p>
-    </div>
-  `;
-}
-
-function buildKpiCards(rows){
-  const top = rows[0];
-  const totalPower = rows.reduce((a,b)=>a+b.electrical_power_kw,0);
-  const totalAnnual = rows.reduce((a,b)=>a+b.annual_value_usd,0);
-  const totalCO2 = rows.reduce((a,b)=>a+b.co2_avoided_tpy,0);
-  const bestPayback = Math.min(...rows.map(r=>r.payback_years));
-
-  return `
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:18px;">
-      <div style="background:#f8fafc;border:1px solid #dbeafe;border-radius:14px;padding:16px;">
-        <div style="font-size:14px;color:#475569;">Best Opportunity</div>
-        <div style="font-size:26px;font-weight:700;color:#111827;margin-top:8px;">${top.source_id}</div>
-      </div>
-      <div style="background:#f8fafc;border:1px solid #dbeafe;border-radius:14px;padding:16px;">
-        <div style="font-size:14px;color:#475569;">Total Electrical Power</div>
-        <div style="font-size:26px;font-weight:700;color:#111827;margin-top:8px;">${formatNumber(totalPower,1)} kW</div>
-      </div>
-      <div style="background:#f8fafc;border:1px solid #dbeafe;border-radius:14px;padding:16px;">
-        <div style="font-size:14px;color:#475569;">Total Annual Value</div>
-        <div style="font-size:26px;font-weight:700;color:#111827;margin-top:8px;">${formatMoney(totalAnnual)}</div>
-      </div>
-      <div style="background:#f8fafc;border:1px solid #dbeafe;border-radius:14px;padding:16px;">
-        <div style="font-size:14px;color:#475569;">Total CO2 Avoided</div>
-        <div style="font-size:26px;font-weight:700;color:#111827;margin-top:8px;">${formatNumber(totalCO2,1)} t/y</div>
-      </div>
-      <div style="background:#f8fafc;border:1px solid #dbeafe;border-radius:14px;padding:16px;">
-        <div style="font-size:14px;color:#475569;">Best Payback</div>
-        <div style="font-size:26px;font-weight:700;color:#111827;margin-top:8px;">${formatNumber(bestPayback,2)} years</div>
-      </div>
-      <div style="background:#f8fafc;border:1px solid #dbeafe;border-radius:14px;padding:16px;">
-        <div style="font-size:14px;color:#475569;">Top Confidence</div>
-        <div style="font-size:26px;font-weight:700;color:#111827;margin-top:8px;">${top.confidence_score}/100</div>
-      </div>
+      <p><strong>Generated At:</strong> ${metadata.generated_at}</p>
+      <p><strong>Secure Report Metadata:</strong> ${metadata.report_hash}</p>
     </div>
   `;
 }
@@ -805,26 +858,21 @@ function buildBestOpportunityDeepAnalysis(top){
     <div class="box">
       <h2>Best Opportunity Deep Analysis</h2>
       <p><strong>Source:</strong> ${top.source_id} / ${top.plant_unit}</p>
+      <p><strong>Equipment Type:</strong> ${top.equipment_type}</p>
+      <p><strong>Process Criticality:</strong> ${top.process_criticality}</p>
       <p><strong>Recommended Technology:</strong> ${top.technology}</p>
       <p><strong>Electrical Power Potential:</strong> ${formatNumber(top.electrical_power_kw,2)} kW</p>
       <p><strong>Annual Economic Value:</strong> ${formatMoney(top.annual_value_usd)}</p>
       <p><strong>Payback Period:</strong> ${formatNumber(top.payback_years,2)} years</p>
       <p><strong>CO2 Avoided:</strong> ${formatNumber(top.co2_avoided_tpy,2)} t/year</p>
       <p><strong>Confidence Score:</strong> ${top.confidence_score}/100</p>
+      <p><strong>Data Quality:</strong> ${top.data_quality}</p>
       <p><strong>Risk Note:</strong> ${top.risk_note}</p>
+      <p><strong>Maintenance Window:</strong> ${top.maintenance_window}</p>
       <p>
-        ${top.source_id} in ${top.plant_unit} is ranked as the strongest opportunity because it combines
-        strong heat quality, high conversion potential, strong annual economic value, meaningful carbon reduction,
-        and a strong confidence score.
-      </p>
-      <p>
-        In practical implementation, waste heat from the furnace or hot exhaust stream would be captured through
-        a high-temperature recovery heat exchanger, transferred into a thermal loop, and then routed to a
-        ${top.technology} package for electricity generation or equivalent energy recovery.
-      </p>
-      <p>
-        Before implementation, the plant should validate source stability, fouling tendency, pressure-drop constraints,
-        installation space, shutdown windows, electrical integration, materials compatibility, and safety controls.
+        ${top.source_id} in ${top.plant_unit} is ranked as the strongest opportunity because it combines strong heat quality,
+        high conversion potential, strong annual economic value, meaningful carbon reduction, a strong confidence score,
+        and the highest adjusted score after applying risk penalty.
       </p>
     </div>
   `;
@@ -836,6 +884,8 @@ function buildOpportunityProfiles(rows){
     html += `
       <div class="box">
         <h3>${r.source_id} / ${r.plant_unit}</h3>
+        <p><strong>Equipment Type:</strong> ${r.equipment_type}</p>
+        <p><strong>Process Criticality:</strong> ${r.process_criticality}</p>
         <p><strong>Heat Quality:</strong> ${r.heat_quality}</p>
         <p><strong>Recommended Technology:</strong> ${r.technology}</p>
         <p><strong>Thermal Power:</strong> ${formatNumber(r.thermal_power_kw,2)} kW</p>
@@ -844,12 +894,8 @@ function buildOpportunityProfiles(rows){
         <p><strong>Payback:</strong> ${formatNumber(r.payback_years,2)} years</p>
         <p><strong>CO2 Avoided:</strong> ${formatNumber(r.co2_avoided_tpy,2)} t/year</p>
         <p><strong>Confidence Score:</strong> ${r.confidence_score}/100</p>
+        <p><strong>Data Quality:</strong> ${r.data_quality}</p>
         <p><strong>Risk Note:</strong> ${r.risk_note}</p>
-        <p>
-          This source is classified as a ${r.heat_quality.toLowerCase()}-quality industrial heat recovery opportunity.
-          The recommended solution is ${r.technology}, selected based on the available temperature lift, expected electrical output,
-          and current execution readiness.
-        </p>
       </div>
     `;
   });
@@ -860,17 +906,18 @@ function buildMethodologySection(){
   return `
     <div class="box">
       <h2>Methodology</h2>
-      <p><strong>Thermal Power:</strong> flow × cp × deltaT</p>
+      <p><strong>Industrial Schema Fields:</strong> source_id, plant_unit, equipment_type, process_criticality, mass_flow, cp, t_hot, t_cold, pressure, operating_state, operating_hours, electricity_price, grid_emission_factor, maintenance_window</p>
+      <p><strong>DeltaT:</strong> t_hot - t_cold</p>
+      <p><strong>Thermal Power:</strong> mass_flow × cp × DeltaT</p>
       <p><strong>Electrical Power:</strong> Thermal Power × technology efficiency</p>
-      <p><strong>Annual Energy:</strong> Electrical Power × operating hours</p>
-      <p><strong>Annual Value:</strong> Annual Energy × electricity price</p>
+      <p><strong>Annual Value:</strong> Electrical Power × operating hours × electricity price</p>
       <p><strong>CAPEX:</strong> Electrical Power × 1800</p>
       <p><strong>OPEX:</strong> 4% of CAPEX annually</p>
       <p><strong>NPV:</strong> 10-year discounted cash flow at 10%</p>
-      <p><strong>IRR:</strong> simplified proxy based on net annual return over CAPEX</p>
+      <p><strong>IRR:</strong> simplified return proxy</p>
       <p><strong>CO2 Avoided:</strong> Annual Energy × Grid Emission Factor / 1000</p>
-      <p><strong>Confidence Score:</strong> derived from temperature lift, operating hours, output strength, payback, and readiness</p>
-      <p><strong>Sensitivity Analysis:</strong> tested against electricity tariff and operating-hours variation</p>
+      <p><strong>Confidence Score:</strong> derived from heat quality, operating hours, economics, readiness, and input quality</p>
+      <p><strong>Adjusted Score:</strong> weighted priority minus risk penalty</p>
     </div>
   `;
 }
@@ -879,12 +926,12 @@ function buildImplementationGuide(){
   return `
     <div class="box">
       <h2>Engineering Implementation Guide</h2>
-      <p>1. Identify the hot exhaust or waste heat stream inside the plant.</p>
-      <p>2. Install a heat recovery exchanger designed for operating temperature, fouling profile, and process constraints.</p>
-      <p>3. Transfer the recovered energy into a thermal loop or suitable conversion package.</p>
-      <p>4. Deploy the recommended recovery technology such as ORC, hybrid steam/ORC, or direct heat recovery.</p>
-      <p>5. Integrate the recovered energy with internal plant electrical or thermal loads.</p>
-      <p>6. Validate maintenance access, safety, shutdown planning, materials compatibility, and controls integration before execution.</p>
+      <p>1. Confirm source instrumentation and operating-state validity.</p>
+      <p>2. Validate temperature stability and mass-flow consistency from plant data.</p>
+      <p>3. Review process criticality and allowed maintenance window before detailed integration.</p>
+      <p>4. Select the recommended recovery technology and confirm process fit.</p>
+      <p>5. Assess pressure-drop constraints, fouling behaviour, and material compatibility.</p>
+      <p>6. Integrate output with plant electrical or thermal loads and document shutdown requirements.</p>
     </div>
   `;
 }
@@ -895,6 +942,8 @@ function buildRankingTable(rows){
       <td>${r.rank}</td>
       <td>${r.source_id}</td>
       <td>${r.plant_unit}</td>
+      <td>${r.equipment_type}</td>
+      <td>${r.process_criticality}</td>
       <td>${r.technology}</td>
       <td>${formatNumber(r.electrical_power_kw,2)}</td>
       <td>${formatMoney(r.annual_value_usd)}</td>
@@ -903,8 +952,12 @@ function buildRankingTable(rows){
       <td>${formatMoney(r.npv_usd)}</td>
       <td>${formatNumber(r.irr_percent,1)}%</td>
       <td>${formatNumber(r.co2_avoided_tpy,2)}</td>
+      <td>${r.priority_score.toFixed(3)}</td>
+      <td>${r.risk_penalty.toFixed(3)}</td>
+      <td>${r.adjusted_score.toFixed(3)}</td>
       <td>${r.execution_readiness}</td>
       <td>${r.confidence_score}/100</td>
+      <td>${r.data_quality}</td>
       <td>${r.risk_note}</td>
     </tr>
   `).join("");
@@ -917,6 +970,8 @@ function buildRankingTable(rows){
           <th>Rank</th>
           <th>Source</th>
           <th>Plant Unit</th>
+          <th>Equipment Type</th>
+          <th>Process Criticality</th>
           <th>Technology</th>
           <th>Power kW</th>
           <th>Annual Value</th>
@@ -925,8 +980,12 @@ function buildRankingTable(rows){
           <th>NPV</th>
           <th>IRR</th>
           <th>CO2 Avoided</th>
+          <th>Priority Score</th>
+          <th>Risk Penalty</th>
+          <th>Adjusted Score</th>
           <th>Execution Readiness</th>
           <th>Confidence Score</th>
+          <th>Data Quality</th>
           <th>Risk Note</th>
         </tr>
       </thead>
@@ -940,12 +999,18 @@ function buildDataAppendix(rows){
     <tr>
       <td>${r.source_id}</td>
       <td>${r.plant_unit}</td>
-      <td>${formatNumber(r.flow,2)}</td>
+      <td>${r.equipment_type}</td>
+      <td>${r.process_criticality}</td>
+      <td>${formatNumber(r.mass_flow,2)}</td>
       <td>${formatNumber(r.cp,2)}</td>
-      <td>${formatNumber(r.deltaT,2)}</td>
+      <td>${formatNumber(r.t_hot,2)}</td>
+      <td>${formatNumber(r.t_cold,2)}</td>
+      <td>${formatNumber(r.pressure,2)}</td>
+      <td>${r.operating_state}</td>
       <td>${r.operating_hours}</td>
       <td>${r.electricity_price}</td>
       <td>${r.grid_emission_factor}</td>
+      <td>${r.maintenance_window}</td>
     </tr>
   `).join("");
 
@@ -956,17 +1021,32 @@ function buildDataAppendix(rows){
         <tr>
           <th>Source ID</th>
           <th>Plant Unit</th>
-          <th>Flow</th>
+          <th>Equipment Type</th>
+          <th>Process Criticality</th>
+          <th>Mass Flow</th>
           <th>Cp</th>
-          <th>DeltaT</th>
+          <th>T Hot</th>
+          <th>T Cold</th>
+          <th>Pressure</th>
+          <th>Operating State</th>
           <th>Operating Hours</th>
           <th>Electricity Price</th>
           <th>Grid Emission Factor</th>
+          <th>Maintenance Window</th>
         </tr>
       </thead>
       <tbody>${rowsHtml}</tbody>
     </table>
   `;
+}
+
+function simpleHash(str){
+  let hash = 0;
+  for(let i = 0; i < str.length; i++){
+    hash = ((hash << 5) - hash) + str.charCodeAt(i);
+    hash |= 0;
+  }
+  return "TN-" + Math.abs(hash).toString(16).toUpperCase();
 }
 
 function downloadReport(){
@@ -980,6 +1060,12 @@ function downloadReport(){
   const totalCO2 = lastResults.reduce((a,b)=>a+b.co2_avoided_tpy,0);
   const totalPower = lastResults.reduce((a,b)=>a+b.electrical_power_kw,0);
 
+  const generatedAt = new Date().toISOString();
+  const metadata = {
+    generated_at: generatedAt,
+    report_hash: simpleHash(JSON.stringify(lastResults) + generatedAt)
+  };
+
   const chartsHtml = `
     ${buildBarChartSVG("Recoverable Electrical Power by Source", lastResults, "electrical_power_kw", "#2563eb", "kW")}
     ${buildBarChartSVG("Annual Value by Source", lastResults, "annual_value_usd", "#16a34a", "USD")}
@@ -991,7 +1077,7 @@ function downloadReport(){
   <html>
   <head>
     <meta charset="UTF-8">
-    <title>ThermoNova_v6.1_Report</title>
+    <title>ThermoNova_v7.1_Report</title>
     <style>
       body{font-family:Arial;padding:30px;color:#1f2937;line-height:1.7;background:#f8fafc}
       h1{color:#1d4ed8}
@@ -1004,9 +1090,9 @@ function downloadReport(){
     </style>
   </head>
   <body>
-    <h1>ThermoNova Grid v6.1 Report</h1>
+    <h1>ThermoNova Grid v7.1 Report</h1>
 
-    ${buildExecutiveCover(top, lastResults)}
+    ${buildExecutiveCover(top, lastResults, metadata)}
 
     <div class="box">
       <h2>Executive Summary</h2>
@@ -1017,10 +1103,16 @@ function downloadReport(){
       <p><strong>Total CO2 Avoided:</strong> ${formatNumber(totalCO2,2)} t/year</p>
     </div>
 
-    ${buildKpiCards(lastResults)}
     ${chartsHtml}
     ${buildBestOpportunityDeepAnalysis(top)}
-    ${buildSensitivitySection(top)}
+    <div class="box">
+      <h2>Sensitivity Analysis</h2>
+      <p><strong>Base Annual Value:</strong> ${formatMoney(top.annual_value_usd)}</p>
+      <p><strong>Low Electricity Price Scenario (-15%):</strong> ${formatMoney(top.annual_value_low_price)}</p>
+      <p><strong>High Electricity Price Scenario (+15%):</strong> ${formatMoney(top.annual_value_high_price)}</p>
+      <p><strong>Low Operating Hours Scenario (-10%):</strong> ${formatMoney(top.annual_value_low_hours)}</p>
+      <p><strong>High Operating Hours Scenario (+10%):</strong> ${formatMoney(top.annual_value_high_hours)}</p>
+    </div>
     ${buildOpportunityProfiles(lastResults)}
     ${buildRankingTable(lastResults)}
     ${buildImplementationGuide()}
@@ -1033,7 +1125,7 @@ function downloadReport(){
   const blob = new Blob([html], {type:"text/html"});
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-  a.download = "ThermoNova_v6.1_Report.html";
+  a.download = "ThermoNova_v7.1_Report.html";
   a.click();
   URL.revokeObjectURL(a.href);
 }
