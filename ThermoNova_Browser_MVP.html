@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ThermoNova Browser MVP</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#0b1220;color:#e5e7eb}.wrap{max-width:1100px;margin:0 auto;padding:24px}.hero{background:linear-gradient(135deg,#0f172a,#12324a 55%,#14532d);border:1px solid #22314a;border-radius:18px;padding:28px;margin-bottom:22px}h1{margin:0 0 10px;font-size:36px}h2{margin:0 0 14px;font-size:24px;color:#93c5fd}p{line-height:1.7}.card{background:#111827;border:1px solid #243244;border-radius:16px;padding:20px;margin-bottom:18px}.grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px}.metric{background:#0f172a;border:1px solid #22314a;border-radius:14px;padding:14px}.metric .label{font-size:13px;color:#9ca3af}.metric .value{font-size:26px;font-weight:700;margin-top:8px;color:#f8fafc}.controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center}button,.file-label{background:#2563eb;color:#fff;border:none;border-radius:12px;padding:12px 16px;font-size:15px;cursor:pointer;text-decoration:none;display:inline-block}button.secondary,.file-label.secondary{background:#374151}button.green{background:#15803d}input[type=file]{display:none}.small{font-size:13px;color:#9ca3af}.table-wrap{overflow:auto;border:1px solid #243244;border-radius:12px}table{width:100%;border-collapse:collapse;min-width:900px}th,td{padding:10px 12px;border-bottom:1px solid #1f2937;text-align:left;font-size:14px}th{background:#0f172a;color:#93c5fd;position:sticky;top:0}.chart{background:#0f172a;border:1px solid #22314a;border-radius:14px;padding:16px}.bar-row{display:grid;grid-template-columns:180px 1fr 110px;gap:10px;align-items:center;margin:10px 0}.bar-track{width:100%;background:#1f2937;height:18px;border-radius:999px;overflow:hidden}.bar-fill{height:100%;background:linear-gradient(90deg,#22c55e,#3b82f6)}.notice{background:#1e293b;border:1px solid #334155;padding:12px;border-radius:12px;color:#cbd5e1;margin-top:10px}.badge{display:inline-block;padding:4px 10px;border-radius:999px;font-size:12px;color:#fff}.badge.high{background:#b91c1c}.badge.med{background:#b45309}.badge.low{background:#15803d}textarea{width:100%;min-height:120px;background:#020617;color:#e5e7eb;border:1px solid #243244;border-radius:12px;padding:12px}.footer{color:#94a3b8;text-align:center;padding:20px 0 8px}@media (max-width:900px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}h1{font-size:28px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hero">
+    <h1>ThermoNova Grid</h1>
+    <p>Browser MVP for industrial waste heat analysis. Open this file in Safari or any browser, upload a CSV dataset, then press Run Analysis. No coding. No installation.</p>
+    <p class="small">Required columns: timestamp, source_id, plant_unit, T_hot_C, T_cold_C, mass_flow_kg_s, operational_state</p>
+  </div>
+
+  <div class="card">
+    <h2>1. Upload or Try Example Data</h2>
+    <div class="controls">
+      <label class="file-label" for="csvFile">Choose CSV File</label>
+      <input id="csvFile" type="file" accept=".csv,text/csv">
+      <button class="secondary" id="loadExampleBtn">Load Example Dataset</button>
+      <button class="green" id="runBtn">Run Analysis</button>
+      <button class="secondary" id="downloadReportBtn">Download HTML Report</button>
+    </div>
+    <div class="notice" id="statusBox">Waiting for dataset.</div>
+  </div>
+
+  <div class="card">
+    <h2>2. Executive Summary</h2>
+    <div class="grid">
+      <div class="metric"><div class="label">Total Sources</div><div class="value" id="mTotal">0</div></div>
+      <div class="metric"><div class="label">Valid Opportunities</div><div class="value" id="mValid">0</div></div>
+      <div class="metric"><div class="label">Top Recoverable Power</div><div class="value" id="mTopPower">0 kW</div></div>
+      <div class="metric"><div class="label">Total Annual Value</div><div class="value" id="mAnnual">$0</div></div>
+      <div class="metric"><div class="label">Best Payback</div><div class="value" id="mPayback">-</div></div>
+    </div>
+    <div class="notice" id="topOpportunity">No analysis yet.</div>
+  </div>
+
+  <div class="card">
+    <h2>3. Results Dashboard</h2>
+    <div class="chart"><strong>Recoverable Power by Source</strong><div id="powerBars"></div></div>
+    <br>
+    <div class="chart"><strong>Annual Value by Source</strong><div id="valueBars"></div></div>
+  </div>
+
+  <div class="card">
+    <h2>4. Ranked Opportunities</h2>
+    <div class="table-wrap">
+      <table id="resultsTable">
+        <thead><tr><th>Rank</th><th>Source</th><th>Plant Unit</th><th>T_hot</th><th>T_cold</th><th>DeltaT</th><th>Heat Quality</th><th>Technology</th><th>Recoverable Power kW</th><th>Annual Value USD</th><th>Payback Years</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>5. Validation / Notes</h2>
+    <textarea id="notesBox" readonly>Upload a CSV file or load the example dataset, then press Run Analysis.</textarea>
+  </div>
+
+  <div class="footer">ThermoNova Browser MVP</div>
+</div>
+<script>
+const exampleCsv=`timestamp,source_id,plant_unit,T_hot_C,T_cold_C,mass_flow_kg_s,operational_state\n2025-01-01 00:00:00,SRC001,Boiler A,450,120,25.5,1\n2025-01-01 00:00:00,SRC002,Boiler A,420,110,18.2,1\n2025-01-01 00:00:00,SRC003,Turbine B,200,80,12.0,1\n2025-01-01 00:00:00,SRC004,Turbine B,180,70,8.5,1\n2025-01-01 00:00:00,SRC005,Compressor C,90,40,30.0,1\n2025-01-01 00:00:00,SRC006,Compressor C,85,35,22.0,1\n2025-01-01 00:00:00,SRC007,Furnace D,550,200,10.0,1\n2025-01-01 00:00:00,SRC008,Furnace D,520,180,7.5,1\n2025-01-01 00:00:00,SRC009,HeatExchanger E,150,90,45.0,1\n2025-01-01 00:00:00,SRC010,HeatExchanger E,140,85,40.0,1`;
+let currentCsvText="";let lastResults=null;const REQUIRED=["timestamp","source_id","plant_unit","T_hot_C","T_cold_C","mass_flow_kg_s","operational_state"];const CP=4180,HOURS=6000,PRICE=0.10,CAPEX_PER_KW=2500,OPEX_RATIO=0.05;
+function splitCsvLine(line){const out=[];let cur="",inQuotes=false;for(let i=0;i<line.length;i++){const ch=line[i];if(ch==='"'){inQuotes=!inQuotes}else if(ch===','&&!inQuotes){out.push(cur);cur=""}else{cur+=ch}}out.push(cur);return out}
+function parseCSV(text){const lines=text.trim().split(/\r?\n/).filter(Boolean);if(lines.length<2)throw new Error("CSV file is empty or missing data rows.");const headers=splitCsvLine(lines[0]).map(h=>h.trim());const rows=[];for(let i=1;i<lines.length;i++){const parts=splitCsvLine(lines[i]);if(parts.length!==headers.length)continue;const obj={};headers.forEach((h,idx)=>obj[h]=parts[idx].trim());rows.push(obj)}return {headers,rows}}
+function validateAndAnalyze(text){const parsed=parseCSV(text),headers=parsed.headers,rows=parsed.rows,notes=[];const missing=REQUIRED.filter(col=>!headers.includes(col));if(missing.length)throw new Error("Missing required columns: "+missing.join(", "));const analyzed=rows.map((r,idx)=>{const T_hot=Number(r.T_hot_C),T_cold=Number(r.T_cold_C),flow=Number(r.mass_flow_kg_s),operational=Number(r.operational_state);if([T_hot,T_cold,flow,operational].some(v=>Number.isNaN(v)))notes.push("Row "+(idx+1)+": numeric conversion issue.");const deltaT=T_hot-T_cold,valid=deltaT>5&&flow>0&&operational===1;let heatClass="Low grade",heatIndex=3;if(T_hot>350){heatClass="Ultra-high grade";heatIndex=10}else if(T_hot>120){heatClass="High grade";heatIndex=8}else if(T_hot>60){heatClass="Medium grade";heatIndex=6}let technology="Heat Pump Recovery",eff=0.10;if(T_hot>350){technology="Steam Rankine Cycle";eff=0.22}else if(T_hot>120){technology="Organic Rankine Cycle";eff=0.16}else if(T_hot>60){technology="Thermoelectric Generator";eff=0.06}const q_kw=Math.max(0,(flow*CP*Math.max(0,deltaT))/1000),power_kw=q_kw*eff,annual_energy_kwh=power_kw*HOURS,annual_value_usd=annual_energy_kwh*PRICE,capex_usd=power_kw*CAPEX_PER_KW,opex_usd=capex_usd*OPEX_RATIO,net_value_usd=annual_value_usd-opex_usd,payback_years=net_value_usd>0?capex_usd/net_value_usd:999;return {source_id:r.source_id,plant_unit:r.plant_unit,T_hot_C:T_hot,T_cold_C:T_cold,deltaT:deltaT,heat_quality_class:heatClass,heat_quality_index:heatIndex,recommended_technology:technology,recoverable_power_kw:power_kw,annual_value_usd:annual_value_usd,payback_years:payback_years,is_valid_source:valid?1:0}}).filter(r=>r.is_valid_source===1);if(!analyzed.length)throw new Error("No valid recovery opportunities were found.");const maxPower=Math.max(...analyzed.map(r=>r.recoverable_power_kw)),maxValue=Math.max(...analyzed.map(r=>r.annual_value_usd)),maxHeat=Math.max(...analyzed.map(r=>r.heat_quality_index));analyzed.forEach(r=>{const normPower=maxPower?r.recoverable_power_kw/maxPower:0,normValue=maxValue?r.annual_value_usd/maxValue:0,normHeat=maxHeat?r.heat_quality_index/maxHeat:0,stability=1.0;r.ranking_score=0.35*normPower+0.25*normValue+0.20*normHeat+0.20*stability});analyzed.sort((a,b)=>b.ranking_score-a.ranking_score);analyzed.forEach((r,i)=>r.priority_rank=i+1);return {analyzed,notes}}
+function drawBars(containerId,rows,field,suffix){const container=document.getElementById(containerId);container.innerHTML="";const max=Math.max(...rows.map(r=>r[field]));rows.slice(0,10).forEach(r=>{const pct=max?(r[field]/max)*100:0;const row=document.createElement("div");row.className="bar-row";row.innerHTML='<div>'+r.source_id+'</div><div class="bar-track"><div class="bar-fill" style="width:'+pct+'%"></div></div><div>'+r[field].toFixed(1)+suffix+'</div>';container.appendChild(row)})}
+function renderResults(result){const rows=result.analyzed;lastResults=rows;const totalAnnual=rows.reduce((a,b)=>a+b.annual_value_usd,0),topPower=Math.max(...rows.map(r=>r.recoverable_power_kw)),bestPayback=Math.min(...rows.map(r=>r.payback_years)),top=rows[0];document.getElementById("mTotal").textContent=String(rows.length);document.getElementById("mValid").textContent=String(rows.length);document.getElementById("mTopPower").textContent=topPower.toFixed(1)+" kW";document.getElementById("mAnnual").textContent="$"+Math.round(totalAnnual).toLocaleString();document.getElementById("mPayback").textContent=bestPayback.toFixed(1)+" y";document.getElementById("topOpportunity").innerHTML='Top opportunity: <strong>'+top.source_id+'</strong> in <strong>'+top.plant_unit+'</strong> using <strong>'+top.recommended_technology+'</strong>. Recoverable power = <strong>'+top.recoverable_power_kw.toFixed(2)+' kW</strong>, annual value = <strong>$'+top.annual_value_usd.toFixed(2)+'</strong>.';const tbody=document.querySelector("#resultsTable tbody");tbody.innerHTML="";rows.forEach(r=>{const badgeClass=(r.heat_quality_class.indexOf("Ultra")>=0||r.heat_quality_class.indexOf("High")>=0)?"high":(r.heat_quality_class.indexOf("Medium")>=0?"med":"low");const tr=document.createElement("tr");tr.innerHTML="<td>"+r.priority_rank+"</td><td>"+r.source_id+"</td><td>"+r.plant_unit+"</td><td>"+r.T_hot_C+"</td><td>"+r.T_cold_C+"</td><td>"+r.deltaT.toFixed(1)+"</td><td><span class=\"badge "+badgeClass+"\">"+r.heat_quality_class+"</span></td><td>"+r.recommended_technology+"</td><td>"+r.recoverable_power_kw.toFixed(2)+"</td><td>$"+r.annual_value_usd.toFixed(2)+"</td><td>"+r.payback_years.toFixed(2)+"</td>";tbody.appendChild(tr)});drawBars("powerBars",rows,"recoverable_power_kw"," kW");drawBars("valueBars",rows,"annual_value_usd"," USD");const notes=["Analysis completed successfully."].concat(result.notes).concat(["Physics model: Q = m_dot × Cp × (T_hot − T_cold)","Economic model: 6000 annual operating hours, electricity price 0.10 USD/kWh, CAPEX 2500 USD/kW"]);document.getElementById("notesBox").value=notes.join("\n");document.getElementById("statusBox").textContent="Analysis completed. Results are ready below."}
+function downloadReport(){if(!lastResults||!lastResults.length){alert("Run the analysis first.");return}const rowsHtml=lastResults.map(r=>"<tr><td>"+r.priority_rank+"</td><td>"+r.source_id+"</td><td>"+r.plant_unit+"</td><td>"+r.recommended_technology+"</td><td>"+r.recoverable_power_kw.toFixed(2)+"</td><td>$"+r.annual_value_usd.toFixed(2)+"</td><td>"+r.payback_years.toFixed(2)+"</td></tr>").join("");const reportHtml='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>ThermoNova_Report</title><style>body{font-family:Arial;padding:30px;color:#111827}h1{color:#1d4ed8}table{border-collapse:collapse;width:100%;margin-top:20px}th,td{border:1px solid #cbd5e1;padding:8px;text-align:left;font-size:14px}th{background:#e2e8f0}</style></head><body><h1>ThermoNova Report</h1><p>Generated from browser MVP.</p><table><thead><tr><th>Rank</th><th>Source</th><th>Plant Unit</th><th>Technology</th><th>Power kW</th><th>Annual Value USD</th><th>Payback Years</th></tr></thead><tbody>'+rowsHtml+'</tbody></table></body></html>';const blob=new Blob([reportHtml],{type:"text/html"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="ThermoNova_Report.html";a.click();URL.revokeObjectURL(a.href)}
+document.getElementById("csvFile").addEventListener("change",async function(e){const file=e.target.files[0];if(!file)return;currentCsvText=await file.text();document.getElementById("statusBox").textContent="Loaded file: "+file.name});
+document.getElementById("loadExampleBtn").addEventListener("click",function(){currentCsvText=exampleCsv;document.getElementById("statusBox").textContent="Example dataset loaded."});
+document.getElementById("runBtn").addEventListener("click",function(){try{if(!currentCsvText)throw new Error("Please choose a CSV file or load the example dataset first.");const result=validateAndAnalyze(currentCsvText);renderResults(result)}catch(err){document.getElementById("statusBox").textContent="Error: "+err.message;document.getElementById("notesBox").value="Validation / execution error:\n"+err.message}});
+document.getElementById("downloadReportBtn").addEventListener("click",downloadReport);
+</script>
+</body>
+</html>
