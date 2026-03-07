@@ -1,434 +1,372 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ThermoNova Fixed Minimal</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      background: #eef3f9;
-      color: #1f2937;
-      line-height: 1.7;
-    }
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-    .hero {
-      background: linear-gradient(135deg, #1e3a8a, #0f766e);
-      color: white;
-      padding: 28px;
-      border-radius: 22px;
-      margin-bottom: 20px;
-    }
-    .hero h1 {
-      margin: 0 0 10px 0;
-      font-size: 38px;
-    }
-    .hero p {
-      margin: 6px 0;
-      font-size: 22px;
-    }
-    .card {
-      background: white;
-      border-radius: 18px;
-      padding: 22px;
-      margin-bottom: 18px;
-      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
-    }
-    h2 {
-      margin: 0 0 16px 0;
-      color: #1d4ed8;
-      font-size: 30px;
-    }
-    button, .file-label {
-      display: inline-block;
-      background: #2563eb;
-      color: white;
-      padding: 14px 18px;
-      border: none;
-      border-radius: 12px;
-      font-size: 20px;
-      cursor: pointer;
-      text-decoration: none;
-      margin: 6px 8px 6px 0;
-    }
-    button.secondary { background: #475569; }
-    button.green { background: #15803d; }
-    input[type="file"] { display: none; }
-    .status {
-      margin-top: 14px;
-      background: #e0ecff;
-      color: #1e3a8a;
-      border-radius: 12px;
-      padding: 14px;
-      font-size: 20px;
-    }
-    .metric-grid {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 14px;
-    }
-    .metric {
-      background: #f8fafc;
-      border: 1px solid #dbeafe;
-      border-radius: 14px;
-      padding: 16px;
-    }
-    .metric .label {
-      font-size: 18px;
-      color: #475569;
-    }
-    .metric .value {
-      font-size: 30px;
-      font-weight: 700;
-      margin-top: 8px;
-    }
-    .table-wrap {
-      overflow-x: auto;
-      border: 1px solid #dbeafe;
-      border-radius: 12px;
-    }
-    table {
-      border-collapse: collapse;
-      width: 100%;
-      min-width: 1200px;
-    }
-    th, td {
-      border-bottom: 1px solid #e5e7eb;
-      padding: 10px;
-      text-align: left;
-      font-size: 15px;
-    }
-    th {
-      background: #dbeafe;
-      color: #1e3a8a;
-    }
-    .chart-wrap {
-      position: relative;
-      width: 100%;
-      height: 340px;
-    }
-    textarea {
-      width: 100%;
-      min-height: 180px;
-      padding: 14px;
-      font-size: 18px;
-      border: 1px solid #cbd5e1;
-      border-radius: 12px;
-      background: #f8fafc;
-    }
-    @media (max-width: 900px) {
-      .metric-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-      button, .file-label {
-        width: 100%;
-        text-align: center;
-      }
-      .hero h1 { font-size: 30px; }
-      .hero p { font-size: 20px; }
-      h2 { font-size: 26px; }
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="hero">
-      <h1>ThermoNova Fixed Minimal</h1>
-      <p>Industrial Waste Heat Recovery Analysis</p>
-      <p>Stable working version for GitHub Pages and mobile browsers</p>
-    </div>
-
-    <div class="card">
-      <h2>1. Data Input</h2>
-      <label class="file-label" for="csvFile">Choose CSV File</label>
-      <input id="csvFile" type="file" accept=".csv,text/csv" />
-      <button class="secondary" id="loadExampleBtn" type="button">Load Example Dataset</button>
-      <button class="green" id="runBtn" type="button">Run Analysis</button>
-      <button class="secondary" id="downloadReportBtn" type="button">Download HTML Report</button>
-      <div class="status" id="statusBox">Waiting for dataset.</div>
-    </div>
-
-    <div class="card">
-      <h2>2. Executive Summary</h2>
-      <div class="metric-grid">
-        <div class="metric"><div class="label">Total Sources</div><div class="value" id="mTotal">0</div></div>
-        <div class="metric"><div class="label">Top Electrical Power</div><div class="value" id="mTopPower">0 kW</div></div>
-        <div class="metric"><div class="label">Total Annual Value</div><div class="value" id="mAnnual">$0</div></div>
-        <div class="metric"><div class="label">Total CO2 Avoided</div><div class="value" id="mCO2">0 t</div></div>
-      </div>
-    </div>
-
-    <div class="card">
-      <h2>3. Chart</h2>
-      <div class="chart-wrap">
-        <canvas id="powerChart"></canvas>
-      </div>
-    </div>
-
-    <div class="card">
-      <h2>4. Opportunity Ranking</h2>
-      <div class="table-wrap">
-        <table id="resultsTable">
-          <thead>
-            <tr>
-              <th>Rank</th>
-              <th>Source ID</th>
-              <th>Plant Unit</th>
-              <th>Thermal Power kW</th>
-              <th>Electrical Power kW</th>
-              <th>Annual Value USD</th>
-              <th>CO2 Avoided t/y</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-    </div>
-
-    <div class="card">
-      <h2>5. Notes</h2>
-      <textarea id="notesBox" readonly>Load the example dataset first, then run analysis.</textarea>
-    </div>
-  </div>
-
-  <script>
-    const exampleCsv = `source_id,plant_unit,mass_flow,cp,t_hot,t_cold,operating_hours,electricity_price,grid_emission_factor
-SRC001,Boiler_A,3.2,4.18,250,120,7200,0.11,0.47
-SRC002,Boiler_B,2.7,4.18,210,95,7000,0.11,0.47
-SRC003,Reactor_C,2.1,4.18,230,100,7500,0.11,0.47
-SRC004,Furnace_D,3.6,4.18,270,140,6800,0.11,0.47
-SRC005,Line_E,2.0,4.18,195,90,6500,0.11,0.47`;
-
-    let currentCsvText = "";
-    let lastResults = [];
-    let powerChart = null;
-
-    function parseCSV(text) {
-      const lines = text.trim().split(/\r?\n/);
-      const headers = lines[0].split(",").map(h => h.trim());
-      const rows = [];
-      for (let i = 1; i < lines.length; i++) {
-        const vals = lines[i].split(",").map(v => v.trim());
-        const row = {};
-        for (let j = 0; j < headers.length; j++) {
-          row[headers[j]] = vals[j];
-        }
-        rows.push(row);
-      }
-      return rows;
-    }
-
-    function toNum(x) {
-      const n = Number(x);
-      return Number.isFinite(n) ? n : 0;
-    }
-
-    function analyzeData(text) {
-      const rows = parseCSV(text);
-      const analyzed = [];
-
-      for (let i = 0; i < rows.length; i++) {
-        const r = rows[i];
-        const mass_flow = toNum(r.mass_flow);
-        const cp = toNum(r.cp);
-        const t_hot = toNum(r.t_hot);
-        const t_cold = toNum(r.t_cold);
-        const operating_hours = toNum(r.operating_hours);
-        const electricity_price = toNum(r.electricity_price);
-        const grid_emission_factor = toNum(r.grid_emission_factor);
-
-        const deltaT = t_hot - t_cold;
-        const thermal_power_kw = mass_flow * cp * deltaT;
-        const electrical_power_kw = thermal_power_kw * 0.22;
-        const annual_energy_kwh = electrical_power_kw * operating_hours;
-        const annual_value_usd = annual_energy_kwh * electricity_price;
-        const co2_avoided_tpy = (annual_energy_kwh * grid_emission_factor) / 1000;
-
-        analyzed.push({
-          source_id: r.source_id,
-          plant_unit: r.plant_unit,
-          thermal_power_kw: thermal_power_kw,
-          electrical_power_kw: electrical_power_kw,
-          annual_value_usd: annual_value_usd,
-          co2_avoided_tpy: co2_avoided_tpy
-        });
-      }
-
-      analyzed.sort((a, b) => b.electrical_power_kw - a.electrical_power_kw);
-      for (let i = 0; i < analyzed.length; i++) {
-        analyzed[i].rank = i + 1;
-      }
-      return analyzed;
-    }
-
-    function formatMoney(x) {
-      return "$" + Number(x).toLocaleString(undefined, { maximumFractionDigits: 2 });
-    }
-
-    function renderSummary(rows) {
-      const totalAnnual = rows.reduce((a, b) => a + b.annual_value_usd, 0);
-      const totalCO2 = rows.reduce((a, b) => a + b.co2_avoided_tpy, 0);
-      document.getElementById("mTotal").textContent = rows.length;
-      document.getElementById("mTopPower").textContent = rows[0].electrical_power_kw.toFixed(1) + " kW";
-      document.getElementById("mAnnual").textContent = formatMoney(totalAnnual);
-      document.getElementById("mCO2").textContent = totalCO2.toFixed(1) + " t";
-    }
-
-    function renderTable(rows) {
-      const tbody = document.querySelector("#resultsTable tbody");
-      tbody.innerHTML = rows.map(r => `
-        <tr>
-          <td>${r.rank}</td>
-          <td>${r.source_id}</td>
-          <td>${r.plant_unit}</td>
-          <td>${r.thermal_power_kw.toFixed(2)}</td>
-          <td>${r.electrical_power_kw.toFixed(2)}</td>
-          <td>${formatMoney(r.annual_value_usd)}</td>
-          <td>${r.co2_avoided_tpy.toFixed(2)}</td>
-        </tr>
-      `).join("");
-    }
-
-    function renderChart(rows) {
-      if (powerChart) powerChart.destroy();
-      powerChart = new Chart(document.getElementById("powerChart"), {
-        type: "bar",
-        data: {
-          labels: rows.map(r => r.source_id),
-          datasets: [{
-            label: "Electrical Power kW",
-            data: rows.map(r => r.electrical_power_kw),
-            backgroundColor: "rgba(37,99,235,0.85)",
-            borderRadius: 8
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false
-        }
-      });
-    }
-
-    function runAnalysis() {
-      if (!currentCsvText || currentCsvText.trim() === "") {
-        document.getElementById("statusBox").textContent = "Error: Please choose a CSV file or load the example dataset first.";
-        return;
-      }
-
-      try {
-        lastResults = analyzeData(currentCsvText);
-        renderSummary(lastResults);
-        renderTable(lastResults);
-        renderChart(lastResults);
-        document.getElementById("notesBox").value = "Analysis completed successfully. This is the stable baseline version.";
-        document.getElementById("statusBox").textContent = "Analysis completed successfully.";
-      } catch (err) {
-        document.getElementById("statusBox").textContent = "Error: " + err.message;
-      }
-    }
-
-    function loadExample() {
-      currentCsvText = exampleCsv;
-      document.getElementById("statusBox").textContent = "Example dataset loaded.";
-    }
-
-    function buildReportHTML(rows) {
-      return `
-<!DOCTYPE html>
-<html>
-<head>
 <meta charset="UTF-8">
-<title>ThermoNova_Report</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ThermoNova v9.2 Stable Advanced</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
-body{font-family:Arial;padding:24px;background:#f8fafc;color:#1f2937}
-h1{color:#1d4ed8}
-table{border-collapse:collapse;width:100%;min-width:900px}
-th,td{border:1px solid #cbd5e1;padding:8px;text-align:left}
-th{background:#e2e8f0}
-.wrap{overflow-x:auto}
+body{
+margin:0;
+font-family:Arial, Helvetica, sans-serif;
+background:#eef3f9;
+color:#1f2937;
+line-height:1.7;
+}
+.container{
+max-width:1300px;
+margin:auto;
+padding:24px;
+}
+.hero{
+background:linear-gradient(135deg,#1e3a8a,#0f766e);
+color:white;
+padding:32px;
+border-radius:22px;
+margin-bottom:20px;
+}
+.hero h1{
+margin:0 0 10px 0;
+font-size:40px;
+}
+.hero p{
+margin:6px 0;
+font-size:22px;
+}
+.card{
+background:white;
+border-radius:18px;
+padding:22px;
+margin-bottom:20px;
+box-shadow:0 8px 24px rgba(0,0,0,0.08);
+}
+h2{
+margin:0 0 16px 0;
+color:#1d4ed8;
+font-size:30px;
+}
+button,.file-label{
+display:inline-block;
+background:#2563eb;
+color:white;
+padding:14px 18px;
+border:none;
+border-radius:12px;
+font-size:20px;
+cursor:pointer;
+margin:6px 8px 6px 0;
+}
+button.secondary{background:#475569;}
+button.green{background:#15803d;}
+input[type=file]{display:none;}
+.status{
+margin-top:14px;
+background:#e0ecff;
+color:#1e3a8a;
+border-radius:12px;
+padding:14px;
+font-size:20px;
+}
+.metric-grid{
+display:grid;
+grid-template-columns:repeat(4,minmax(0,1fr));
+gap:14px;
+}
+.metric{
+background:#f8fafc;
+border:1px solid #dbeafe;
+border-radius:14px;
+padding:16px;
+}
+.metric .label{
+font-size:18px;
+color:#475569;
+}
+.metric .value{
+font-size:30px;
+font-weight:700;
+margin-top:8px;
+}
+.chart-wrap{
+position:relative;
+height:360px;
+}
+.table-wrap{
+overflow-x:auto;
+border:1px solid #dbeafe;
+border-radius:12px;
+}
+table{
+border-collapse:collapse;
+width:100%;
+min-width:1000px;
+}
+th,td{
+border-bottom:1px solid #e5e7eb;
+padding:10px;
+text-align:left;
+font-size:15px;
+}
+th{
+background:#dbeafe;
+color:#1e3a8a;
+}
+textarea{
+width:100%;
+min-height:180px;
+padding:14px;
+font-size:18px;
+border:1px solid #cbd5e1;
+border-radius:12px;
+background:#f8fafc;
+}
 </style>
 </head>
+
 <body>
-<h1>ThermoNova Report</h1>
-<p>This report was generated from the current analysis session.</p>
-<div class="wrap">
-<table>
+
+<div class="container">
+
+<div class="hero">
+<h1>ThermoNova v9.2 Stable Advanced</h1>
+<p>Industrial Waste Heat Recovery Decision Engine</p>
+<p>Stable architecture with executive summary, charts, ranking and report export</p>
+</div>
+
+<div class="card">
+<h2>1. Data Input</h2>
+
+<label class="file-label" for="csvFile">Choose CSV File</label>
+<input id="csvFile" type="file" accept=".csv">
+
+<button class="secondary" id="loadExampleBtn">Load Example Dataset</button>
+<button class="green" id="runBtn">Run Analysis</button>
+<button class="secondary" id="downloadBtn">Download HTML Report</button>
+
+<div class="status" id="statusBox">Waiting for dataset.</div>
+</div>
+
+<div class="card">
+<h2>2. Executive Summary</h2>
+<div class="metric-grid">
+<div class="metric"><div class="label">Sources</div><div class="value" id="mTotal">0</div></div>
+<div class="metric"><div class="label">Top Power</div><div class="value" id="mTop">0 kW</div></div>
+<div class="metric"><div class="label">Annual Value</div><div class="value" id="mValue">$0</div></div>
+<div class="metric"><div class="label">CO2 Avoided</div><div class="value" id="mCO2">0 t</div></div>
+</div>
+</div>
+
+<div class="card">
+<h2>3. Power Chart</h2>
+<div class="chart-wrap">
+<canvas id="powerChart"></canvas>
+</div>
+</div>
+
+<div class="card">
+<h2>4. Opportunity Ranking</h2>
+<div class="table-wrap">
+<table id="resultsTable">
 <thead>
 <tr>
 <th>Rank</th>
-<th>Source ID</th>
-<th>Plant Unit</th>
-<th>Thermal Power kW</th>
-<th>Electrical Power kW</th>
-<th>Annual Value USD</th>
-<th>CO2 Avoided t/y</th>
+<th>Source</th>
+<th>Unit</th>
+<th>Thermal kW</th>
+<th>Electrical kW</th>
+<th>Annual Value</th>
+<th>CO2 Avoided</th>
 </tr>
 </thead>
-<tbody>
-${rows.map(r => `
-<tr>
-<td>${r.rank}</td>
-<td>${r.source_id}</td>
-<td>${r.plant_unit}</td>
-<td>${r.thermal_power_kw.toFixed(2)}</td>
-<td>${r.electrical_power_kw.toFixed(2)}</td>
-<td>${formatMoney(r.annual_value_usd)}</td>
-<td>${r.co2_avoided_tpy.toFixed(2)}</td>
-</tr>
-`).join("")}
-</tbody>
+<tbody></tbody>
 </table>
 </div>
-</body>
-</html>`;
-    }
+</div>
 
-    function downloadReport() {
-      if (!lastResults || lastResults.length === 0) {
-        alert("Run the analysis first.");
-        return;
-      }
-      const html = buildReportHTML(lastResults);
-      const blob = new Blob([html], { type: "text/html" });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = "ThermoNova_Report.html";
-      a.click();
-      URL.revokeObjectURL(a.href);
-    }
+<div class="card">
+<h2>5. Notes</h2>
+<textarea id="notesBox" readonly>Load dataset then run analysis.</textarea>
+</div>
 
-    document.addEventListener("DOMContentLoaded", function() {
-      const csvInput = document.getElementById("csvFile");
-      const loadBtn = document.getElementById("loadExampleBtn");
-      const runBtn = document.getElementById("runBtn");
-      const downloadBtn = document.getElementById("downloadReportBtn");
+</div>
 
-      csvInput.addEventListener("change", async function(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-        currentCsvText = await file.text();
-        document.getElementById("statusBox").textContent = "CSV file loaded: " + file.name;
-      });
+<script>
 
-      loadBtn.addEventListener("click", function() {
-        loadExample();
-      });
+const exampleCSV=`source,unit,mass_flow,cp,t_hot,t_cold,hours,price,co2
+SRC1,BoilerA,3.2,4.18,250,120,7200,0.11,0.47
+SRC2,BoilerB,2.7,4.18,210,95,7000,0.11,0.47
+SRC3,ReactorC,2.1,4.18,230,100,7500,0.11,0.47
+SRC4,FurnaceD,3.6,4.18,270,140,6800,0.11,0.47
+SRC5,LineE,2.0,4.18,195,90,6500,0.11,0.47`
 
-      runBtn.addEventListener("click", function() {
-        runAnalysis();
-      });
+let dataset=""
+let results=[]
+let chart=null
 
-      downloadBtn.addEventListener("click", function() {
-        downloadReport();
-      });
-    });
-  </script>
+function parseCSV(text){
+const lines=text.trim().split("\n")
+const headers=lines[0].split(",")
+const rows=[]
+for(let i=1;i<lines.length;i++){
+const vals=lines[i].split(",")
+const obj={}
+for(let j=0;j<headers.length;j++){
+obj[headers[j]]=vals[j]
+}
+rows.push(obj)
+}
+return rows
+}
+
+function num(x){return Number(x)||0}
+
+function analyze(text){
+
+const rows=parseCSV(text)
+const out=[]
+
+rows.forEach(r=>{
+
+const mass=num(r.mass_flow)
+const cp=num(r.cp)
+const hot=num(r.t_hot)
+const cold=num(r.t_cold)
+const hours=num(r.hours)
+const price=num(r.price)
+const co2=num(r.co2)
+
+const dT=hot-cold
+const thermal=mass*cp*dT
+const electrical=thermal*0.22
+const energy=electrical*hours
+const value=energy*price
+const co2saved=energy*co2/1000
+
+out.push({
+source:r.source,
+unit:r.unit,
+thermal:thermal,
+electrical:electrical,
+value:value,
+co2:co2saved
+})
+
+})
+
+out.sort((a,b)=>b.electrical-a.electrical)
+out.forEach((r,i)=>r.rank=i+1)
+
+return out
+}
+
+function money(x){
+return "$"+Number(x).toLocaleString(undefined,{maximumFractionDigits:2})
+}
+
+function renderSummary(data){
+
+const total=data.length
+const top=data[0]
+const value=data.reduce((a,b)=>a+b.value,0)
+const co2=data.reduce((a,b)=>a+b.co2,0)
+
+document.getElementById("mTotal").textContent=total
+document.getElementById("mTop").textContent=top.electrical.toFixed(1)+" kW"
+document.getElementById("mValue").textContent=money(value)
+document.getElementById("mCO2").textContent=co2.toFixed(1)+" t"
+
+}
+
+function renderTable(data){
+
+const tbody=document.querySelector("#resultsTable tbody")
+
+tbody.innerHTML=data.map(r=>`
+<tr>
+<td>${r.rank}</td>
+<td>${r.source}</td>
+<td>${r.unit}</td>
+<td>${r.thermal.toFixed(2)}</td>
+<td>${r.electrical.toFixed(2)}</td>
+<td>${money(r.value)}</td>
+<td>${r.co2.toFixed(2)}</td>
+</tr>`).join("")
+
+}
+
+function renderChart(data){
+
+if(chart)chart.destroy()
+
+chart=new Chart(document.getElementById("powerChart"),{
+type:"bar",
+data:{
+labels:data.map(r=>r.source),
+datasets:[{
+label:"Electrical Power kW",
+data:data.map(r=>r.electrical)
+}]
+},
+options:{responsive:true,maintainAspectRatio:false}
+})
+
+}
+
+function run(){
+
+if(!dataset){
+document.getElementById("statusBox").textContent="Load dataset first"
+return
+}
+
+results=analyze(dataset)
+
+renderSummary(results)
+renderTable(results)
+renderChart(results)
+
+document.getElementById("statusBox").textContent="Analysis completed"
+
+}
+
+function loadExample(){
+
+dataset=exampleCSV
+document.getElementById("statusBox").textContent="Example dataset loaded"
+
+}
+
+function downloadReport(){
+
+if(results.length==0){
+alert("Run analysis first")
+return
+}
+
+const html=`<html><body><h1>ThermoNova Report</h1><pre>${JSON.stringify(results,null,2)}</pre></body></html>`
+
+const blob=new Blob([html],{type:"text/html"})
+const a=document.createElement("a")
+a.href=URL.createObjectURL(blob)
+a.download="ThermoNova_Report.html"
+a.click()
+
+}
+
+document.getElementById("loadExampleBtn").onclick=loadExample
+document.getElementById("runBtn").onclick=run
+document.getElementById("downloadBtn").onclick=downloadReport
+
+document.getElementById("csvFile").addEventListener("change",async e=>{
+const file=e.target.files[0]
+if(!file)return
+dataset=await file.text()
+document.getElementById("statusBox").textContent="CSV loaded"
+})
+
+</script>
+
 </body>
 </html>
