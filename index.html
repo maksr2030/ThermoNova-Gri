@@ -1,13 +1,18 @@
 <!DOCTYPE html>
 <html>
 <head>
+
 <title>ThermoNova Industrial Waste Heat Analysis</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
+
 body{
 font-family:Arial;
+background:#f4f4f4;
 margin:0;
 padding:20px;
-background:#f4f4f4;
 }
 
 header{
@@ -15,6 +20,7 @@ background:#343a40;
 color:white;
 padding:15px;
 text-align:center;
+font-size:22px;
 }
 
 section{
@@ -36,13 +42,19 @@ cursor:pointer;
 button:hover{
 background:#0056b3;
 }
+
+canvas{
+margin-top:20px;
+}
+
 </style>
+
 </head>
 
 <body>
 
 <header>
-<h1>ThermoNova Industrial Waste Heat Analysis</h1>
+ThermoNova Industrial Waste Heat Analysis
 </header>
 
 <section>
@@ -53,7 +65,9 @@ background:#0056b3;
 
 <br><br>
 
-<button onclick="uploadData()">Upload Data</button>
+<button onclick="loadCSV()">Upload Data</button>
+
+<p id="dataStatus"></p>
 
 </section>
 
@@ -63,7 +77,9 @@ background:#0056b3;
 
 <button onclick="runAnalysis()">Run Analysis</button>
 
-<p id="result"></p>
+<p id="analysisResult"></p>
+
+<canvas id="energyChart"></canvas>
 
 </section>
 
@@ -77,17 +93,122 @@ background:#0056b3;
 
 <script>
 
-function uploadData(){
-alert("CSV file loaded successfully.");
+let dataset = [];
+
+function loadCSV(){
+
+const file = document.getElementById("csvFile").files[0];
+
+const reader = new FileReader();
+
+reader.onload = function(e){
+
+const lines = e.target.result.split("\n");
+
+dataset = [];
+
+for(let i=1;i<lines.length;i++){
+
+const cols = lines[i].split(",");
+
+if(cols.length >= 3){
+
+dataset.push({
+
+flow:parseFloat(cols[0]),
+cp:parseFloat(cols[1]),
+deltaT:parseFloat(cols[2])
+
+});
+
+}
+
+}
+
+document.getElementById("dataStatus").innerHTML =
+"Dataset loaded with "+dataset.length+" records";
+
+};
+
+reader.readAsText(file);
+
 }
 
 function runAnalysis(){
-document.getElementById("result").innerHTML =
-"Analysis complete. Waste heat recovery potential detected.";
+
+let energy=[];
+
+let totalPower=0;
+
+for(let i=0;i<dataset.length;i++){
+
+let Q = dataset[i].flow * dataset[i].cp * dataset[i].deltaT;
+
+let electrical = Q * 0.2;
+
+energy.push(electrical);
+
+totalPower += electrical;
+
+}
+
+document.getElementById("analysisResult").innerHTML =
+"Estimated recoverable electrical power: "+totalPower.toFixed(2)+" kW";
+
+drawChart(energy);
+
+}
+
+function drawChart(data){
+
+const ctx=document.getElementById('energyChart');
+
+new Chart(ctx,{
+
+type:'bar',
+
+data:{
+
+labels:data.map((v,i)=>"Unit "+i),
+
+datasets:[{
+
+label:"Recoverable Power kW",
+
+data:data
+
+}]
+
+}
+
+});
+
 }
 
 function downloadReport(){
-alert("Report download feature will be generated in next version.");
+
+let report="unit,power\n";
+
+for(let i=0;i<dataset.length;i++){
+
+let Q = dataset[i].flow * dataset[i].cp * dataset[i].deltaT;
+
+let electrical = Q * 0.2;
+
+report+=i+","+electrical+"\n";
+
+}
+
+const blob=new Blob([report],{type:"text/csv"});
+
+const a=document.createElement("a");
+
+a.href=URL.createObjectURL(blob);
+
+a.download="thermonova_report.csv";
+
+a.click();
+
 }
 
 </script>
