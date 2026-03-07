@@ -3,68 +3,69 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ThermoNova Grid v2</title>
+<title>ThermoNova Grid v3</title>
 <style>
 *{box-sizing:border-box}
 body{
   margin:0;
   font-family:Arial,Helvetica,sans-serif;
-  background:#f3f6fb;
+  background:#eef3f9;
   color:#1f2937;
-  line-height:1.7;
+  line-height:1.75;
 }
 .container{
-  max-width:1200px;
+  max-width:1280px;
   margin:auto;
-  padding:20px;
+  padding:22px;
 }
 .hero{
   background:linear-gradient(135deg,#1e3a8a,#0f766e);
-  color:white;
-  padding:28px;
-  border-radius:18px;
+  color:#fff;
+  padding:30px;
+  border-radius:20px;
   margin-bottom:20px;
 }
 .hero h1{
-  margin:0 0 10px 0;
-  font-size:34px;
+  margin:0 0 12px 0;
+  font-size:36px;
 }
 .hero p{
-  font-size:20px;
-  margin:6px 0;
+  margin:8px 0;
+  font-size:22px;
 }
 .card{
-  background:white;
-  border-radius:16px;
-  padding:22px;
-  margin-bottom:18px;
-  box-shadow:0 6px 20px rgba(0,0,0,0.08);
+  background:#fff;
+  border-radius:18px;
+  padding:24px;
+  margin-bottom:20px;
+  box-shadow:0 8px 24px rgba(15,23,42,0.08);
 }
 .card h2{
   margin-top:0;
-  font-size:24px;
+  margin-bottom:16px;
+  font-size:26px;
   color:#1d4ed8;
 }
 .card h3{
-  font-size:21px;
-  margin-bottom:10px;
+  font-size:22px;
+  margin:8px 0 14px 0;
   color:#0f766e;
 }
 .controls{
   display:flex;
   flex-wrap:wrap;
-  gap:12px;
+  gap:14px;
   align-items:center;
 }
 button,.file-label{
   display:inline-block;
   background:#2563eb;
-  color:white;
-  padding:14px 18px;
+  color:#fff;
+  padding:15px 20px;
   border:none;
-  border-radius:12px;
+  border-radius:14px;
   cursor:pointer;
-  font-size:19px;
+  font-size:20px;
   text-decoration:none;
 }
 button.secondary,.file-label.secondary{
@@ -77,32 +78,32 @@ input[type="file"]{
   display:none;
 }
 .status{
-  margin-top:14px;
-  background:#eef2ff;
+  margin-top:16px;
+  background:#e0ecff;
   color:#1e3a8a;
-  border-radius:12px;
-  padding:14px;
-  font-size:18px;
+  border-radius:14px;
+  padding:15px;
+  font-size:19px;
 }
 .metrics{
   display:grid;
   grid-template-columns:repeat(4,minmax(0,1fr));
-  gap:14px;
+  gap:16px;
 }
 .metric{
   background:#f8fafc;
   border:1px solid #dbeafe;
-  border-radius:14px;
-  padding:16px;
+  border-radius:16px;
+  padding:18px;
 }
 .metric .label{
-  font-size:16px;
+  font-size:17px;
   color:#475569;
 }
 .metric .value{
-  font-size:30px;
+  font-size:31px;
   font-weight:700;
-  margin-top:8px;
+  margin-top:10px;
   color:#0f172a;
 }
 .table-wrap{
@@ -113,7 +114,7 @@ input[type="file"]{
 table{
   width:100%;
   border-collapse:collapse;
-  min-width:1100px;
+  min-width:1500px;
 }
 th,td{
   padding:12px;
@@ -122,7 +123,7 @@ th,td{
   font-size:18px;
 }
 th{
-  background:#e0ecff;
+  background:#dbeafe;
   color:#1e3a8a;
 }
 .chart-box{
@@ -130,7 +131,7 @@ th{
 }
 .bar-row{
   display:grid;
-  grid-template-columns:180px 1fr 130px;
+  grid-template-columns:190px 1fr 150px;
   gap:12px;
   align-items:center;
   margin:12px 0;
@@ -151,17 +152,17 @@ th{
   background:#f0fdf4;
   border:1px solid #bbf7d0;
   color:#166534;
-  border-radius:12px;
-  padding:14px;
-  font-size:19px;
-  margin-top:14px;
+  border-radius:14px;
+  padding:15px;
+  font-size:20px;
+  margin-top:16px;
 }
 .notes{
   width:100%;
-  min-height:140px;
-  padding:14px;
+  min-height:170px;
+  padding:16px;
   font-size:18px;
-  border-radius:12px;
+  border-radius:14px;
   border:1px solid #cbd5e1;
   background:#f8fafc;
 }
@@ -169,7 +170,7 @@ th{
   display:inline-block;
   padding:6px 10px;
   border-radius:999px;
-  color:white;
+  color:#fff;
   font-size:15px;
 }
 .badge.high{background:#b91c1c}
@@ -178,27 +179,32 @@ th{
 .footer{
   text-align:center;
   color:#64748b;
-  padding:18px 0 30px 0;
+  padding:18px 0 28px 0;
   font-size:18px;
 }
-@media (max-width:900px){
+@media (max-width:950px){
   .metrics{
     grid-template-columns:repeat(2,minmax(0,1fr));
   }
   .hero h1{
-    font-size:28px;
+    font-size:30px;
   }
   .hero p{
-    font-size:18px;
+    font-size:20px;
   }
   .card h2{
-    font-size:22px;
+    font-size:24px;
   }
   th,td{
     font-size:16px;
   }
   .metric .value{
-    font-size:25px;
+    font-size:26px;
+  }
+  button,.file-label{
+    font-size:18px;
+    width:100%;
+    text-align:center;
   }
 }
 </style>
@@ -207,9 +213,9 @@ th{
 <div class="container">
 
   <div class="hero">
-    <h1>ThermoNova Grid v2</h1>
-    <p>Industrial Waste Heat Recovery Analysis Platform</p>
-    <p>Hybrid engineering and investment view for industrial heat recovery opportunities</p>
+    <h1>ThermoNova Grid v3</h1>
+    <p>Industrial Waste Heat Recovery Intelligence Platform</p>
+    <p>Hybrid engineering, investment, and sustainability analysis for industrial heat recovery opportunities</p>
   </div>
 
   <div class="card">
@@ -236,7 +242,7 @@ th{
         <div class="value" id="mValid">0</div>
       </div>
       <div class="metric">
-        <div class="label">Top Recoverable Power</div>
+        <div class="label">Top Electrical Power</div>
         <div class="value" id="mTopPower">0 kW</div>
       </div>
       <div class="metric">
@@ -248,10 +254,6 @@ th{
         <div class="value" id="mPayback">-</div>
       </div>
       <div class="metric">
-        <div class="label">Top CAPEX</div>
-        <div class="value" id="mCapex">$0</div>
-      </div>
-      <div class="metric">
         <div class="label">Best NPV</div>
         <div class="value" id="mNPV">$0</div>
       </div>
@@ -259,19 +261,27 @@ th{
         <div class="label">Average IRR</div>
         <div class="value" id="mIRR">0%</div>
       </div>
+      <div class="metric">
+        <div class="label">Annual CO2 Avoided</div>
+        <div class="value" id="mCO2">0 t</div>
+      </div>
     </div>
     <div class="notice" id="topOpportunity">No analysis yet.</div>
   </div>
 
   <div class="card">
-    <h2>3. Engineering Results</h2>
+    <h2>3. Engineering and Investment Charts</h2>
     <div class="chart-box">
-      <h3>Recoverable Power by Source</h3>
+      <h3>Electrical Power by Source</h3>
       <div id="powerBars"></div>
     </div>
     <div class="chart-box">
       <h3>Annual Value by Source</h3>
       <div id="valueBars"></div>
+    </div>
+    <div class="chart-box">
+      <h3>CO2 Avoided by Source</h3>
+      <div id="co2Bars"></div>
     </div>
   </div>
 
@@ -293,9 +303,11 @@ th{
             <th>Technology</th>
             <th>Annual Value USD</th>
             <th>CAPEX USD</th>
-            <th>Payback</th>
+            <th>Payback Years</th>
             <th>NPV USD</th>
             <th>IRR %</th>
+            <th>CO2 Avoided t/y</th>
+            <th>Priority Score</th>
           </tr>
         </thead>
         <tbody></tbody>
@@ -308,16 +320,16 @@ th{
     <textarea class="notes" id="notesBox" readonly>Upload a CSV file or load the example dataset, then press Run Analysis.</textarea>
   </div>
 
-  <div class="footer">ThermoNova Grid v2 - Industrial Browser MVP</div>
+  <div class="footer">ThermoNova Grid v3 - Industrial Browser MVP</div>
 </div>
 
 <script>
-const exampleCsv = `source_id,plant_unit,flow,cp,deltaT,operating_hours,electricity_price
-SRC001,Boiler A,2.5,4.18,120,6000,0.10
-SRC002,Boiler A,3.2,4.18,90,6000,0.10
-SRC003,Turbine B,1.8,4.18,150,6500,0.10
-SRC004,Process Line C,2.0,4.18,110,5800,0.10
-SRC005,Furnace D,2.7,4.18,130,6200,0.10`;
+const exampleCsv = `source_id,plant_unit,flow,cp,deltaT,operating_hours,electricity_price,grid_emission_factor
+SRC001,Boiler A,2.5,4.18,120,6000,0.10,0.45
+SRC002,Boiler A,3.2,4.18,90,6000,0.10,0.45
+SRC003,Turbine B,1.8,4.18,150,6500,0.10,0.45
+SRC004,Process Line C,2.0,4.18,110,5800,0.10,0.45
+SRC005,Furnace D,2.7,4.18,130,6200,0.10,0.45`;
 
 let currentCsvText = "";
 let lastResults = null;
@@ -396,11 +408,15 @@ function estimateIRR(netAnnual, capex){
   return Math.max(0, Math.min(60, ratio * 100));
 }
 
+function estimateCO2Avoided(annualEnergyKWh, emissionFactor){
+  return (annualEnergyKWh * emissionFactor) / 1000;
+}
+
 function validateAndAnalyze(text){
   const parsed = parseCSV(text);
   const headers = parsed.headers;
   const rows = parsed.rows;
-  const required = ["source_id","plant_unit","flow","cp","deltaT","operating_hours","electricity_price"];
+  const required = ["source_id","plant_unit","flow","cp","deltaT","operating_hours","electricity_price","grid_emission_factor"];
   const missing = required.filter(col => !headers.includes(col));
   if(missing.length) throw new Error("Missing required columns: " + missing.join(", "));
 
@@ -410,8 +426,9 @@ function validateAndAnalyze(text){
     const deltaT = Number(r.deltaT);
     const operatingHours = Number(r.operating_hours);
     const electricityPrice = Number(r.electricity_price);
+    const gridEmissionFactor = Number(r.grid_emission_factor);
 
-    if([flow,cp,deltaT,operatingHours,electricityPrice].some(v => Number.isNaN(v))){
+    if([flow,cp,deltaT,operatingHours,electricityPrice,gridEmissionFactor].some(v => Number.isNaN(v))){
       throw new Error("Numeric conversion error in row " + (idx + 1));
     }
 
@@ -426,6 +443,7 @@ function validateAndAnalyze(text){
     const paybackYears = netAnnualUSD > 0 ? capexUSD / netAnnualUSD : 999;
     const npvUSD = estimateNPV(netAnnualUSD, capexUSD);
     const irrPercent = estimateIRR(netAnnualUSD, capexUSD);
+    const co2AvoidedTY = estimateCO2Avoided(annualEnergyKWh, gridEmissionFactor);
     const quality = heatQuality(deltaT);
 
     return {
@@ -436,30 +454,36 @@ function validateAndAnalyze(text){
       deltaT:deltaT,
       operating_hours:operatingHours,
       electricity_price:electricityPrice,
+      grid_emission_factor:gridEmissionFactor,
       thermal_power_kw:thermalPowerKW,
       electrical_power_kw:electricalPowerKW,
       heat_quality:quality,
       technology:tech.name,
+      annual_energy_kwh:annualEnergyKWh,
       annual_value_usd:annualValueUSD,
       capex_usd:capexUSD,
       opex_usd:opexUSD,
       payback_years:paybackYears,
       npv_usd:npvUSD,
-      irr_percent:irrPercent
+      irr_percent:irrPercent,
+      co2_avoided_tpy:co2AvoidedTY
     };
   });
 
   const maxPower = Math.max(...analyzed.map(r => r.electrical_power_kw));
   const maxValue = Math.max(...analyzed.map(r => r.annual_value_usd));
-  const maxNPV = Math.max(...analyzed.map(r => r.npv_usd));
+  const maxNPV = Math.max(...analyzed.map(r => Math.max(0, r.npv_usd)));
+  const maxCO2 = Math.max(...analyzed.map(r => r.co2_avoided_tpy));
+
   analyzed.forEach(r => {
     const s1 = maxPower ? r.electrical_power_kw / maxPower : 0;
     const s2 = maxValue ? r.annual_value_usd / maxValue : 0;
     const s3 = maxNPV ? Math.max(0, r.npv_usd) / Math.max(1, maxNPV) : 0;
-    r.ranking_score = 0.45 * s1 + 0.35 * s2 + 0.20 * s3;
+    const s4 = maxCO2 ? r.co2_avoided_tpy / maxCO2 : 0;
+    r.priority_score = 0.35 * s1 + 0.30 * s2 + 0.20 * s3 + 0.15 * s4;
   });
 
-  analyzed.sort((a,b) => b.ranking_score - a.ranking_score);
+  analyzed.sort((a,b) => b.priority_score - a.priority_score);
   analyzed.forEach((r,i) => r.rank = i + 1);
   return analyzed;
 }
@@ -490,9 +514,9 @@ function renderResults(rows){
   const totalAnnual = rows.reduce((a,b)=>a+b.annual_value_usd,0);
   const topPower = Math.max(...rows.map(r=>r.electrical_power_kw));
   const bestPayback = Math.min(...rows.map(r=>r.payback_years));
-  const topCapex = Math.max(...rows.map(r=>r.capex_usd));
   const bestNPV = Math.max(...rows.map(r=>r.npv_usd));
   const avgIRR = rows.reduce((a,b)=>a+b.irr_percent,0) / rows.length;
+  const totalCO2 = rows.reduce((a,b)=>a+b.co2_avoided_tpy,0);
   const top = rows[0];
 
   setText("mTotal", rows.length.toString());
@@ -500,13 +524,14 @@ function renderResults(rows){
   setText("mTopPower", topPower.toFixed(1) + " kW");
   setText("mAnnual", "$" + Math.round(totalAnnual).toLocaleString());
   setText("mPayback", bestPayback.toFixed(1) + " y");
-  setText("mCapex", "$" + Math.round(topCapex).toLocaleString());
   setText("mNPV", "$" + Math.round(bestNPV).toLocaleString());
   setText("mIRR", avgIRR.toFixed(1) + "%");
+  setText("mCO2", totalCO2.toFixed(1) + " t");
 
   document.getElementById("topOpportunity").innerHTML =
-    `Top opportunity: ${top.source_id} in ${top.plant_unit}. Recommended technology: ${top.technology}. 
-    Electrical power: ${top.electrical_power_kw.toFixed(2)} kW. Annual value: $${top.annual_value_usd.toFixed(2)}.`;
+    `Top opportunity: ${top.source_id} in ${top.plant_unit}. Technology: ${top.technology}. 
+    Electrical power: ${top.electrical_power_kw.toFixed(2)} kW. Annual value: $${top.annual_value_usd.toFixed(2)}. 
+    CO2 avoided: ${top.co2_avoided_tpy.toFixed(2)} t/year.`;
 
   const tbody = document.querySelector("#resultsTable tbody");
   tbody.innerHTML = "";
@@ -528,16 +553,20 @@ function renderResults(rows){
       <td>${r.payback_years.toFixed(2)}</td>
       <td>$${r.npv_usd.toFixed(2)}</td>
       <td>${r.irr_percent.toFixed(1)}%</td>
+      <td>${r.co2_avoided_tpy.toFixed(2)}</td>
+      <td>${r.priority_score.toFixed(3)}</td>
     `;
     tbody.appendChild(tr);
   });
 
   drawBars("powerBars", rows, "electrical_power_kw", "kW");
   drawBars("valueBars", rows, "annual_value_usd", "USD");
+  drawBars("co2Bars", rows, "co2_avoided_tpy", "t/y");
 
   document.getElementById("notesBox").value =
 `Engineering basis:
 Thermal Power = flow × cp × deltaT
+Electrical Power = Thermal Power × technology efficiency
 
 Financial basis:
 Annual Energy = Electrical Power × operating hours
@@ -547,9 +576,13 @@ OPEX = 4% of CAPEX
 NPV horizon = 10 years
 Discount rate = 10%
 
-This v2 model is hybrid:
+Sustainability basis:
+CO2 Avoided = Annual Energy × Grid Emission Factor / 1000
+
+This v3 model is hybrid:
 - engineering-oriented
-- investment-oriented`;
+- investment-oriented
+- sustainability-oriented`;
 }
 
 function downloadReport(){
@@ -570,6 +603,7 @@ function downloadReport(){
       <td>${r.payback_years.toFixed(2)}</td>
       <td>$${r.npv_usd.toFixed(2)}</td>
       <td>${r.irr_percent.toFixed(1)}%</td>
+      <td>${r.co2_avoided_tpy.toFixed(2)}</td>
     </tr>
   `).join("");
 
@@ -591,7 +625,7 @@ function downloadReport(){
     </style>
   </head>
   <body>
-    <h1>ThermoNova Grid v2 Report</h1>
+    <h1>ThermoNova Grid v3 Report</h1>
     <div class="box">
       <h2>Executive Summary</h2>
       <p>Top opportunity: ${top.source_id} / ${top.plant_unit}</p>
@@ -599,6 +633,7 @@ function downloadReport(){
       <p>Electrical power: ${top.electrical_power_kw.toFixed(2)} kW</p>
       <p>Annual value: $${top.annual_value_usd.toFixed(2)}</p>
       <p>Payback: ${top.payback_years.toFixed(2)} years</p>
+      <p>CO2 avoided: ${top.co2_avoided_tpy.toFixed(2)} t/year</p>
     </div>
     <h2>Ranked Opportunities</h2>
     <table>
@@ -614,6 +649,7 @@ function downloadReport(){
           <th>Payback</th>
           <th>NPV USD</th>
           <th>IRR %</th>
+          <th>CO2 Avoided</th>
         </tr>
       </thead>
       <tbody>${rowsHtml}</tbody>
