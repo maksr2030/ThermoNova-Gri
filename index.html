@@ -1,957 +1,388 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ThermoNova v9 Industrial Recovery Intelligence</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      background: #eef3f9;
-      color: #1f2937;
-      line-height: 1.7;
-    }
-    .container {
-      max-width: 1440px;
-      margin: 0 auto;
-      padding: 24px;
-    }
-    .hero {
-      background: linear-gradient(135deg, #1e3a8a, #0f766e);
-      color: white;
-      padding: 34px;
-      border-radius: 24px;
-      margin-bottom: 22px;
-    }
-    .hero h1 {
-      margin: 0 0 12px 0;
-      font-size: 40px;
-    }
-    .hero p {
-      margin: 8px 0;
-      font-size: 22px;
-    }
-    .card {
-      background: white;
-      border-radius: 18px;
-      padding: 24px;
-      margin-bottom: 20px;
-      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
-    }
-    .card h2 {
-      margin: 0 0 16px 0;
-      font-size: 30px;
-      color: #1d4ed8;
-    }
-    .card h3 {
-      margin: 10px 0 14px 0;
-      font-size: 22px;
-      color: #0f766e;
-    }
-    .controls {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 14px;
-      align-items: center;
-    }
-    button, .file-label {
-      display: inline-block;
-      background: #2563eb;
-      color: white;
-      padding: 16px 22px;
-      border: none;
-      border-radius: 14px;
-      cursor: pointer;
-      font-size: 19px;
-      text-decoration: none;
-    }
-    button.secondary, .file-label.secondary {
-      background: #475569;
-    }
-    button.green {
-      background: #15803d;
-    }
-    input[type="file"] {
-      display: none;
-    }
-    .status {
-      margin-top: 16px;
-      background: #e0ecff;
-      color: #1e3a8a;
-      border-radius: 14px;
-      padding: 15px;
-      font-size: 18px;
-    }
-    .metric-grid {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 16px;
-    }
-    .metric {
-      background: #f8fafc;
-      border: 1px solid #dbeafe;
-      border-radius: 16px;
-      padding: 18px;
-    }
-    .metric .label {
-      font-size: 16px;
-      color: #475569;
-    }
-    .metric .value {
-      font-size: 29px;
-      font-weight: 700;
-      margin-top: 10px;
-      color: #0f172a;
-    }
-    .notice {
-      background: #f0fdf4;
-      border: 1px solid #bbf7d0;
-      color: #166534;
-      border-radius: 14px;
-      padding: 15px;
-      font-size: 19px;
-      margin-top: 16px;
-    }
-    .warning {
-      background: #fff7ed;
-      border: 1px solid #fdba74;
-      color: #9a3412;
-      border-radius: 14px;
-      padding: 15px;
-      font-size: 18px;
-      margin-top: 16px;
-    }
-    .info-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 16px;
-    }
-    .info-box {
-      background: #f8fafc;
-      border: 1px solid #dbeafe;
-      border-radius: 16px;
-      padding: 18px;
-    }
-    .info-box p {
-      margin: 8px 0;
-      font-size: 18px;
-    }
-    .profile-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-      gap: 18px;
-    }
-    .profile-card {
-      background: #f8fafc;
-      border: 1px solid #dbeafe;
-      border-radius: 16px;
-      padding: 18px;
-    }
-    .profile-card p {
-      margin: 8px 0;
-      font-size: 17px;
-    }
-    .table-wrap {
-      overflow-x: auto;
-      overflow-y: hidden;
-      border: 1px solid #dbeafe;
-      border-radius: 14px;
-      background: #fff;
-      margin-top: 14px;
-    }
-    table {
-      border-collapse: collapse;
-      width: 100%;
-      min-width: 2300px;
-    }
-    th, td {
-      padding: 11px;
-      border-bottom: 1px solid #e5e7eb;
-      text-align: left;
-      font-size: 14px;
-      vertical-align: top;
-    }
-    th {
-      background: #dbeafe;
-      color: #1e3a8a;
-      position: sticky;
-      top: 0;
-    }
-    .chart-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 18px;
-    }
-    .chart-card {
-      background: #f8fafc;
-      border: 1px solid #dbeafe;
-      border-radius: 16px;
-      padding: 16px;
-      height: 420px;
-    }
-    .chart-card canvas {
-      width: 100% !important;
-      height: 340px !important;
-    }
-    .notes {
-      width: 100%;
-      min-height: 250px;
-      padding: 16px;
-      font-size: 17px;
-      border-radius: 14px;
-      border: 1px solid #cbd5e1;
-      background: #f8fafc;
-    }
-    .badge {
-      display: inline-block;
-      padding: 6px 10px;
-      border-radius: 999px;
-      color: white;
-      font-size: 13px;
-      white-space: nowrap;
-    }
-    .badge.high { background: #b91c1c; }
-    .badge.medium { background: #b45309; }
-    .badge.low { background: #15803d; }
-    .badge.good { background: #15803d; }
-    .badge.warn { background: #b45309; }
-    .badge.bad { background: #b91c1c; }
-    .badge.path1 { background: #1d4ed8; }
-    .badge.path2 { background: #0f766e; }
-    .badge.path3 { background: #7c3aed; }
-    .badge.path4 { background: #b45309; }
-    .badge.tech1 { background: #1d4ed8; }
-    .badge.tech2 { background: #0f766e; }
-    .badge.tech3 { background: #7c3aed; }
-    .badge.tech4 { background: #b45309; }
-    .footer {
-      text-align: center;
-      color: #64748b;
-      padding: 18px 0 28px 0;
-      font-size: 18px;
-    }
-    @media (max-width: 950px) {
-      .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .info-grid { grid-template-columns: 1fr; }
-      .hero h1 { font-size: 30px; }
-      .hero p { font-size: 19px; }
-      .card h2 { font-size: 24px; }
-      button, .file-label { width: 100%; text-align: center; }
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="hero">
-      <h1>ThermoNova v9</h1>
-      <p>Industrial Recovery Intelligence</p>
-      <p>Thermodynamic classification, recovery path logic, engineering interpretation, and professional report generation</p>
-    </div>
-
-    <div class="card">
-      <h2>1. Data Input</h2>
-      <div class="controls">
-        <label class="file-label" for="csvFile">Choose CSV File</label>
-        <input id="csvFile" type="file" accept=".csv,text/csv" />
-        <button class="secondary" id="loadExampleBtn">Load Example Dataset</button>
-        <button class="green" id="runBtn">Run Analysis</button>
-        <button class="secondary" id="downloadReportBtn">Download HTML Report</button>
-      </div>
-      <div class="status" id="statusBox">Waiting for dataset.</div>
-    </div>
-
-    <div class="card">
-      <h2>2. Executive Summary</h2>
-      <div class="metric-grid">
-        <div class="metric"><div class="label">Total Sources</div><div class="value" id="mTotal">0</div></div>
-        <div class="metric"><div class="label">Top Electrical Power</div><div class="value" id="mTopPower">0 kW</div></div>
-        <div class="metric"><div class="label">Total Annual Value</div><div class="value" id="mAnnual">$0</div></div>
-        <div class="metric"><div class="label">Total CO2 Avoided</div><div class="value" id="mCO2">0 t</div></div>
-        <div class="metric"><div class="label">Best Payback</div><div class="value" id="mPayback">0 y</div></div>
-        <div class="metric"><div class="label">Best NPV</div><div class="value" id="mNPV">$0</div></div>
-        <div class="metric"><div class="label">Average IRR</div><div class="value" id="mIRR">0%</div></div>
-        <div class="metric"><div class="label">Top Technology</div><div class="value" id="mTopTech">-</div></div>
-      </div>
-      <div class="notice" id="topOpportunity">No analysis yet.</div>
-    </div>
-
-    <div class="card">
-      <h2>3. Best Opportunity Deep Analysis</h2>
-      <div class="info-grid">
-        <div class="info-box">
-          <h3>Identity and Path</h3>
-          <p id="bestOppIdentity">-</p>
-          <p id="bestOppGrade">-</p>
-          <p id="bestOppPath">-</p>
-          <p id="bestOppTech">-</p>
-          <p id="bestOppPower">-</p>
-          <p id="bestOppValue">-</p>
-        </div>
-        <div class="info-box">
-          <h3>Decision Interpretation</h3>
-          <p id="bestOppReason1">-</p>
-          <p id="bestOppReason2">-</p>
-          <p id="bestOppReason3">-</p>
-          <p id="bestOppReason4">-</p>
-          <p id="bestOppRisk">-</p>
-        </div>
-      </div>
-      <div class="warning" id="bestOppImplementation">No implementation narrative generated yet.</div>
-    </div>
-
-    <div class="card">
-      <h2>4. Opportunity Profiles</h2>
-      <div class="profile-grid" id="profilesBox"></div>
-    </div>
-
-    <div class="card">
-      <h2>5. Charts</h2>
-      <div class="chart-grid">
-        <div class="chart-card">
-          <h3>Electrical Power by Source</h3>
-          <canvas id="powerChart"></canvas>
-        </div>
-        <div class="chart-card">
-          <h3>Annual Value by Source</h3>
-          <canvas id="valueChart"></canvas>
-        </div>
-        <div class="chart-card">
-          <h3>CO2 Avoided by Source</h3>
-          <canvas id="co2Chart"></canvas>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <h2>6. Opportunity Ranking</h2>
-      <div class="table-wrap">
-        <table id="resultsTable">
-          <thead>
-            <tr>
-              <th>Rank</th>
-              <th>Source ID</th>
-              <th>Plant Unit</th>
-              <th>Equipment Type</th>
-              <th>Process Criticality</th>
-              <th>Mass Flow</th>
-              <th>Cp</th>
-              <th>T Hot</th>
-              <th>T Cold</th>
-              <th>DeltaT</th>
-              <th>Pressure</th>
-              <th>Heat Grade</th>
-              <th>Heat Quality</th>
-              <th>Recovery Path</th>
-              <th>Technology</th>
-              <th>Thermal Power kW</th>
-              <th>Electrical Power kW</th>
-              <th>Annual Value USD</th>
-              <th>CAPEX USD</th>
-              <th>OPEX USD</th>
-              <th>Payback Years</th>
-              <th>NPV USD</th>
-              <th>IRR %</th>
-              <th>CO2 Avoided t/y</th>
-              <th>Confidence Score</th>
-              <th>Data Quality</th>
-              <th>Engineering Note</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-    </div>
-
-    <div class="card">
-      <h2>7. Technical Notes</h2>
-      <textarea class="notes" id="notesBox" readonly>Upload a CSV file or load the example dataset, then press Run Analysis.</textarea>
-    </div>
-
-    <div class="footer">ThermoNova v9 - Industrial Recovery Intelligence</div>
-  </div>
-
-  <script>
-    const exampleCsv = `source_id,plant_unit,equipment_type,process_criticality,mass_flow,cp,t_hot,t_cold,pressure,operating_state,operating_hours,electricity_price,grid_emission_factor,maintenance_window
-SRC001,Boiler_A,Furnace,High,3.2,4.18,250,120,7.5,1,7200,0.11,0.47,Q3_Shutdown
-SRC002,Boiler_A,Exhaust_Duct,Medium,2.7,4.18,210,95,6.8,1,7000,0.11,0.47,Q3_Shutdown
-SRC003,Turbine_B,Process_Heater,Medium,2.1,4.18,230,100,5.5,1,7500,0.11,0.47,Q4_Shutdown
-SRC004,Furnace_C,Furnace,High,3.6,4.18,270,140,8.1,1,6800,0.11,0.47,Q2_Shutdown
-SRC005,Process_Line_D,Heat_Recovery_Loop,Low,2.0,4.18,195,90,4.6,1,6500,0.11,0.47,Q2_Shutdown
-SRC006,Compressor_E,Exhaust_Stream,Medium,2.4,4.18,215,105,5.2,1,7200,0.11,0.47,Q1_Shutdown
-SRC007,Reactor_F,Process_Heater,High,3.0,4.18,240,110,6.9,1,7600,0.11,0.47,Q4_Shutdown
-SRC008,Boiler_G,Flue_Gas,Medium,2.9,4.18,225,105,6.3,1,7000,0.11,0.47,Q3_Shutdown
-SRC009,Distillation_H,Column_Reboiler,High,3.4,4.18,260,130,7.8,1,7400,0.11,0.47,Q2_Shutdown
-SRC010,Furnace_I,Furnace,Medium,2.8,4.18,235,100,6.5,1,7100,0.11,0.47,Q1_Shutdown`;
-
-    let currentCsvText = "";
-    let lastResults = [];
-    let powerChart = null;
-    let valueChart = null;
-    let co2Chart = null;
-
-    function parseCSV(text) {
-      const lines = text.trim().split(/\r?\n/);
-      const headers = lines[0].split(",").map(h => h.trim());
-      return lines.slice(1).map(line => {
-        const values = line.split(",").map(v => v.trim());
-        const row = {};
-        headers.forEach((h, i) => row[h] = values[i]);
-        return row;
-      });
-    }
-
-    function toNum(v) {
-      const n = Number(v);
-      return Number.isFinite(n) ? n : 0;
-    }
-
-    function heatQuality(deltaT) {
-      if (deltaT >= 130) return "High";
-      if (deltaT >= 90) return "Medium";
-      return "Low";
-    }
-
-    function heatGrade(tHot, deltaT) {
-      if (tHot >= 240 && deltaT >= 120) return "High-grade";
-      if (tHot >= 200 && deltaT >= 90) return "Medium-grade";
-      return "Low-grade";
-    }
-
-    function chooseRecoveryPath(grade, equipmentType, criticality) {
-      if (grade === "High-grade" && criticality === "High") return "Power Recovery with Hybrid Cycle";
-      if (grade === "High-grade") return "Steam-to-Power Recovery";
-      if (grade === "Medium-grade" && equipmentType.includes("Exhaust")) return "ORC Exhaust Recovery";
-      if (grade === "Medium-grade") return "ORC Closed Loop Recovery";
-      return "Direct Heat Reuse / Exchanger";
-    }
-
-    function chooseTechnology(path) {
-      if (path === "Power Recovery with Hybrid Cycle") return { name: "Steam / ORC Hybrid", eff: 0.24, cls: "tech1" };
-      if (path === "Steam-to-Power Recovery") return { name: "Steam Rankine Recovery", eff: 0.22, cls: "tech2" };
-      if (path === "ORC Exhaust Recovery" || path === "ORC Closed Loop Recovery") return { name: "Organic Rankine Cycle", eff: 0.20, cls: "tech3" };
-      return { name: "Direct Heat Exchanger Recovery", eff: 0.12, cls: "tech4" };
-    }
-
-    function dataQuality(row) {
-      let issues = 0;
-      if (row.mass_flow <= 0) issues++;
-      if (row.cp <= 0) issues++;
-      if (row.t_hot <= row.t_cold) issues++;
-      if (row.operating_hours <= 0 || row.operating_hours > 8760) issues++;
-      if (row.electricity_price <= 0) issues++;
-      if (row.grid_emission_factor < 0) issues++;
-      if (issues === 0) return "Good";
-      if (issues <= 2) return "Warning";
-      return "Poor";
-    }
-
-    function confidenceScore(r) {
-      let score = 100;
-      if (r.deltaT < 95) score -= 10;
-      if (r.electrical_power_kw < 220) score -= 10;
-      if (r.payback_years > 4) score -= 15;
-      if (r.data_quality === "Warning") score -= 10;
-      if (r.data_quality === "Poor") score -= 20;
-      return Math.max(50, Math.min(98, score));
-    }
-
-    function engineeringNote(r) {
-      if (r.recovery_path === "Power Recovery with Hybrid Cycle") {
-        return "Best suited for high-value power recovery with stronger integration planning.";
-      }
-      if (r.recovery_path === "Steam-to-Power Recovery") {
-        return "Suitable for steam-based electricity recovery from high-grade heat.";
-      }
-      if (r.recovery_path === "ORC Exhaust Recovery" || r.recovery_path === "ORC Closed Loop Recovery") {
-        return "Suitable for medium-grade heat conversion through ORC architecture.";
-      }
-      return "More suitable for direct thermal reuse than electricity-first recovery.";
-    }
-
-    function npv(cashFlow, capex, years = 10, rate = 0.10) {
-      let value = -capex;
-      for (let t = 1; t <= years; t++) {
-        value += cashFlow / Math.pow(1 + rate, t);
-      }
-      return value;
-    }
-
-    function irrApprox(cashFlow, capex) {
-      if (capex <= 0) return 0;
-      return Math.max(0, Math.min(60, (cashFlow / capex) * 100));
-    }
-
-    function formatMoney(x) {
-      return "$" + Number(x).toLocaleString(undefined, { maximumFractionDigits: 2 });
-    }
-
-    function buildInterpretation(r) {
-      return `${r.source_id} is classified as ${r.heat_grade.toLowerCase()} heat with ${r.heat_quality.toLowerCase()} thermal quality. The recommended path is ${r.recovery_path.toLowerCase()}, using ${r.technology.toLowerCase()} due to its temperature regime and expected economic return.`;
-    }
-
-    function analyzeData(text) {
-      const rows = parseCSV(text);
-      const analyzed = rows.map(raw => {
-        const mass_flow = toNum(raw.mass_flow);
-        const cp = toNum(raw.cp);
-        const t_hot = toNum(raw.t_hot);
-        const t_cold = toNum(raw.t_cold);
-        const pressure = toNum(raw.pressure);
-        const operating_hours = toNum(raw.operating_hours);
-        const electricity_price = toNum(raw.electricity_price);
-        const grid_emission_factor = toNum(raw.grid_emission_factor);
-
-        const deltaT = t_hot - t_cold;
-        const heat_quality_value = heatQuality(deltaT);
-        const heat_grade_value = heatGrade(t_hot, deltaT);
-        const recovery_path = chooseRecoveryPath(heat_grade_value, raw.equipment_type || "", raw.process_criticality || "");
-        const tech = chooseTechnology(recovery_path);
-
-        const thermal_power_kw = mass_flow * cp * deltaT;
-        const electrical_power_kw = thermal_power_kw * tech.eff;
-        const annual_energy_kwh = electrical_power_kw * operating_hours;
-        const annual_value_usd = annual_energy_kwh * electricity_price;
-        const capex_usd = electrical_power_kw * 1800;
-        const opex_usd = capex_usd * 0.04;
-        const net_annual_usd = annual_value_usd - opex_usd;
-        const payback_years = net_annual_usd > 0 ? capex_usd / net_annual_usd : 999;
-        const npv_usd = npv(net_annual_usd, capex_usd, 10, 0.10);
-        const irr_percent = irrApprox(net_annual_usd, capex_usd);
-        const co2_avoided_tpy = (annual_energy_kwh * grid_emission_factor) / 1000;
-
-        const result = {
-          source_id: raw.source_id,
-          plant_unit: raw.plant_unit,
-          equipment_type: raw.equipment_type,
-          process_criticality: raw.process_criticality,
-          mass_flow,
-          cp,
-          t_hot,
-          t_cold,
-          pressure,
-          operating_hours,
-          electricity_price,
-          grid_emission_factor,
-          maintenance_window: raw.maintenance_window,
-          deltaT,
-          heat_grade: heat_grade_value,
-          heat_quality: heat_quality_value,
-          recovery_path,
-          technology: tech.name,
-          technology_class: tech.cls,
-          thermal_power_kw,
-          electrical_power_kw,
-          annual_value_usd,
-          capex_usd,
-          opex_usd,
-          payback_years,
-          npv_usd,
-          irr_percent,
-          co2_avoided_tpy
-        };
-
-        result.data_quality = dataQuality(result);
-        result.confidence_score = confidenceScore(result);
-        result.engineering_note = engineeringNote(result);
-        return result;
-      });
-
-      analyzed.sort((a, b) => b.electrical_power_kw - a.electrical_power_kw);
-      analyzed.forEach((r, i) => r.rank = i + 1);
-      return analyzed;
-    }
-
-    function setSummary(rows) {
-      const totalAnnual = rows.reduce((a, b) => a + b.annual_value_usd, 0);
-      const totalCO2 = rows.reduce((a, b) => a + b.co2_avoided_tpy, 0);
-      const bestPayback = Math.min(...rows.map(r => r.payback_years));
-      const bestNPV = Math.max(...rows.map(r => r.npv_usd));
-      const avgIRR = rows.reduce((a, b) => a + b.irr_percent, 0) / rows.length;
-      const top = rows[0];
-
-      document.getElementById("mTotal").textContent = rows.length;
-      document.getElementById("mTopPower").textContent = top.electrical_power_kw.toFixed(1) + " kW";
-      document.getElementById("mAnnual").textContent = formatMoney(totalAnnual);
-      document.getElementById("mCO2").textContent = totalCO2.toFixed(1) + " t";
-      document.getElementById("mPayback").textContent = bestPayback.toFixed(2) + " y";
-      document.getElementById("mNPV").textContent = formatMoney(bestNPV);
-      document.getElementById("mIRR").textContent = avgIRR.toFixed(1) + "%";
-      document.getElementById("mTopTech").textContent = top.technology;
-
-      document.getElementById("topOpportunity").innerHTML =
-        `Top opportunity: ${top.source_id} in ${top.plant_unit}. Recovery path: ${top.recovery_path}. Technology: ${top.technology}. Electrical power: ${top.electrical_power_kw.toFixed(2)} kW. Annual value: ${formatMoney(top.annual_value_usd)}.`;
-    }
-
-    function renderBestOpportunity(top) {
-      document.getElementById("bestOppIdentity").textContent = `${top.source_id} / ${top.plant_unit} / ${top.equipment_type}`;
-      document.getElementById("bestOppGrade").textContent = `Heat grade: ${top.heat_grade} / Heat quality: ${top.heat_quality}`;
-      document.getElementById("bestOppPath").textContent = `Recovery path: ${top.recovery_path}`;
-      document.getElementById("bestOppTech").textContent = `Recommended technology: ${top.technology}`;
-      document.getElementById("bestOppPower").textContent = `Electrical power potential: ${top.electrical_power_kw.toFixed(2)} kW`;
-      document.getElementById("bestOppValue").textContent = `Annual value potential: ${formatMoney(top.annual_value_usd)}`;
-
-      document.getElementById("bestOppReason1").textContent = `This opportunity has ${top.heat_grade.toLowerCase()} heat and ${top.heat_quality.toLowerCase()} thermal quality.`;
-      document.getElementById("bestOppReason2").textContent = `Its recommended recovery path is ${top.recovery_path.toLowerCase()}.`;
-      document.getElementById("bestOppReason3").textContent = `Financially, it provides payback of ${top.payback_years.toFixed(2)} years and NPV of ${formatMoney(top.npv_usd)}.`;
-      document.getElementById("bestOppReason4").textContent = `Its confidence score is ${top.confidence_score}/100 with data quality rated as ${top.data_quality}.`;
-      document.getElementById("bestOppRisk").textContent = `Engineering note: ${top.engineering_note}`;
-      document.getElementById("bestOppImplementation").textContent =
-        `Implementation path: capture waste heat from ${top.equipment_type.toLowerCase()} in ${top.plant_unit}, route it through ${top.recovery_path.toLowerCase()}, and deploy ${top.technology.toLowerCase()} after validating fouling behavior, pressure-drop limits, shutdown access, and integration with plant loads.`;
-    }
-
-    function renderProfiles(rows) {
-      const box = document.getElementById("profilesBox");
-      box.innerHTML = rows.map(r => `
-        <div class="profile-card">
-          <h3>${r.source_id} / ${r.plant_unit}</h3>
-          <p><strong>Equipment Type:</strong> ${r.equipment_type}</p>
-          <p><strong>Process Criticality:</strong> ${r.process_criticality}</p>
-          <p><strong>Heat Grade:</strong> ${r.heat_grade}</p>
-          <p><strong>Heat Quality:</strong> ${r.heat_quality}</p>
-          <p><strong>Recovery Path:</strong> <span class="badge ${r.recovery_path === "Power Recovery with Hybrid Cycle" ? "path1" : r.recovery_path === "Steam-to-Power Recovery" ? "path2" : r.recovery_path.includes("ORC") ? "path3" : "path4"}">${r.recovery_path}</span></p>
-          <p><strong>Technology:</strong> <span class="badge ${r.technology_class}">${r.technology}</span></p>
-          <p><strong>Interpretation:</strong> ${buildInterpretation(r)}</p>
-        </div>
-      `).join("");
-    }
-
-    function renderTable(rows) {
-      const tbody = document.querySelector("#resultsTable tbody");
-      tbody.innerHTML = rows.map(r => `
-        <tr>
-          <td>${r.rank}</td>
-          <td>${r.source_id}</td>
-          <td>${r.plant_unit}</td>
-          <td>${r.equipment_type}</td>
-          <td>${r.process_criticality}</td>
-          <td>${r.mass_flow.toFixed(2)}</td>
-          <td>${r.cp.toFixed(2)}</td>
-          <td>${r.t_hot.toFixed(1)}</td>
-          <td>${r.t_cold.toFixed(1)}</td>
-          <td>${r.deltaT.toFixed(1)}</td>
-          <td>${r.pressure.toFixed(2)}</td>
-          <td>${r.heat_grade}</td>
-          <td><span class="badge ${r.heat_quality === "High" ? "high" : r.heat_quality === "Medium" ? "medium" : "low"}">${r.heat_quality}</span></td>
-          <td><span class="badge ${r.recovery_path === "Power Recovery with Hybrid Cycle" ? "path1" : r.recovery_path === "Steam-to-Power Recovery" ? "path2" : r.recovery_path.includes("ORC") ? "path3" : "path4"}">${r.recovery_path}</span></td>
-          <td><span class="badge ${r.technology_class}">${r.technology}</span></td>
-          <td>${r.thermal_power_kw.toFixed(2)}</td>
-          <td>${r.electrical_power_kw.toFixed(2)}</td>
-          <td>${formatMoney(r.annual_value_usd)}</td>
-          <td>${formatMoney(r.capex_usd)}</td>
-          <td>${formatMoney(r.opex_usd)}</td>
-          <td>${r.payback_years.toFixed(2)}</td>
-          <td>${formatMoney(r.npv_usd)}</td>
-          <td>${r.irr_percent.toFixed(1)}%</td>
-          <td>${r.co2_avoided_tpy.toFixed(2)}</td>
-          <td>${r.confidence_score}/100</td>
-          <td><span class="badge ${r.data_quality === "Good" ? "good" : r.data_quality === "Warning" ? "warn" : "bad"}">${r.data_quality}</span></td>
-          <td>${r.engineering_note}</td>
-        </tr>
-      `).join("");
-    }
-
-    function destroyCharts() {
-      if (powerChart) powerChart.destroy();
-      if (valueChart) valueChart.destroy();
-      if (co2Chart) co2Chart.destroy();
-    }
-
-    function renderCharts(rows) {
-      destroyCharts();
-      const labels = rows.map(r => r.source_id);
-
-      powerChart = new Chart(document.getElementById("powerChart"), {
-        type: "bar",
-        data: {
-          labels,
-          datasets: [{
-            data: rows.map(r => r.electrical_power_kw),
-            backgroundColor: "rgba(37,99,235,0.85)",
-            borderRadius: 8
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } }
-        }
-      });
-
-      valueChart = new Chart(document.getElementById("valueChart"), {
-        type: "bar",
-        data: {
-          labels,
-          datasets: [{
-            data: rows.map(r => r.annual_value_usd),
-            backgroundColor: "rgba(22,163,74,0.85)",
-            borderRadius: 8
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } }
-        }
-      });
-
-      co2Chart = new Chart(document.getElementById("co2Chart"), {
-        type: "bar",
-        data: {
-          labels,
-          datasets: [{
-            data: rows.map(r => r.co2_avoided_tpy),
-            backgroundColor: "rgba(180,83,9,0.85)",
-            borderRadius: 8
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } }
-        }
-      });
-    }
-
-    function buildReportHTML(rows) {
-      const top = rows[0];
-      const totalAnnual = rows.reduce((a, b) => a + b.annual_value_usd, 0);
-      const totalCO2 = rows.reduce((a, b) => a + b.co2_avoided_tpy, 0);
-
-      function chartSvg(title, values, color, unit) {
-        const max = Math.max(...values);
-        const width = 980;
-        const left = 170;
-        const chartW = 700;
-        const barH = 28;
-        const gap = 18;
-        const height = rows.length * (barH + gap) + 80;
-
-        let bars = "";
-        rows.forEach((r, i) => {
-          const y = 50 + i * (barH + gap);
-          const w = max > 0 ? (values[i] / max) * chartW : 0;
-          bars += `
-            <text x="10" y="${y + 18}" font-size="14" fill="#1f2937">${r.source_id}</text>
-            <rect x="${left}" y="${y}" width="${chartW}" height="${barH}" rx="8" fill="#e5e7eb"></rect>
-            <rect x="${left}" y="${y}" width="${w}" height="${barH}" rx="8" fill="${color}"></rect>
-            <text x="${left + chartW + 10}" y="${y + 18}" font-size="13" fill="#111827">${values[i].toFixed(1)} ${unit}</text>
-          `;
-        });
-
-        return `
-          <div class="report-chart-box">
-            <h3>${title}</h3>
-            <svg viewBox="0 0 ${width} ${height}" style="width:100%;height:auto;background:#ffffff;border:1px solid #dbeafe;border-radius:14px;padding:8px;">
-              ${bars}
-            </svg>
-          </div>
-        `;
-      }
-
-      return `
-<!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
-<title>ThermoNova_v9_Report</title>
+<title>ThermoNova v9.1</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
-body{font-family:Arial;padding:28px;color:#1f2937;line-height:1.7;background:#f8fafc}
-h1{color:#1d4ed8}
-h2{color:#0f766e;margin-top:28px}
-h3{color:#334155}
-.box{background:#ffffff;padding:16px;border-radius:14px;margin:14px 0;border:1px solid #dbeafe}
-.report-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px}
-.table-wrapper{overflow-x:auto;overflow-y:hidden;border:1px solid #dbeafe;border-radius:12px;background:#fff;padding:0;margin-top:14px}
-table{border-collapse:collapse;min-width:1900px;width:100%}
-th,td{border:1px solid #cbd5e1;padding:8px;text-align:left;font-size:14px;vertical-align:top}
-th{background:#e2e8f0}
-.report-chart-box{background:#ffffff;padding:14px;border-radius:14px;margin:16px 0;border:1px solid #dbeafe}
+
+body{
+font-family:Arial;
+margin:0;
+background:#eef2f7;
+color:#1f2937;
+}
+
+.container{
+max-width:1400px;
+margin:auto;
+padding:25px;
+}
+
+.hero{
+background:linear-gradient(120deg,#1e3a8a,#0f766e);
+color:white;
+padding:28px;
+border-radius:20px;
+margin-bottom:20px;
+}
+
+.hero h1{
+margin:0;
+font-size:38px;
+}
+
+.card{
+background:white;
+border-radius:18px;
+padding:20px;
+margin-bottom:18px;
+box-shadow:0 5px 20px rgba(0,0,0,0.08);
+}
+
+button{
+background:#2563eb;
+color:white;
+padding:14px 20px;
+border:none;
+border-radius:10px;
+font-size:18px;
+cursor:pointer;
+margin-right:10px;
+}
+
+.metric-grid{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:16px;
+}
+
+.metric{
+background:#f8fafc;
+padding:16px;
+border-radius:14px;
+border:1px solid #dbeafe;
+}
+
+.metric .value{
+font-size:26px;
+font-weight:700;
+margin-top:6px;
+}
+
+.table-wrap{
+overflow-x:auto;
+border:1px solid #dbeafe;
+border-radius:14px;
+}
+
+table{
+border-collapse:collapse;
+min-width:2000px;
+width:100%;
+}
+
+th,td{
+padding:10px;
+border-bottom:1px solid #e5e7eb;
+font-size:14px;
+}
+
+th{
+background:#e2e8f0;
+}
+
+.chart{
+height:380px;
+}
+
+textarea{
+width:100%;
+height:200px;
+font-size:16px;
+}
+
 </style>
 </head>
+
 <body>
-<h1>ThermoNova v9 Industrial Recovery Intelligence Report</h1>
 
-<div class="box">
-  <h2>Executive Summary</h2>
-  <p><strong>Total Sources:</strong> ${rows.length}</p>
-  <p><strong>Top Opportunity:</strong> ${top.source_id} / ${top.plant_unit}</p>
-  <p><strong>Heat Grade:</strong> ${top.heat_grade}</p>
-  <p><strong>Recovery Path:</strong> ${top.recovery_path}</p>
-  <p><strong>Technology:</strong> ${top.technology}</p>
-  <p><strong>Total Annual Value:</strong> ${formatMoney(totalAnnual)}</p>
-  <p><strong>Total CO2 Avoided:</strong> ${totalCO2.toFixed(2)} t/year</p>
+<div class="container">
+
+<div class="hero">
+<h1>ThermoNova v9.1</h1>
+<p>Industrial Waste Heat Recovery Decision Intelligence</p>
 </div>
 
-<div class="box">
-  <h2>Best Opportunity Deep Analysis</h2>
-  <p><strong>Source:</strong> ${top.source_id} / ${top.plant_unit}</p>
-  <p><strong>Equipment Type:</strong> ${top.equipment_type}</p>
-  <p><strong>Process Criticality:</strong> ${top.process_criticality}</p>
-  <p><strong>Heat Grade:</strong> ${top.heat_grade}</p>
-  <p><strong>Heat Quality:</strong> ${top.heat_quality}</p>
-  <p><strong>Recovery Path:</strong> ${top.recovery_path}</p>
-  <p><strong>Technology:</strong> ${top.technology}</p>
-  <p><strong>Electrical Power:</strong> ${top.electrical_power_kw.toFixed(2)} kW</p>
-  <p><strong>Annual Value:</strong> ${formatMoney(top.annual_value_usd)}</p>
-  <p><strong>Payback:</strong> ${top.payback_years.toFixed(2)} years</p>
-  <p><strong>NPV:</strong> ${formatMoney(top.npv_usd)}</p>
-  <p><strong>IRR:</strong> ${top.irr_percent.toFixed(1)}%</p>
-  <p><strong>CO2 Avoided:</strong> ${top.co2_avoided_tpy.toFixed(2)} t/year</p>
-  <p><strong>Confidence Score:</strong> ${top.confidence_score}/100</p>
-  <p><strong>Data Quality:</strong> ${top.data_quality}</p>
-  <p><strong>Engineering Note:</strong> ${top.engineering_note}</p>
+<div class="card">
+<h2>Data Input</h2>
+<input type="file" id="file">
+<button onclick="loadExample()">Load Example Dataset</button>
+<button onclick="run()">Run Analysis</button>
+<button onclick="downloadReport()">Download Report</button>
 </div>
 
-${chartSvg("Electrical Power by Source", rows.map(r => r.electrical_power_kw), "#2563eb", "kW")}
-${chartSvg("Annual Value by Source", rows.map(r => r.annual_value_usd), "#16a34a", "USD")}
-${chartSvg("CO2 Avoided by Source", rows.map(r => r.co2_avoided_tpy), "#b45309", "t/y")}
+<div class="card">
+<h2>Executive Summary</h2>
 
-<h2>Opportunity Profiles</h2>
-<div class="report-grid">
-${rows.map(r => `
-  <div class="box">
-    <h3>${r.source_id} / ${r.plant_unit}</h3>
-    <p><strong>Equipment Type:</strong> ${r.equipment_type}</p>
-    <p><strong>Process Criticality:</strong> ${r.process_criticality}</p>
-    <p><strong>Heat Grade:</strong> ${r.heat_grade}</p>
-    <p><strong>Heat Quality:</strong> ${r.heat_quality}</p>
-    <p><strong>Recovery Path:</strong> ${r.recovery_path}</p>
-    <p><strong>Technology:</strong> ${r.technology}</p>
-    <p><strong>Interpretation:</strong> ${buildInterpretation(r)}</p>
-  </div>
-`).join("")}
+<div class="metric-grid">
+
+<div class="metric">
+Total Sources
+<div class="value" id="m1">0</div>
 </div>
+
+<div class="metric">
+Top Electrical Power
+<div class="value" id="m2">0</div>
+</div>
+
+<div class="metric">
+Net Annual Benefit
+<div class="value" id="m3">0</div>
+</div>
+
+<div class="metric">
+Average IRR
+<div class="value" id="m4">0</div>
+</div>
+
+</div>
+
+</div>
+
+<div class="card">
+<h2>Charts</h2>
+
+<canvas id="powerChart" class="chart"></canvas>
+
+</div>
+
+<div class="card">
 
 <h2>Opportunity Ranking</h2>
-<div class="table-wrapper">
-<table>
+
+<div class="table-wrap">
+
+<table id="table">
+
 <thead>
 <tr>
 <th>Rank</th>
-<th>Source ID</th>
-<th>Plant Unit</th>
-<th>Equipment Type</th>
-<th>Process Criticality</th>
-<th>Heat Grade</th>
+<th>Source</th>
+<th>Thermal kW</th>
+<th>Electrical kW</th>
+<th>Annual Value</th>
+<th>OPEX</th>
+<th>Net Benefit</th>
+<th>NPV</th>
+<th>IRR</th>
+<th>Payback</th>
 <th>Heat Quality</th>
-<th>Recovery Path</th>
-<th>Technology</th>
-<th>Thermal Power kW</th>
-<th>Electrical Power kW</th>
-<th>Annual Value USD</th>
-<th>CAPEX USD</th>
-<th>OPEX USD</th>
-<th>Payback Years</th>
-<th>NPV USD</th>
-<th>IRR %</th>
-<th>CO2 Avoided t/y</th>
-<th>Confidence Score</th>
-<th>Data Quality</th>
-<th>Engineering Note</th>
+<th>Decision Score</th>
+<th>Risk Score</th>
 </tr>
 </thead>
-<tbody>
-${rows.map(r => `
-<tr>
-<td>${r.rank}</td>
-<td>${r.source_id}</td>
-<td>${r.plant_unit}</td>
-<td>${r.equipment_type}</td>
-<td>${r.process_criticality}</td>
-<td>${r.heat_grade}</td>
-<td>${r.heat_quality}</td>
-<td>${r.recovery_path}</td>
-<td>${r.technology}</td>
-<td>${r.thermal_power_kw.toFixed(2)}</td>
-<td>${r.electrical_power_kw.toFixed(2)}</td>
-<td>${formatMoney(r.annual_value_usd)}</td>
-<td>${formatMoney(r.capex_usd)}</td>
-<td>${formatMoney(r.opex_usd)}</td>
-<td>${r.payback_years.toFixed(2)}</td>
-<td>${formatMoney(r.npv_usd)}</td>
-<td>${r.irr_percent.toFixed(1)}%</td>
-<td>${r.co2_avoided_tpy.toFixed(2)}</td>
-<td>${r.confidence_score}/100</td>
-<td>${r.data_quality}</td>
-<td>${r.engineering_note}</td>
-</tr>
-`).join("")}
-</tbody>
+
+<tbody></tbody>
+
 </table>
+
 </div>
 
-<div class="box">
-  <h2>Methodology</h2>
-  <p>Thermal Power = mass_flow × cp × DeltaT</p>
-  <p>Electrical Power = Thermal Power × technology efficiency</p>
-  <p>Annual Value = Electrical Power × operating hours × electricity price</p>
-  <p>OPEX = 4% of CAPEX annually</p>
-  <p>NPV = discounted cash flow over 10 years at 10% discount rate</p>
-  <p>IRR = approximate internal rate of return based on annual net benefit over CAPEX</p>
-  <p>Heat grade and recovery path are selected using stream temperature regime, heat lift, and equipment context.</p>
 </div>
 
-</body>
-</html>`;
-    }
+<div class="card">
+<h2>Technical Notes</h2>
+<textarea id="notes"></textarea>
+</div>
 
-    document.getElementById("loadExampleBtn").addEventListener("click", () => {
-      currentCsvText = exampleCsv;
-      document.getElementById("statusBox").textContent = "Example dataset loaded.";
-    });
+</div>
 
-    document.getElementById("csvFile").addEventListener("change", async (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-      currentCsvText = await file.text();
-      document.getElementById("statusBox").textContent = "CSV file loaded: " + file.name;
-    });
 
-    document.getElementById("runBtn").addEventListener("click", () => {
-      try {
-        if (!currentCsvText) throw new Error("Please choose a CSV file or load the example dataset first.");
-        lastResults = analyzeData(currentCsvText);
-        setSummary(lastResults);
-        renderBestOpportunity(lastResults[0]);
-        renderProfiles(lastResults);
-        renderTable(lastResults);
-        renderCharts(lastResults);
-        document.getElementById("notesBox").value =
-`ThermoNova v9 Industrial Recovery Intelligence
+<script>
 
-Added in v9:
-1. Thermodynamic classification
-2. Recovery-path recommendation
-3. Technology-selection logic
-4. Engineering interpretation engine
-5. Independent report generator
-6. Auto-formatted report with scrollable tables
-7. Enlarged charts
+let csvData=""
+let results=[]
 
-This version is structurally closer to an industrial recovery decision platform than a basic thermal calculator.`;
-        document.getElementById("statusBox").textContent = "Analysis completed successfully.";
-      } catch (err) {
-        document.getElementById("statusBox").textContent = "Error: " + err.message;
-        document.getElementById("notesBox").value = "Execution error:\n" + err.message;
-      }
-    });
+function loadExample(){
 
-    document.getElementById("downloadReportBtn").addEventListener("click", () => {
-      if (!lastResults.length) {
-        alert("Run the analysis first.");
-        return;
-      }
-      const html = buildReportHTML(lastResults);
-      const blob = new Blob([html], { type: "text/html" });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = "ThermoNova_v9_Report.html";
-      a.click();
-      URL.revokeObjectURL(a.href);
-    });
-  </script>
+csvData=`source_id,mass_flow,cp,t_hot,t_cold,operating_hours,electricity_price
+SRC001,3.2,4.18,250,120,7200,0.11
+SRC002,2.7,4.18,210,95,7000,0.11
+SRC003,2.1,4.18,230,100,7500,0.11
+SRC004,3.6,4.18,270,140,6800,0.11
+SRC005,2.0,4.18,195,90,6500,0.11`
+
+}
+
+document.getElementById("file").addEventListener("change",async e=>{
+csvData=await e.target.files[0].text()
+})
+
+function parse(text){
+
+let rows=text.trim().split("\n")
+let h=rows[0].split(",")
+
+return rows.slice(1).map(r=>{
+let v=r.split(",")
+let o={}
+h.forEach((x,i)=>o[x]=v[i])
+return o
+})
+
+}
+
+function num(x){return Number(x)}
+
+function run(){
+
+let rows=parse(csvData)
+
+results=rows.map(r=>{
+
+let mf=num(r.mass_flow)
+let cp=num(r.cp)
+let th=num(r.t_hot)
+let tc=num(r.t_cold)
+
+let dT=th-tc
+
+let thermal=mf*cp*dT
+
+let eff=0.22
+
+let electrical=thermal*eff
+
+let energy=electrical*num(r.operating_hours)
+
+let price=num(r.electricity_price)
+
+let annual=energy*price
+
+let capex=electrical*1800
+
+let opex=capex*0.04
+
+let net=annual-opex
+
+let payback=capex/net
+
+let npv=net*6-capex
+
+let irr=(net/capex)*100
+
+let quality=dT>120?"High":"Medium"
+
+let decisionScore=
+electrical*0.4+
+npv*0.0005+
+irr*2+
+(quality==="High"?50:20)
+
+let riskScore=
+payback>4?70:30
+
+return{
+
+source:r.source_id,
+thermal,
+electrical,
+annual,
+opex,
+net,
+npv,
+irr,
+payback,
+quality,
+decisionScore,
+riskScore
+
+}
+
+})
+
+results.sort((a,b)=>b.decisionScore-a.decisionScore)
+
+render()
+
+}
+
+function render(){
+
+document.getElementById("m1").innerText=results.length
+document.getElementById("m2").innerText=results[0].electrical.toFixed(1)+" kW"
+document.getElementById("m3").innerText="$"+results.reduce((a,b)=>a+b.net,0).toFixed(0)
+document.getElementById("m4").innerText=(results.reduce((a,b)=>a+b.irr,0)/results.length).toFixed(1)+"%"
+
+let tb=document.querySelector("#table tbody")
+tb.innerHTML=""
+
+results.forEach((r,i)=>{
+
+tb.innerHTML+=`
+<tr>
+<td>${i+1}</td>
+<td>${r.source}</td>
+<td>${r.thermal.toFixed(1)}</td>
+<td>${r.electrical.toFixed(1)}</td>
+<td>$${r.annual.toFixed(0)}</td>
+<td>$${r.opex.toFixed(0)}</td>
+<td>$${r.net.toFixed(0)}</td>
+<td>$${r.npv.toFixed(0)}</td>
+<td>${r.irr.toFixed(1)}%</td>
+<td>${r.payback.toFixed(2)}</td>
+<td>${r.quality}</td>
+<td>${r.decisionScore.toFixed(0)}</td>
+<td>${r.riskScore}</td>
+</tr>
+`
+
+})
+
+renderChart()
+
+document.getElementById("notes").value=
+"ThermoNova v9.1 adds decision-grade ranking using multi-factor evaluation instead of simple power ranking."
+
+}
+
+function renderChart(){
+
+let labels=results.map(x=>x.source)
+
+let data=results.map(x=>x.electrical)
+
+new Chart(document.getElementById("powerChart"),{
+type:"bar",
+data:{
+labels,
+datasets:[{data,backgroundColor:"#2563eb"}]
+},
+options:{responsive:true}
+})
+
+}
+
+function downloadReport(){
+
+let html=document.documentElement.outerHTML
+
+let blob=new Blob([html],{type:"text/html"})
+
+let a=document.createElement("a")
+
+a.href=URL.createObjectURL(blob)
+
+a.download="ThermoNova_Report_v9.1.html"
+
+a.click()
+
+}
+
+</script>
+
 </body>
 </html>
