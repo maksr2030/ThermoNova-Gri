@@ -622,26 +622,186 @@ Implementation note:
 Top opportunity should be validated through field measurements, exhaust characterization, fouling review, integration study, and shutdown planning.`;
 }
 
+function formatMoney(value){
+  return "$" + Number(value).toLocaleString(undefined, {maximumFractionDigits: 2});
+}
+
+function formatNumber(value, digits=2){
+  return Number(value).toLocaleString(undefined, {
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits
+  });
+}
+
+function buildBarChartSVG(title, rows, field, color, unit){
+  const maxValue = Math.max(...rows.map(r => r[field]));
+  const barHeight = 26;
+  const gap = 18;
+  const leftPad = 170;
+  const rightPad = 90;
+  const width = 900;
+  const chartWidth = width - leftPad - rightPad;
+  const height = rows.length * (barHeight + gap) + 70;
+
+  let bars = "";
+  rows.forEach((r, i) => {
+    const y = 40 + i * (barHeight + gap);
+    const barW = maxValue > 0 ? (r[field] / maxValue) * chartWidth : 0;
+    const label = r.source_id;
+    const valueText = `${formatNumber(r[field], 1)} ${unit}`;
+
+    bars += `
+      <text x="10" y="${y + 18}" font-size="14" fill="#1f2937">${label}</text>
+      <rect x="${leftPad}" y="${y}" width="${chartWidth}" height="${barHeight}" rx="8" fill="#e5e7eb"></rect>
+      <rect x="${leftPad}" y="${y}" width="${barW}" height="${barHeight}" rx="8" fill="${color}"></rect>
+      <text x="${leftPad + chartWidth + 10}" y="${y + 18}" font-size="13" fill="#111827">${valueText}</text>
+    `;
+  });
+
+  return `
+    <div style="margin-top:22px;">
+      <h3 style="color:#0f766e; margin-bottom:10px;">${title}</h3>
+      <svg viewBox="0 0 ${width} ${height}" style="width:100%; height:auto; background:#ffffff; border:1px solid #dbeafe; border-radius:14px; padding:8px;">
+        ${bars}
+      </svg>
+    </div>
+  `;
+}
+
+function buildKpiCards(rows){
+  const top = rows[0];
+  const totalPower = rows.reduce((a,b)=>a+b.electrical_power_kw,0);
+  const totalAnnual = rows.reduce((a,b)=>a+b.annual_value_usd,0);
+  const totalCO2 = rows.reduce((a,b)=>a+b.co2_avoided_tpy,0);
+  const bestPayback = Math.min(...rows.map(r=>r.payback_years));
+
+  return `
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:18px;">
+      <div style="background:#f8fafc;border:1px solid #dbeafe;border-radius:14px;padding:16px;">
+        <div style="font-size:14px;color:#475569;">Best Opportunity</div>
+        <div style="font-size:26px;font-weight:700;color:#111827;margin-top:8px;">${top.source_id}</div>
+      </div>
+      <div style="background:#f8fafc;border:1px solid #dbeafe;border-radius:14px;padding:16px;">
+        <div style="font-size:14px;color:#475569;">Total Electrical Power</div>
+        <div style="font-size:26px;font-weight:700;color:#111827;margin-top:8px;">${formatNumber(totalPower,1)} kW</div>
+      </div>
+      <div style="background:#f8fafc;border:1px solid #dbeafe;border-radius:14px;padding:16px;">
+        <div style="font-size:14px;color:#475569;">Total Annual Value</div>
+        <div style="font-size:26px;font-weight:700;color:#111827;margin-top:8px;">${formatMoney(totalAnnual)}</div>
+      </div>
+      <div style="background:#f8fafc;border:1px solid #dbeafe;border-radius:14px;padding:16px;">
+        <div style="font-size:14px;color:#475569;">Total CO2 Avoided</div>
+        <div style="font-size:26px;font-weight:700;color:#111827;margin-top:8px;">${formatNumber(totalCO2,1)} t/y</div>
+      </div>
+      <div style="background:#f8fafc;border:1px solid #dbeafe;border-radius:14px;padding:16px;">
+        <div style="font-size:14px;color:#475569;">Best Payback</div>
+        <div style="font-size:26px;font-weight:700;color:#111827;margin-top:8px;">${formatNumber(bestPayback,2)} years</div>
+      </div>
+    </div>
+  `;
+}
+
+function formatMoney(value){
+  return "$" + Number(value).toLocaleString(undefined, {maximumFractionDigits: 2});
+}
+
+function formatNumber(value, digits=2){
+  return Number(value).toLocaleString(undefined, {
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits
+  });
+}
+
+function buildBarChartSVG(title, rows, field, color, unit){
+  const maxValue = Math.max(...rows.map(r => r[field]));
+  const barHeight = 26;
+  const gap = 18;
+  const leftPad = 170;
+  const rightPad = 90;
+  const width = 900;
+  const chartWidth = width - leftPad - rightPad;
+  const height = rows.length * (barHeight + gap) + 70;
+
+  let bars = "";
+  rows.forEach((r, i) => {
+    const y = 40 + i * (barHeight + gap);
+    const barW = maxValue > 0 ? (r[field] / maxValue) * chartWidth : 0;
+    const label = r.source_id;
+    const valueText = `${formatNumber(r[field], 1)} ${unit}`;
+
+    bars += `
+      <text x="10" y="${y + 18}" font-size="14" fill="#1f2937">${label}</text>
+      <rect x="${leftPad}" y="${y}" width="${chartWidth}" height="${barHeight}" rx="8" fill="#e5e7eb"></rect>
+      <rect x="${leftPad}" y="${y}" width="${barW}" height="${barHeight}" rx="8" fill="${color}"></rect>
+      <text x="${leftPad + chartWidth + 10}" y="${y + 18}" font-size="13" fill="#111827">${valueText}</text>
+    `;
+  });
+
+  return `
+    <div style="margin-top:22px;">
+      <h3 style="color:#0f766e; margin-bottom:10px;">${title}</h3>
+      <svg viewBox="0 0 ${width} ${height}" style="width:100%; height:auto; background:#ffffff; border:1px solid #dbeafe; border-radius:14px; padding:8px;">
+        ${bars}
+      </svg>
+    </div>
+  `;
+}
+
+function buildKpiCards(rows){
+  const top = rows[0];
+  const totalPower = rows.reduce((a,b)=>a+b.electrical_power_kw,0);
+  const totalAnnual = rows.reduce((a,b)=>a+b.annual_value_usd,0);
+  const totalCO2 = rows.reduce((a,b)=>a+b.co2_avoided_tpy,0);
+  const bestPayback = Math.min(...rows.map(r=>r.payback_years));
+
+  return `
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:18px;">
+      <div style="background:#f8fafc;border:1px solid #dbeafe;border-radius:14px;padding:16px;">
+        <div style="font-size:14px;color:#475569;">Best Opportunity</div>
+        <div style="font-size:26px;font-weight:700;color:#111827;margin-top:8px;">${top.source_id}</div>
+      </div>
+      <div style="background:#f8fafc;border:1px solid #dbeafe;border-radius:14px;padding:16px;">
+        <div style="font-size:14px;color:#475569;">Total Electrical Power</div>
+        <div style="font-size:26px;font-weight:700;color:#111827;margin-top:8px;">${formatNumber(totalPower,1)} kW</div>
+      </div>
+      <div style="background:#f8fafc;border:1px solid #dbeafe;border-radius:14px;padding:16px;">
+        <div style="font-size:14px;color:#475569;">Total Annual Value</div>
+        <div style="font-size:26px;font-weight:700;color:#111827;margin-top:8px;">${formatMoney(totalAnnual)}</div>
+      </div>
+      <div style="background:#f8fafc;border:1px solid #dbeafe;border-radius:14px;padding:16px;">
+        <div style="font-size:14px;color:#475569;">Total CO2 Avoided</div>
+        <div style="font-size:26px;font-weight:700;color:#111827;margin-top:8px;">${formatNumber(totalCO2,1)} t/y</div>
+      </div>
+      <div style="background:#f8fafc;border:1px solid #dbeafe;border-radius:14px;padding:16px;">
+        <div style="font-size:14px;color:#475569;">Best Payback</div>
+        <div style="font-size:26px;font-weight:700;color:#111827;margin-top:8px;">${formatNumber(bestPayback,2)} years</div>
+      </div>
+    </div>
+  `;
+}
+
 function buildBestOpportunityDeepAnalysis(top){
   return `
     <div class="box">
       <h2>Best Opportunity Deep Analysis</h2>
       <p><strong>Source:</strong> ${top.source_id} / ${top.plant_unit}</p>
       <p><strong>Recommended Technology:</strong> ${top.technology}</p>
-      <p><strong>Electrical Power Potential:</strong> ${top.electrical_power_kw.toFixed(2)} kW</p>
-      <p><strong>Annual Economic Value:</strong> $${top.annual_value_usd.toFixed(2)}</p>
-      <p><strong>Payback Period:</strong> ${top.payback_years.toFixed(2)} years</p>
-      <p><strong>CO2 Avoided:</strong> ${top.co2_avoided_tpy.toFixed(2)} t/year</p>
+      <p><strong>Electrical Power Potential:</strong> ${formatNumber(top.electrical_power_kw,2)} kW</p>
+      <p><strong>Annual Economic Value:</strong> ${formatMoney(top.annual_value_usd)}</p>
+      <p><strong>Payback Period:</strong> ${formatNumber(top.payback_years,2)} years</p>
+      <p><strong>CO2 Avoided:</strong> ${formatNumber(top.co2_avoided_tpy,2)} t/year</p>
       <p>
         ${top.source_id} in ${top.plant_unit} is ranked as the strongest opportunity because it combines
-        high thermal quality, high electrical conversion potential, strong annual economic return,
-        and meaningful carbon reduction. In practical industrial deployment, the hot exhaust stream
-        or furnace waste heat stream would be captured through a high-temperature heat exchanger,
-        transferred into a thermal loop, and routed into a ${top.technology} package for electricity generation.
+        strong heat quality, high conversion potential, strong annual economic value, and meaningful carbon reduction.
       </p>
       <p>
-        Before execution, the plant should validate heat-source stability, fouling tendency, pressure-drop constraints,
-        available installation space, shutdown window, safety conditions, and integration with plant electrical systems.
+        In practical implementation, waste heat from the furnace or hot exhaust stream would be captured through
+        a high-temperature recovery heat exchanger, transferred into a thermal loop, and then routed to a
+        ${top.technology} package for electricity generation or equivalent energy recovery.
+      </p>
+      <p>
+        Before implementation, the plant should validate source stability, fouling tendency, pressure-drop constraints,
+        installation space, shutdown windows, electrical integration, and safety controls.
       </p>
     </div>
   `;
@@ -655,14 +815,14 @@ function buildOpportunityProfiles(rows){
         <h3>${r.source_id} / ${r.plant_unit}</h3>
         <p><strong>Heat Quality:</strong> ${r.heat_quality}</p>
         <p><strong>Recommended Technology:</strong> ${r.technology}</p>
-        <p><strong>Thermal Power:</strong> ${r.thermal_power_kw.toFixed(2)} kW</p>
-        <p><strong>Electrical Power:</strong> ${r.electrical_power_kw.toFixed(2)} kW</p>
-        <p><strong>Annual Value:</strong> $${r.annual_value_usd.toFixed(2)}</p>
-        <p><strong>Payback:</strong> ${r.payback_years.toFixed(2)} years</p>
-        <p><strong>CO2 Avoided:</strong> ${r.co2_avoided_tpy.toFixed(2)} t/year</p>
+        <p><strong>Thermal Power:</strong> ${formatNumber(r.thermal_power_kw,2)} kW</p>
+        <p><strong>Electrical Power:</strong> ${formatNumber(r.electrical_power_kw,2)} kW</p>
+        <p><strong>Annual Value:</strong> ${formatMoney(r.annual_value_usd)}</p>
+        <p><strong>Payback:</strong> ${formatNumber(r.payback_years,2)} years</p>
+        <p><strong>CO2 Avoided:</strong> ${formatNumber(r.co2_avoided_tpy,2)} t/year</p>
         <p>
           This source is classified as a ${r.heat_quality.toLowerCase()}-quality industrial heat recovery opportunity.
-          The recommended solution is ${r.technology}, based on the available temperature lift and expected electrical output.
+          The recommended solution is ${r.technology}, selected based on the available temperature lift and expected electrical output.
         </p>
       </div>
     `;
@@ -691,12 +851,12 @@ function buildImplementationGuide(){
   return `
     <div class="box">
       <h2>Engineering Implementation Guide</h2>
-      <p>1. Identify the hot exhaust or waste heat stream in the plant.</p>
-      <p>2. Install a suitable heat recovery exchanger rated for the operating temperature and contamination risk.</p>
-      <p>3. Transfer the recovered energy to a thermal loop or directly into the selected recovery package.</p>
-      <p>4. Deploy the recommended conversion technology such as ORC, hybrid steam/ORC, or direct heat recovery.</p>
-      <p>5. Integrate the generated energy with internal plant loads or facility electrical systems.</p>
-      <p>6. Validate safety, controls, maintenance access, fouling mitigation, and shutdown planning before implementation.</p>
+      <p>1. Identify the hot exhaust or waste heat stream inside the plant.</p>
+      <p>2. Install a heat recovery exchanger designed for operating temperature and fouling conditions.</p>
+      <p>3. Transfer the recovered energy into a thermal loop or suitable conversion package.</p>
+      <p>4. Deploy the recommended recovery technology such as ORC, hybrid steam/ORC, or direct heat recovery.</p>
+      <p>5. Integrate the recovered energy with internal plant electrical or thermal loads.</p>
+      <p>6. Validate maintenance access, safety, shutdown planning, and controls integration before execution.</p>
     </div>
   `;
 }
@@ -708,13 +868,13 @@ function buildRankingTable(rows){
       <td>${r.source_id}</td>
       <td>${r.plant_unit}</td>
       <td>${r.technology}</td>
-      <td>${r.electrical_power_kw.toFixed(2)}</td>
-      <td>$${r.annual_value_usd.toFixed(2)}</td>
-      <td>$${r.capex_usd.toFixed(2)}</td>
-      <td>${r.payback_years.toFixed(2)}</td>
-      <td>$${r.npv_usd.toFixed(2)}</td>
-      <td>${r.irr_percent.toFixed(1)}%</td>
-      <td>${r.co2_avoided_tpy.toFixed(2)}</td>
+      <td>${formatNumber(r.electrical_power_kw,2)}</td>
+      <td>${formatMoney(r.annual_value_usd)}</td>
+      <td>${formatMoney(r.capex_usd)}</td>
+      <td>${formatNumber(r.payback_years,2)}</td>
+      <td>${formatMoney(r.npv_usd)}</td>
+      <td>${formatNumber(r.irr_percent,1)}%</td>
+      <td>${formatNumber(r.co2_avoided_tpy,2)}</td>
       <td>${r.execution_readiness}</td>
     </tr>
   `).join("");
@@ -729,18 +889,16 @@ function buildRankingTable(rows){
           <th>Plant Unit</th>
           <th>Technology</th>
           <th>Power kW</th>
-          <th>Annual Value USD</th>
-          <th>CAPEX USD</th>
+          <th>Annual Value</th>
+          <th>CAPEX</th>
           <th>Payback</th>
-          <th>NPV USD</th>
-          <th>IRR %</th>
+          <th>NPV</th>
+          <th>IRR</th>
           <th>CO2 Avoided</th>
           <th>Execution Readiness</th>
         </tr>
       </thead>
-      <tbody>
-        ${rowsHtml}
-      </tbody>
+      <tbody>${rowsHtml}</tbody>
     </table>
   `;
 }
@@ -750,9 +908,9 @@ function buildDataAppendix(rows){
     <tr>
       <td>${r.source_id}</td>
       <td>${r.plant_unit}</td>
-      <td>${r.flow.toFixed(2)}</td>
-      <td>${r.cp.toFixed(2)}</td>
-      <td>${r.deltaT.toFixed(2)}</td>
+      <td>${formatNumber(r.flow,2)}</td>
+      <td>${formatNumber(r.cp,2)}</td>
+      <td>${formatNumber(r.deltaT,2)}</td>
       <td>${r.operating_hours}</td>
       <td>${r.electricity_price}</td>
       <td>${r.grid_emission_factor}</td>
@@ -774,49 +932,59 @@ function buildDataAppendix(rows){
           <th>Grid Emission Factor</th>
         </tr>
       </thead>
-      <tbody>
-        ${rowsHtml}
-      </tbody>
+      <tbody>${rowsHtml}</tbody>
     </table>
   `;
 }
 
 function downloadReport(){
+  if(!lastResults || !lastResults.length){
+    alert("Run the analysis first.");
+    return;
+  }
 
   const top = lastResults[0];
   const totalAnnual = lastResults.reduce((a,b)=>a+b.annual_value_usd,0);
   const totalCO2 = lastResults.reduce((a,b)=>a+b.co2_avoided_tpy,0);
   const totalPower = lastResults.reduce((a,b)=>a+b.electrical_power_kw,0);
 
+  const chartsHtml = `
+    ${buildBarChartSVG("Recoverable Electrical Power by Source", lastResults, "electrical_power_kw", "#2563eb", "kW")}
+    ${buildBarChartSVG("Annual Value by Source", lastResults, "annual_value_usd", "#16a34a", "USD")}
+    ${buildBarChartSVG("CO2 Avoided by Source", lastResults, "co2_avoided_tpy", "#b45309", "t/y")}
+  `;
+
   const html = `
   <!DOCTYPE html>
   <html>
   <head>
     <meta charset="UTF-8">
-    <title>ThermoNova_v5_Report</title>
+    <title>ThermoNova_v5.1_Report</title>
     <style>
-      body{font-family:Arial;padding:30px;color:#1f2937;line-height:1.7}
+      body{font-family:Arial;padding:30px;color:#1f2937;line-height:1.7;background:#f8fafc}
       h1{color:#1d4ed8}
       h2{color:#0f766e;margin-top:28px}
       h3{color:#334155}
       table{border-collapse:collapse;width:100%;margin-top:16px}
       th,td{border:1px solid #cbd5e1;padding:8px;text-align:left;font-size:14px}
       th{background:#e2e8f0}
-      .box{background:#f8fafc;padding:14px;border-radius:12px;margin:12px 0}
+      .box{background:#ffffff;padding:16px;border-radius:14px;margin:14px 0;border:1px solid #dbeafe}
     </style>
   </head>
   <body>
-    <h1>ThermoNova Grid v5 Report</h1>
+    <h1>ThermoNova Grid v5.1 Report</h1>
 
     <div class="box">
       <h2>Executive Summary</h2>
       <p><strong>Total Sources:</strong> ${lastResults.length}</p>
       <p><strong>Best Opportunity:</strong> ${top.source_id} / ${top.plant_unit}</p>
-      <p><strong>Total Recoverable Electrical Power:</strong> ${totalPower.toFixed(2)} kW</p>
-      <p><strong>Total Annual Value:</strong> $${totalAnnual.toFixed(2)}</p>
-      <p><strong>Total CO2 Avoided:</strong> ${totalCO2.toFixed(2)} t/year</p>
+      <p><strong>Total Recoverable Electrical Power:</strong> ${formatNumber(totalPower,2)} kW</p>
+      <p><strong>Total Annual Value:</strong> ${formatMoney(totalAnnual)}</p>
+      <p><strong>Total CO2 Avoided:</strong> ${formatNumber(totalCO2,2)} t/year</p>
     </div>
 
+    ${buildKpiCards(lastResults)}
+    ${chartsHtml}
     ${buildBestOpportunityDeepAnalysis(top)}
     ${buildOpportunityProfiles(lastResults)}
     ${buildRankingTable(lastResults)}
@@ -830,11 +998,10 @@ function downloadReport(){
   const blob = new Blob([html], {type:"text/html"});
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-  a.download = "ThermoNova_v5_Report.html";
+  a.download = "ThermoNova_v5.1_Report.html";
   a.click();
   URL.revokeObjectURL(a.href);
 }
-
   const top = lastResults[0];
   const rowsHtml = lastResults.map(r => `
     <tr>
