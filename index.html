@@ -358,17 +358,27 @@ function splitCsvLine(line){
 }
 
 function parseCSV(text){
-  const lines = text.trim().split(/\r?\n/).filter(Boolean);
+  const cleaned = text.replace(/\r\n/g, "\n").replace(/\r/g, "\n").trim();
+  const lines = cleaned.split("\n").filter(line => line.trim() !== "");
   if(lines.length < 2) throw new Error("CSV file is empty or missing data rows.");
+
   const headers = splitCsvLine(lines[0]).map(h => h.trim());
   const rows = [];
-  for(let i=1;i<lines.length;i++){
+
+  for(let i = 1; i < lines.length; i++){
     const parts = splitCsvLine(lines[i]);
     if(parts.length !== headers.length) continue;
+
     const obj = {};
-    headers.forEach((h, idx) => obj[h] = parts[idx].trim());
+    headers.forEach((h, idx) => {
+      obj[h] = (parts[idx] || "").trim();
+    });
     rows.push(obj);
   }
+
+  return {headers, rows};
+}
+
   return {headers, rows};
 }
 
