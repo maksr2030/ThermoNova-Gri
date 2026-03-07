@@ -1,199 +1,585 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ThermoNova v12 Industrial Connector Layer</title>
+<title>ThermoNova v12.1 Connector UI Fix</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-body{font-family:Arial,Helvetica,sans-serif;background:#eef3f9;margin:0;padding:30px;color:#1f2937}
-.hero{background:linear-gradient(135deg,#1e3a8a,#0f766e);color:white;padding:30px;border-radius:18px;margin-bottom:25px}
-h1{margin:0;font-size:38px}
-.card{background:white;padding:22px;border-radius:16px;margin-bottom:20px;box-shadow:0 6px 18px rgba(0,0,0,.08)}
-button{background:#2563eb;color:white;border:none;padding:14px 18px;border-radius:10px;font-size:18px;margin-right:8px;cursor:pointer}
-.metric{font-size:22px;margin:8px 0}
-table{border-collapse:collapse;width:100%}
-th,td{border:1px solid #cbd5e1;padding:8px;text-align:left}
-th{background:#dbeafe}
-.chart{height:350px}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Arial,Helvetica,sans-serif;
+  background:#eef3f9;
+  color:#1f2937;
+  line-height:1.6;
+}
+.container{
+  max-width:1440px;
+  margin:0 auto;
+  padding:20px;
+}
+.hero{
+  background:linear-gradient(135deg,#1e3a8a,#0f766e);
+  color:#fff;
+  padding:28px;
+  border-radius:22px;
+  margin-bottom:18px;
+}
+.hero h1{
+  margin:0 0 10px 0;
+  font-size:40px;
+  line-height:1.15;
+}
+.hero p{
+  margin:6px 0;
+  font-size:22px;
+  line-height:1.45;
+}
+.card{
+  background:#fff;
+  border-radius:18px;
+  padding:22px;
+  margin-bottom:18px;
+  box-shadow:0 8px 24px rgba(15,23,42,.08);
+}
+h2{
+  margin:0 0 14px 0;
+  color:#1d4ed8;
+  font-size:30px;
+  line-height:1.25;
+}
+h3{
+  margin:0 0 12px 0;
+  color:#0f766e;
+  font-size:22px;
+  line-height:1.3;
+}
+.control-panel{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;
+  align-items:start;
+}
+.control-box{
+  background:#f8fafc;
+  border:1px solid #dbeafe;
+  border-radius:16px;
+  padding:16px;
+}
+.control-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px;
+  align-items:center;
+}
+.btn, .file-label, select{
+  appearance:none;
+  -webkit-appearance:none;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:56px;
+  padding:14px 18px;
+  border:none;
+  border-radius:14px;
+  font-size:19px;
+  text-decoration:none;
+}
+.btn{
+  background:#2563eb;
+  color:#fff;
+  cursor:pointer;
+}
+.btn.secondary{background:#475569}
+.btn.green{background:#15803d}
+.btn.orange{background:#b45309}
+.file-label{
+  background:#2563eb;
+  color:#fff;
+  cursor:pointer;
+  width:100%;
+}
+select{
+  width:100%;
+  background:#fff;
+  color:#111827;
+  border:1px solid #cbd5e1;
+}
+.hidden-file{
+  display:none !important;
+}
+.file-state{
+  margin-top:10px;
+  background:#eef2ff;
+  color:#1e3a8a;
+  border-radius:12px;
+  padding:12px 14px;
+  font-size:17px;
+  min-height:48px;
+  display:flex;
+  align-items:center;
+}
+.status,.notice,.warning{
+  margin-top:14px;
+  border-radius:12px;
+  padding:14px;
+  font-size:18px;
+}
+.status{background:#e0ecff;color:#1e3a8a}
+.notice{background:#f0fdf4;color:#166534;border:1px solid #bbf7d0}
+.warning{background:#fff7ed;color:#9a3412;border:1px solid #fdba74}
+.metric-grid{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:14px;
+}
+.metric{
+  background:#f8fafc;
+  border:1px solid #dbeafe;
+  border-radius:14px;
+  padding:16px;
+}
+.metric .label{
+  font-size:16px;
+  color:#475569;
+}
+.metric .value{
+  font-size:28px;
+  font-weight:700;
+  margin-top:8px;
+  line-height:1.2;
+}
+.grid2{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:16px;
+}
+.table-wrap{
+  overflow-x:auto;
+  border:1px solid #dbeafe;
+  border-radius:14px;
+  background:#fff;
+}
+table{
+  width:100%;
+  min-width:1650px;
+  border-collapse:collapse;
+}
+th,td{
+  padding:10px;
+  border-bottom:1px solid #e5e7eb;
+  text-align:left;
+  font-size:14px;
+  vertical-align:top;
+}
+th{
+  background:#dbeafe;
+  color:#1e3a8a;
+  position:sticky;
+  top:0;
+}
+.chart-card{
+  background:#f8fafc;
+  border:1px solid #dbeafe;
+  border-radius:14px;
+  padding:16px;
+}
+.chart-wrap{
+  position:relative;
+  height:340px;
+}
+.codebox{
+  background:#0f172a;
+  color:#e2e8f0;
+  border-radius:14px;
+  padding:14px;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  font-size:13px;
+  line-height:1.55;
+  white-space:pre-wrap;
+  overflow:auto;
+  min-height:180px;
+}
+textarea{
+  width:100%;
+  min-height:180px;
+  padding:14px;
+  border-radius:14px;
+  border:1px solid #cbd5e1;
+  background:#f8fafc;
+  font-size:16px;
+}
+.small{
+  font-size:13px;
+  color:#64748b;
+}
+@media (max-width:1050px){
+  .metric-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .control-panel,.grid2{grid-template-columns:1fr}
+}
+@media (max-width:640px){
+  .container{padding:14px}
+  .hero{padding:22px}
+  .hero h1{font-size:32px}
+  .hero p{font-size:19px}
+  h2{font-size:26px}
+  h3{font-size:20px}
+  .btn,.file-label,select{
+    width:100%;
+    font-size:18px;
+    min-height:54px;
+  }
+  .metric .value{font-size:24px}
+  .status,.notice,.warning,.file-state{font-size:17px}
+}
 </style>
 </head>
 <body>
+<div class="container">
+  <div class="hero">
+    <h1>ThermoNova v12.1</h1>
+    <p>Connector UI Fix + Mobile Layout Repair</p>
+    <p>Clean mobile-first control panel for CSV, JSON, API, and MQTT connector simulation</p>
+  </div>
 
-<div class="hero">
-<h1>ThermoNova v12</h1>
-<p>Industrial Connector Layer</p>
-<p>CSV / JSON / API / MQTT industrial data ingestion</p>
-</div>
+  <div class="card">
+    <h2>1. Connector Control Center</h2>
+    <div class="control-panel">
+      <div class="control-box">
+        <h3>Input Source</h3>
+        <div class="control-row">
+          <select id="sourceMode">
+            <option value="csv">CSV File</option>
+            <option value="json">JSON Dataset</option>
+            <option value="rest">REST API Mock</option>
+            <option value="mqtt">MQTT Mock Stream</option>
+          </select>
+        </div>
+        <div class="control-row">
+          <label class="file-label" for="uploadInput">Upload Industrial Dataset</label>
+          <input id="uploadInput" class="hidden-file" type="file" accept=".csv,.json,text/csv,application/json">
+        </div>
+        <div class="file-state" id="fileState">No file loaded.</div>
+      </div>
 
-<div class="card">
-<h2>Connector Control</h2>
-<input type="file" id="file">
-<button onclick="loadCSV()">Load CSV Example</button>
-<button onclick="loadJSON()">Load JSON Example</button>
-<button onclick="run()">Run Optimization</button>
-<button onclick="downloadReport()">Download HTML Report</button>
-<p id="status">Waiting for connector input.</p>
-</div>
+      <div class="control-box">
+        <h3>Actions</h3>
+        <div class="control-row">
+          <button class="btn secondary" id="loadCsvBtn" type="button">Load CSV Example</button>
+          <button class="btn secondary" id="loadJsonBtn" type="button">Load JSON Example</button>
+          <button class="btn orange" id="apiBtn" type="button">Simulate REST API</button>
+          <button class="btn orange" id="mqttBtn" type="button">Simulate MQTT</button>
+          <button class="btn green" id="runBtn" type="button">Run Optimization</button>
+          <button class="btn" id="downloadBtn" type="button">Download HTML Report</button>
+        </div>
+      </div>
+    </div>
+    <div class="status" id="statusBox">Waiting for connector input.</div>
+  </div>
 
-<div class="card">
-<h2>Connector Summary</h2>
-<div class="metric" id="sources">Assets: 0</div>
-<div class="metric" id="power">Electrical Potential: 0 MW</div>
-<div class="metric" id="value">Annual Value: $0</div>
-<div class="metric" id="co2">CO₂ Avoided: 0</div>
-<div class="metric" id="npv">Best NPV: $0</div>
-</div>
+  <div class="card">
+    <h2>2. Summary</h2>
+    <div class="metric-grid">
+      <div class="metric"><div class="label">Assets</div><div class="value" id="mAssets">0</div></div>
+      <div class="metric"><div class="label">Electrical Potential</div><div class="value" id="mPower">0 MW</div></div>
+      <div class="metric"><div class="label">Annual Value</div><div class="value" id="mValue">$0</div></div>
+      <div class="metric"><div class="label">CO2 Avoided</div><div class="value" id="mCO2">0 t</div></div>
+      <div class="metric"><div class="label">Best NPV</div><div class="value" id="mNPV">$0</div></div>
+    </div>
+    <div class="notice" id="summaryNote">No optimization yet.</div>
+  </div>
 
-<div class="card">
-<h2>Charts</h2>
-<canvas id="powerChart" class="chart"></canvas>
-<canvas id="valueChart" class="chart"></canvas>
-</div>
+  <div class="card">
+    <h2>3. Charts</h2>
+    <div class="grid2">
+      <div class="chart-card">
+        <h3>Electrical Power Ranking</h3>
+        <div class="chart-wrap"><canvas id="powerChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h3>Annual Value Ranking</h3>
+        <div class="chart-wrap"><canvas id="valueChart"></canvas></div>
+      </div>
+    </div>
+  </div>
 
-<div class="card">
-<h2>Optimization Ranking</h2>
-<table id="table">
-<thead>
-<tr>
-<th>Rank</th>
-<th>Source</th>
-<th>Thermal kW</th>
-<th>Electrical kW</th>
-<th>Annual Value</th>
-<th>CO₂ Avoided</th>
-<th>Technology</th>
-<th>Payback</th>
-<th>NPV</th>
-</tr>
-</thead>
-<tbody></tbody>
-</table>
+  <div class="card">
+    <h2>4. Connected Asset Ranking</h2>
+    <div class="table-wrap">
+      <table id="resultsTable">
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Source ID</th>
+            <th>Thermal kW</th>
+            <th>Electrical kW</th>
+            <th>Annual Value</th>
+            <th>CO2 Avoided</th>
+            <th>Technology</th>
+            <th>Payback</th>
+            <th>NPV</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>5. Connector Payload Preview</h2>
+    <div class="codebox" id="payloadPreview">No payload loaded.</div>
+  </div>
+
+  <div class="card">
+    <h2>6. Platform Notes</h2>
+    <textarea id="notesBox" readonly>Load connector input then run optimization.</textarea>
+  </div>
 </div>
 
 <script>
-const csvExample=`source_id,mass_flow,cp,t_hot,t_cold,hours,price,co2
+const csvExample = `source_id,mass_flow,cp,t_hot,t_cold,hours,price,co2
 SRC001,3.2,4.18,250,120,7200,0.11,0.47
 SRC002,2.7,4.18,210,95,7000,0.11,0.47
 SRC003,3.6,4.18,270,140,6800,0.11,0.47
 SRC004,2.4,4.18,220,110,7200,0.11,0.47
 SRC005,2.0,4.18,195,90,6500,0.11,0.47`;
 
-const jsonExample=JSON.stringify([
-{"source_id":"SRC101","mass_flow":4.1,"cp":4.05,"t_hot":380,"t_cold":145,"hours":7600,"price":0.12,"co2":0.44},
-{"source_id":"SRC102","mass_flow":5.3,"cp":4.10,"t_hot":410,"t_cold":160,"hours":7800,"price":0.12,"co2":0.44}
-]);
+const jsonExample = JSON.stringify([
+  {"source_id":"SRC101","mass_flow":4.1,"cp":4.05,"t_hot":380,"t_cold":145,"hours":7600,"price":0.12,"co2":0.44},
+  {"source_id":"SRC102","mass_flow":5.3,"cp":4.10,"t_hot":410,"t_cold":160,"hours":7800,"price":0.12,"co2":0.44}
+], null, 2);
 
-let dataset="";
-let results=[];
-let charts=[];
+const restMock = JSON.stringify({
+  connector:"REST_API_MOCK",
+  data:[
+    {"source_id":"SRC201","mass_flow":3.9,"cp":4.12,"t_hot":320,"t_cold":150,"hours":7600,"price":0.13,"co2":0.42},
+    {"source_id":"SRC202","mass_flow":4.8,"cp":4.05,"t_hot":430,"t_cold":180,"hours":7900,"price":0.13,"co2":0.42}
+  ]
+}, null, 2);
 
-function num(x){return Number(x)||0}
+const mqttMock = JSON.stringify({
+  connector:"MQTT_MOCK",
+  packets:[
+    {"source_id":"SRC301","mass_flow":3.1,"cp":4.00,"t_hot":290,"t_cold":130,"hours":7400,"price":0.10,"co2":0.49},
+    {"source_id":"SRC302","mass_flow":2.5,"cp":4.18,"t_hot":205,"t_cold":100,"hours":7100,"price":0.10,"co2":0.49}
+  ]
+}, null, 2);
+
+let rawPayload = "";
+let results = [];
+let powerChart = null;
+let valueChart = null;
+
+function num(x){ return Number(x) || 0; }
+function money(x){ return "$" + Number(x).toLocaleString(undefined,{maximumFractionDigits:2}); }
+
+function parseCSV(text){
+  const lines = text.trim().split(/\r?\n/);
+  const headers = lines[0].split(",").map(h => h.trim());
+  return lines.slice(1).map(line => {
+    const vals = line.split(",").map(v => v.trim());
+    const obj = {};
+    headers.forEach((h,i)=>obj[h]=vals[i]);
+    return obj;
+  });
+}
+
+function parseJSONPayload(text){
+  const p = JSON.parse(text);
+  if(Array.isArray(p)) return p;
+  if(Array.isArray(p.data)) return p.data;
+  if(Array.isArray(p.packets)) return p.packets;
+  return [];
+}
 
 function tech(temp){
-if(temp>300)return["Steam Rankine",0.25]
-if(temp>200)return["Organic Rankine Cycle",0.20]
-return["Heat Recovery",0.12]
+  if(temp > 300) return ["Steam Rankine",0.25];
+  if(temp > 200) return ["Organic Rankine Cycle",0.20];
+  return ["Heat Recovery",0.12];
 }
 
 function capexFactor(t){
-if(t==="Steam Rankine")return2200
-if(t==="Organic Rankine Cycle")return1800
-return1200
+  if(t==="Steam Rankine") return 2200;
+  if(t==="Organic Rankine Cycle") return 1800;
+  return 1200;
 }
 
 function npv(net,capex,years=10,rate=0.1){
-let v=-capex
-for(let i=1;i<=years;i++)v+=net/Math.pow(1+rate,i)
-return v
-}
-
-function parseCSV(text){
-let lines=text.trim().split("\n")
-let headers=lines[0].split(",")
-let out=[]
-for(let i=1;i<lines.length;i++){
-let cols=lines[i].split(",")
-let r={}
-headers.forEach((h,j)=>r[h]=cols[j])
-out.push(r)
-}
-return out
+  let v = -capex;
+  for(let i=1;i<=years;i++) v += net / Math.pow(1+rate,i);
+  return v;
 }
 
 function analyze(rows){
-let data=[]
-rows.forEach(r=>{
-let mass=num(r.mass_flow)
-let cp=num(r.cp)
-let hot=num(r.t_hot)
-let cold=num(r.t_cold)
-let dt=hot-cold
-let thermal=mass*cp*dt
-let t=tech(hot)
-let techName=t[0]
-let eff=t[1]
-let electrical=thermal*eff
-let hours=num(r.hours)
-let price=num(r.price)
-let co2=num(r.co2)
-let energy=electrical*hours
-let value=energy*price
-let co2saved=energy*co2/1000
-let capex=electrical*capexFactor(techName)
-let opex=capex*0.04
-let net=value-opex
-let payback=capex/net
-let npvVal=npv(net,capex)
-data.push({source:r.source_id,thermal,electrical,value,co2:co2saved,tech:techName,payback,npv:npvVal})
-})
-data.sort((a,b)=>b.npv-a.npv)
-data.forEach((r,i)=>r.rank=i+1)
-return data
-}
-
-function run(){
-let rows
-if(dataset.startsWith("["))rows=JSON.parse(dataset)
-else rows=parseCSV(dataset)
-results=analyze(rows)
-let totalPower=results.reduce((a,b)=>a+b.electrical,0)
-let totalValue=results.reduce((a,b)=>a+b.value,0)
-let totalCO2=results.reduce((a,b)=>a+b.co2,0)
-document.getElementById("sources").innerText="Assets: "+results.length
-document.getElementById("power").innerText="Electrical Potential: "+(totalPower/1000).toFixed(2)+" MW"
-document.getElementById("value").innerText="Annual Value: $"+totalValue.toFixed(0)
-document.getElementById("co2").innerText="CO₂ Avoided: "+totalCO2.toFixed(0)+" t"
-document.getElementById("npv").innerText="Best NPV: $"+results[0].npv.toFixed(0)
-let tbody=document.querySelector("#table tbody")
-tbody.innerHTML=""
-results.forEach(r=>{
-tbody.innerHTML+=`<tr><td>${r.rank}</td><td>${r.source}</td><td>${r.thermal.toFixed(0)}</td><td>${r.electrical.toFixed(0)}</td><td>$${r.value.toFixed(0)}</td><td>${r.co2.toFixed(0)}</td><td>${r.tech}</td><td>${r.payback.toFixed(1)} yr</td><td>$${r.npv.toFixed(0)}</td></tr>`})
-drawCharts()
+  let data = [];
+  rows.forEach(r => {
+    const mass = num(r.mass_flow);
+    const cp = num(r.cp);
+    const hot = num(r.t_hot);
+    const cold = num(r.t_cold);
+    const dt = hot - cold;
+    const thermal = mass * cp * dt;
+    const tt = tech(hot);
+    const techName = tt[0];
+    const eff = tt[1];
+    const electrical = thermal * eff;
+    const hours = num(r.hours);
+    const price = num(r.price);
+    const co2 = num(r.co2);
+    const energy = electrical * hours;
+    const value = energy * price;
+    const co2saved = energy * co2 / 1000;
+    const capex = electrical * capexFactor(techName);
+    const opex = capex * 0.04;
+    const net = value - opex;
+    const payback = capex / net;
+    const npvVal = npv(net, capex);
+    data.push({
+      source:r.source_id,
+      thermal:thermal,
+      electrical:electrical,
+      value:value,
+      co2:co2saved,
+      tech:techName,
+      payback:payback,
+      npv:npvVal
+    });
+  });
+  data.sort((a,b)=>b.npv-a.npv);
+  data.forEach((r,i)=>r.rank=i+1);
+  return data;
 }
 
 function drawCharts(){
-let labels=results.map(r=>r.source)
-charts.forEach(c=>c.destroy())
-charts=[]
-charts.push(new Chart(powerChart,{type:"bar",data:{labels:labels,datasets:[{label:"Electrical kW",data:results.map(r=>r.electrical)}]}}))
-charts.push(new Chart(valueChart,{type:"bar",data:{labels:labels,datasets:[{label:"Annual Value",data:results.map(r=>r.value)}]}}))
+  const labels = results.map(r=>r.source);
+  if(powerChart) powerChart.destroy();
+  if(valueChart) valueChart.destroy();
+  powerChart = new Chart(document.getElementById("powerChart"), {
+    type:"bar",
+    data:{labels:labels,datasets:[{label:"Electrical kW",data:results.map(r=>r.electrical)}]},
+    options:{responsive:true,maintainAspectRatio:false}
+  });
+  valueChart = new Chart(document.getElementById("valueChart"), {
+    type:"bar",
+    data:{labels:labels,datasets:[{label:"Annual Value",data:results.map(r=>r.value)}]},
+    options:{responsive:true,maintainAspectRatio:false}
+  });
 }
 
-function loadCSV(){dataset=csvExample;status.innerText="CSV example loaded"}
-function loadJSON(){dataset=jsonExample;status.innerText="JSON example loaded"}
+function previewPayload(payload){
+  document.getElementById("payloadPreview").textContent = payload || "No payload loaded.";
+}
 
-file.addEventListener("change",async e=>{let f=e.target.files[0];dataset=await f.text();status.innerText="Dataset loaded"})
+function runOptimization(){
+  if(!rawPayload){
+    document.getElementById("statusBox").textContent = "Load connector input first.";
+    return;
+  }
+  let rows = [];
+  const mode = document.getElementById("sourceMode").value;
+  if(mode === "csv"){
+    rows = parseCSV(rawPayload);
+  } else {
+    rows = parseJSONPayload(rawPayload);
+  }
+  results = analyze(rows);
+  const totalPower = results.reduce((a,b)=>a+b.electrical,0);
+  const totalValue = results.reduce((a,b)=>a+b.value,0);
+  const totalCO2 = results.reduce((a,b)=>a+b.co2,0);
+  document.getElementById("mAssets").textContent = results.length;
+  document.getElementById("mPower").textContent = (totalPower/1000).toFixed(2) + " MW";
+  document.getElementById("mValue").textContent = "$" + totalValue.toFixed(0);
+  document.getElementById("mCO2").textContent = totalCO2.toFixed(0) + " t";
+  document.getElementById("mNPV").textContent = "$" + results[0].npv.toFixed(0);
+  document.getElementById("summaryNote").textContent =
+    "Best opportunity: " + results[0].source + ". Technology: " + results[0].tech +
+    ". Annual value: " + money(results[0].value) + ".";
+  document.querySelector("#resultsTable tbody").innerHTML = results.map(r => `
+    <tr>
+      <td>${r.rank}</td>
+      <td>${r.source}</td>
+      <td>${r.thermal.toFixed(0)}</td>
+      <td>${r.electrical.toFixed(0)}</td>
+      <td>$${r.value.toFixed(0)}</td>
+      <td>${r.co2.toFixed(0)}</td>
+      <td>${r.tech}</td>
+      <td>${r.payback.toFixed(1)} yr</td>
+      <td>$${r.npv.toFixed(0)}</td>
+    </tr>`).join("");
+  drawCharts();
+  document.getElementById("notesBox").value =
+`ThermoNova v12.1 Connector UI Fix
 
+This version repairs the mobile layout:
+1. Native file input is hidden
+2. Upload uses one clean button
+3. Control panel is grouped into stable boxes
+4. Mobile spacing is corrected
+5. Charts and tables remain scroll-safe
+
+Active mode: ${mode.toUpperCase()}
+Connected assets: ${results.length}`;
+  document.getElementById("statusBox").textContent = "Connector optimization completed.";
+}
+
+function loadCsv(){
+  document.getElementById("sourceMode").value = "csv";
+  rawPayload = csvExample;
+  document.getElementById("fileState").textContent = "CSV example loaded internally.";
+  previewPayload(rawPayload);
+  document.getElementById("statusBox").textContent = "CSV example loaded.";
+}
+function loadJson(){
+  document.getElementById("sourceMode").value = "json";
+  rawPayload = jsonExample;
+  document.getElementById("fileState").textContent = "JSON example loaded internally.";
+  previewPayload(rawPayload);
+  document.getElementById("statusBox").textContent = "JSON example loaded.";
+}
+function loadApi(){
+  document.getElementById("sourceMode").value = "rest";
+  rawPayload = restMock;
+  document.getElementById("fileState").textContent = "REST API mock payload loaded.";
+  previewPayload(rawPayload);
+  document.getElementById("statusBox").textContent = "REST API mock loaded.";
+}
+function loadMqtt(){
+  document.getElementById("sourceMode").value = "mqtt";
+  rawPayload = mqttMock;
+  document.getElementById("fileState").textContent = "MQTT mock payload loaded.";
+  previewPayload(rawPayload);
+  document.getElementById("statusBox").textContent = "MQTT mock loaded.";
+}
 function downloadReport(){
-let blob=new Blob([document.documentElement.outerHTML],{type:"text/html"})
-let a=document.createElement("a")
-a.href=URL.createObjectURL(blob)
-a.download="ThermoNova_v12_Report.html"
-a.click()
+  if(!results.length){
+    alert("Run optimization first");
+    return;
+  }
+  const blob = new Blob([document.documentElement.outerHTML], {type:"text/html"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "ThermoNova_v12_1_Connector_UI_Fix.html";
+  a.click();
+  URL.revokeObjectURL(a.href);
 }
-</script>
 
+document.getElementById("loadCsvBtn").onclick = loadCsv;
+document.getElementById("loadJsonBtn").onclick = loadJson;
+document.getElementById("apiBtn").onclick = loadApi;
+document.getElementById("mqttBtn").onclick = loadMqtt;
+document.getElementById("runBtn").onclick = runOptimization;
+document.getElementById("downloadBtn").onclick = downloadReport;
+
+document.getElementById("uploadInput").addEventListener("change", async e => {
+  const f = e.target.files[0];
+  if(!f) return;
+  rawPayload = await f.text();
+  document.getElementById("fileState").textContent = "Loaded file: " + f.name;
+  previewPayload(rawPayload);
+  document.getElementById("sourceMode").value = f.name.toLowerCase().endsWith(".json") ? "json" : "csv";
+  document.getElementById("statusBox").textContent = "Industrial dataset uploaded.";
+});
+</script>
 </body>
 </html>
