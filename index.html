@@ -154,6 +154,7 @@ th,td{
   border-bottom:1px solid #e5e7eb;
   text-align:left;
   font-size:18px;
+  vertical-align:top;
 }
 th{
   background:#dbeafe;
@@ -367,7 +368,6 @@ function splitCsvLine(line){
 function parseCSV(text){
   const cleaned = text.replace(/\r\n/g, "\n").replace(/\r/g, "\n").trim();
   const lines = cleaned.split("\n").filter(line => line.trim() !== "");
-
   if(lines.length < 2){
     throw new Error("CSV file is empty or missing data rows.");
   }
@@ -476,15 +476,11 @@ function buildRiskNote(row){
 
 function buildSensitivity(row){
   const baseAnnual = row.annual_value_usd;
-  const lowPrice = baseAnnual * 0.85;
-  const highPrice = baseAnnual * 1.15;
-  const lowHours = baseAnnual * 0.90;
-  const highHours = baseAnnual * 1.10;
   return {
-    annual_value_low_price: lowPrice,
-    annual_value_high_price: highPrice,
-    annual_value_low_hours: lowHours,
-    annual_value_high_hours: highHours
+    annual_value_low_price: baseAnnual * 0.85,
+    annual_value_high_price: baseAnnual * 1.15,
+    annual_value_low_hours: baseAnnual * 0.90,
+    annual_value_high_hours: baseAnnual * 1.10
   };
 }
 
@@ -624,13 +620,11 @@ function renderResults(rows){
   setText("bestOppPower", `Electrical power potential: ${top.electrical_power_kw.toFixed(2)} kW`);
   setText("bestOppValue", `Annual value potential: $${top.annual_value_usd.toFixed(2)}`);
   setText("bestOppConfidence", `Confidence score: ${top.confidence_score}/100`);
-
   setText("bestOppReason1", `Reason 1: High heat quality due to deltaT = ${top.deltaT.toFixed(1)}.`);
   setText("bestOppReason2", `Reason 2: Strong electrical output at ${top.electrical_power_kw.toFixed(2)} kW.`);
   setText("bestOppReason3", `Reason 3: Attractive economics with payback of ${top.payback_years.toFixed(2)} years and NPV of $${top.npv_usd.toFixed(2)}.`);
   setText("bestOppReason4", `Reason 4: Sustainability benefit of ${top.co2_avoided_tpy.toFixed(2)} t/year CO2 avoided.`);
   setText("bestOppRisk", `Risk note: ${top.risk_note}.`);
-
   document.getElementById("bestOppImplementation").textContent = buildImplementationNarrative(top);
 
   const tbody = document.querySelector("#resultsTable tbody");
@@ -1004,7 +998,7 @@ function downloadReport(){
       h2{color:#0f766e;margin-top:28px}
       h3{color:#334155}
       table{border-collapse:collapse;width:100%;margin-top:16px}
-      th,td{border:1px solid #cbd5e1;padding:8px;text-align:left;font-size:14px}
+      th,td{border:1px solid #cbd5e1;padding:8px;text-align:left;font-size:14px;vertical-align:top}
       th{background:#e2e8f0}
       .box{background:#ffffff;padding:16px;border-radius:14px;margin:14px 0;border:1px solid #dbeafe}
     </style>
