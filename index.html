@@ -4,44 +4,42 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ThermoNova v11 Industrial Energy Intelligence Engine</title>
+<title>ThermoNova v12 Industrial Connector Layer</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 body{font-family:Arial,Helvetica,sans-serif;background:#eef3f9;margin:0;padding:30px;color:#1f2937}
 .hero{background:linear-gradient(135deg,#1e3a8a,#0f766e);color:white;padding:30px;border-radius:18px;margin-bottom:25px}
 h1{margin:0;font-size:38px}
-h2{color:#1e3a8a}
 .card{background:white;padding:22px;border-radius:16px;margin-bottom:20px;box-shadow:0 6px 18px rgba(0,0,0,.08)}
 button{background:#2563eb;color:white;border:none;padding:14px 18px;border-radius:10px;font-size:18px;margin-right:8px;cursor:pointer}
-.metric{font-size:24px;margin:10px 0}
+.metric{font-size:22px;margin:8px 0}
 table{border-collapse:collapse;width:100%}
 th,td{border:1px solid #cbd5e1;padding:8px;text-align:left}
 th{background:#dbeafe}
 .chart{height:350px}
-textarea{width:100%;min-height:160px;font-size:16px;padding:10px;border-radius:10px;border:1px solid #cbd5e1}
 </style>
 </head>
-
 <body>
 
 <div class="hero">
-<h1>ThermoNova v11</h1>
-<p>Industrial Energy Intelligence Engine</p>
-<p>Industrial waste‑heat recovery optimization platform</p>
+<h1>ThermoNova v12</h1>
+<p>Industrial Connector Layer</p>
+<p>CSV / JSON / API / MQTT industrial data ingestion</p>
 </div>
 
 <div class="card">
-<h2>Data Input</h2>
-<input type="file" id="csvFile">
-<button onclick="loadExample()">Load Example Dataset</button>
+<h2>Connector Control</h2>
+<input type="file" id="file">
+<button onclick="loadCSV()">Load CSV Example</button>
+<button onclick="loadJSON()">Load JSON Example</button>
 <button onclick="run()">Run Optimization</button>
 <button onclick="downloadReport()">Download HTML Report</button>
-<p id="status">Waiting for dataset</p>
+<p id="status">Waiting for connector input.</p>
 </div>
 
 <div class="card">
-<h2>Executive Summary</h2>
-<div class="metric" id="sources">Sources: 0</div>
+<h2>Connector Summary</h2>
+<div class="metric" id="sources">Assets: 0</div>
 <div class="metric" id="power">Electrical Potential: 0 MW</div>
 <div class="metric" id="value">Annual Value: $0</div>
 <div class="metric" id="co2">CO₂ Avoided: 0</div>
@@ -49,10 +47,9 @@ textarea{width:100%;min-height:160px;font-size:16px;padding:10px;border-radius:1
 </div>
 
 <div class="card">
-<h2>Engineering Charts</h2>
+<h2>Charts</h2>
 <canvas id="powerChart" class="chart"></canvas>
 <canvas id="valueChart" class="chart"></canvas>
-<canvas id="npvChart" class="chart"></canvas>
 </div>
 
 <div class="card">
@@ -75,19 +72,18 @@ textarea{width:100%;min-height:160px;font-size:16px;padding:10px;border-radius:1
 </table>
 </div>
 
-<div class="card">
-<h2>Notes</h2>
-<textarea id="notes"></textarea>
-</div>
-
 <script>
+const csvExample=`source_id,mass_flow,cp,t_hot,t_cold,hours,price,co2
+SRC001,3.2,4.18,250,120,7200,0.11,0.47
+SRC002,2.7,4.18,210,95,7000,0.11,0.47
+SRC003,3.6,4.18,270,140,6800,0.11,0.47
+SRC004,2.4,4.18,220,110,7200,0.11,0.47
+SRC005,2.0,4.18,195,90,6500,0.11,0.47`;
 
-const exampleCSV = `source,unit,mass_flow,cp,t_hot,t_cold,hours,price,co2
-SRC001,Boiler,3.2,4.18,250,120,7200,0.11,0.47
-SRC002,Reactor,2.7,4.18,210,95,7000,0.11,0.47
-SRC003,Furnace,3.6,4.18,270,140,6800,0.11,0.47
-SRC004,Compressor,2.4,4.18,220,110,7200,0.11,0.47
-SRC005,Process,2.0,4.18,195,90,6500,0.11,0.47`;
+const jsonExample=JSON.stringify([
+{"source_id":"SRC101","mass_flow":4.1,"cp":4.05,"t_hot":380,"t_cold":145,"hours":7600,"price":0.12,"co2":0.44},
+{"source_id":"SRC102","mass_flow":5.3,"cp":4.10,"t_hot":410,"t_cold":160,"hours":7800,"price":0.12,"co2":0.44}
+]);
 
 let dataset="";
 let results=[];
@@ -95,164 +91,109 @@ let charts=[];
 
 function num(x){return Number(x)||0}
 
-function grade(temp){
-if(temp>=300) return "Steam Rankine"
-if(temp>=200) return "Organic Rankine Cycle"
-return "Heat Exchanger Recovery"
+function tech(temp){
+if(temp>300)return["Steam Rankine",0.25]
+if(temp>200)return["Organic Rankine Cycle",0.20]
+return["Heat Recovery",0.12]
 }
 
-function capexFactor(tech){
-if(tech==="Steam Rankine") return 2200
-if(tech==="Organic Rankine Cycle") return 1800
-return 1200
+function capexFactor(t){
+if(t==="Steam Rankine")return2200
+if(t==="Organic Rankine Cycle")return1800
+return1200
 }
 
 function npv(net,capex,years=10,rate=0.1){
 let v=-capex
-for(let i=1;i<=years;i++) v+=net/Math.pow(1+rate,i)
+for(let i=1;i<=years;i++)v+=net/Math.pow(1+rate,i)
 return v
 }
 
-function analyze(csv){
-
-let lines=csv.trim().split("\n")
+function parseCSV(text){
+let lines=text.trim().split("\n")
 let headers=lines[0].split(",")
-
-let data=[]
-
+let out=[]
 for(let i=1;i<lines.length;i++){
-
 let cols=lines[i].split(",")
 let r={}
 headers.forEach((h,j)=>r[h]=cols[j])
+out.push(r)
+}
+return out
+}
 
+function analyze(rows){
+let data=[]
+rows.forEach(r=>{
 let mass=num(r.mass_flow)
 let cp=num(r.cp)
 let hot=num(r.t_hot)
 let cold=num(r.t_cold)
-
 let dt=hot-cold
 let thermal=mass*cp*dt
-
-let tech=grade(hot)
-let eff= tech==="Steam Rankine"?0.25: tech==="Organic Rankine Cycle"?0.20:0.12
-
+let t=tech(hot)
+let techName=t[0]
+let eff=t[1]
 let electrical=thermal*eff
-
 let hours=num(r.hours)
 let price=num(r.price)
 let co2=num(r.co2)
-
 let energy=electrical*hours
 let value=energy*price
 let co2saved=energy*co2/1000
-
-let capex=electrical*capexFactor(tech)
+let capex=electrical*capexFactor(techName)
 let opex=capex*0.04
-
 let net=value-opex
 let payback=capex/net
 let npvVal=npv(net,capex)
-
-data.push({
-source:r.source,
-thermal:thermal,
-electrical:electrical,
-value:value,
-co2:co2saved,
-tech:tech,
-payback:payback,
-npv:npvVal
+data.push({source:r.source_id,thermal,electrical,value,co2:co2saved,tech:techName,payback,npv:npvVal})
 })
-}
-
 data.sort((a,b)=>b.npv-a.npv)
-
 data.forEach((r,i)=>r.rank=i+1)
-
 return data
 }
 
 function run(){
-
-if(!dataset){alert("Load dataset first");return}
-
-results=analyze(dataset)
-
+let rows
+if(dataset.startsWith("["))rows=JSON.parse(dataset)
+else rows=parseCSV(dataset)
+results=analyze(rows)
 let totalPower=results.reduce((a,b)=>a+b.electrical,0)
 let totalValue=results.reduce((a,b)=>a+b.value,0)
 let totalCO2=results.reduce((a,b)=>a+b.co2,0)
-
-document.getElementById("sources").innerText="Sources: "+results.length
+document.getElementById("sources").innerText="Assets: "+results.length
 document.getElementById("power").innerText="Electrical Potential: "+(totalPower/1000).toFixed(2)+" MW"
 document.getElementById("value").innerText="Annual Value: $"+totalValue.toFixed(0)
 document.getElementById("co2").innerText="CO₂ Avoided: "+totalCO2.toFixed(0)+" t"
 document.getElementById("npv").innerText="Best NPV: $"+results[0].npv.toFixed(0)
-
 let tbody=document.querySelector("#table tbody")
 tbody.innerHTML=""
-
 results.forEach(r=>{
-tbody.innerHTML+=`
-<tr>
-<td>${r.rank}</td>
-<td>${r.source}</td>
-<td>${r.thermal.toFixed(0)}</td>
-<td>${r.electrical.toFixed(0)}</td>
-<td>$${r.value.toFixed(0)}</td>
-<td>${r.co2.toFixed(0)}</td>
-<td>${r.tech}</td>
-<td>${r.payback.toFixed(1)} yr</td>
-<td>$${r.npv.toFixed(0)}</td>
-</tr>`
-})
-
+tbody.innerHTML+=`<tr><td>${r.rank}</td><td>${r.source}</td><td>${r.thermal.toFixed(0)}</td><td>${r.electrical.toFixed(0)}</td><td>$${r.value.toFixed(0)}</td><td>${r.co2.toFixed(0)}</td><td>${r.tech}</td><td>${r.payback.toFixed(1)} yr</td><td>$${r.npv.toFixed(0)}</td></tr>`})
 drawCharts()
-
-document.getElementById("notes").value=
-"ThermoNova v11 Industrial Energy Intelligence Engine\n\n"+
-"Platform transforms waste heat datasets into decision‑grade engineering reports."+
-" Ranking uses NPV, annual value, payback, and carbon benefit."
 }
 
 function drawCharts(){
-
 let labels=results.map(r=>r.source)
-
-let power=results.map(r=>r.electrical)
-let value=results.map(r=>r.value)
-let npvV=results.map(r=>r.npv)
-
 charts.forEach(c=>c.destroy())
 charts=[]
-
-charts.push(new Chart(powerChart,{type:"bar",data:{labels:labels,datasets:[{label:"Electrical kW",data:power}]}}))
-charts.push(new Chart(valueChart,{type:"bar",data:{labels:labels,datasets:[{label:"Annual Value",data:value}]}}))
-charts.push(new Chart(npvChart,{type:"bar",data:{labels:labels,datasets:[{label:"NPV",data:npvV}]}}))
-
+charts.push(new Chart(powerChart,{type:"bar",data:{labels:labels,datasets:[{label:"Electrical kW",data:results.map(r=>r.electrical)}]}}))
+charts.push(new Chart(valueChart,{type:"bar",data:{labels:labels,datasets:[{label:"Annual Value",data:results.map(r=>r.value)}]}}))
 }
 
-function loadExample(){
-dataset=exampleCSV
-document.getElementById("status").innerText="Example dataset loaded"
-}
+function loadCSV(){dataset=csvExample;status.innerText="CSV example loaded"}
+function loadJSON(){dataset=jsonExample;status.innerText="JSON example loaded"}
 
-csvFile.addEventListener("change",async e=>{
-let file=e.target.files[0]
-dataset=await file.text()
-document.getElementById("status").innerText="CSV loaded"
-})
+file.addEventListener("change",async e=>{let f=e.target.files[0];dataset=await f.text();status.innerText="Dataset loaded"})
 
 function downloadReport(){
-
 let blob=new Blob([document.documentElement.outerHTML],{type:"text/html"})
 let a=document.createElement("a")
 a.href=URL.createObjectURL(blob)
-a.download="ThermoNova_v11_Report.html"
+a.download="ThermoNova_v12_Report.html"
 a.click()
-
 }
-
 </script>
+
 </body>
 </html>
