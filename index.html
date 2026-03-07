@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ThermoNova Grid v5</title>
+<title>ThermoNova Grid v5.1</title>
 <style>
 *{box-sizing:border-box}
 body{
@@ -222,7 +222,7 @@ th{
 <div class="container">
 
   <div class="hero">
-    <h1>ThermoNova Grid v4</h1>
+    <h1>ThermoNova Grid v5.1</h1>
     <p>Industrial Waste Heat Recovery Intelligence Platform</p>
     <p>Hybrid engineering, investment, sustainability, and implementation view for industrial heat recovery opportunities</p>
   </div>
@@ -329,7 +329,7 @@ th{
     <textarea class="notes" id="notesBox" readonly>Upload a CSV file or load the example dataset, then press Run Analysis.</textarea>
   </div>
 
-  <div class="footer">ThermoNova Grid v4 - Industrial Browser MVP</div>
+  <div class="footer">ThermoNova Grid v5.1 - Industrial Browser MVP</div>
 </div>
 
 <script>
@@ -529,12 +529,7 @@ function drawBars(containerId, rows, field, suffix){
 }
 
 function buildImplementationNarrative(top){
-  return `Best thermal opportunity: ${top.source_id} in ${top.plant_unit}. 
-This source is ranked first because it combines strong temperature lift, strong electrical recovery potential, high annual value, and attractive project economics. 
-Practical implementation would start by capturing furnace waste heat through a high-temperature recovery heat exchanger installed on the hot exhaust stream. 
-Recovered thermal energy would then be transferred into a thermal loop feeding a ${top.technology} package. 
-The generated electricity would be routed to internal plant loads to reduce purchased grid power. 
-Before execution, the plant should validate exhaust temperature stability, fouling risk, pressure drop limits, available installation space, shutdown windows, and control-system integration requirements.`;
+  return `Best thermal opportunity: ${top.source_id} in ${top.plant_unit}. This source is ranked first because it combines strong temperature lift, strong electrical recovery potential, high annual value, and attractive project economics. Practical implementation would start by capturing furnace waste heat through a high-temperature recovery heat exchanger installed on the hot exhaust stream. Recovered thermal energy would then be transferred into a thermal loop feeding a ${top.technology} package. The generated electricity would be routed to internal plant loads to reduce purchased grid power. Before execution, the plant should validate exhaust temperature stability, fouling risk, pressure drop limits, available installation space, shutdown windows, and control-system integration requirements.`;
 }
 
 function renderResults(rows){
@@ -620,85 +615,6 @@ CO2 Avoided = Annual Energy × Grid Emission Factor / 1000
 
 Implementation note:
 Top opportunity should be validated through field measurements, exhaust characterization, fouling review, integration study, and shutdown planning.`;
-}
-
-function formatMoney(value){
-  return "$" + Number(value).toLocaleString(undefined, {maximumFractionDigits: 2});
-}
-
-function formatNumber(value, digits=2){
-  return Number(value).toLocaleString(undefined, {
-    minimumFractionDigits: digits,
-    maximumFractionDigits: digits
-  });
-}
-
-function buildBarChartSVG(title, rows, field, color, unit){
-  const maxValue = Math.max(...rows.map(r => r[field]));
-  const barHeight = 26;
-  const gap = 18;
-  const leftPad = 170;
-  const rightPad = 90;
-  const width = 900;
-  const chartWidth = width - leftPad - rightPad;
-  const height = rows.length * (barHeight + gap) + 70;
-
-  let bars = "";
-  rows.forEach((r, i) => {
-    const y = 40 + i * (barHeight + gap);
-    const barW = maxValue > 0 ? (r[field] / maxValue) * chartWidth : 0;
-    const label = r.source_id;
-    const valueText = `${formatNumber(r[field], 1)} ${unit}`;
-
-    bars += `
-      <text x="10" y="${y + 18}" font-size="14" fill="#1f2937">${label}</text>
-      <rect x="${leftPad}" y="${y}" width="${chartWidth}" height="${barHeight}" rx="8" fill="#e5e7eb"></rect>
-      <rect x="${leftPad}" y="${y}" width="${barW}" height="${barHeight}" rx="8" fill="${color}"></rect>
-      <text x="${leftPad + chartWidth + 10}" y="${y + 18}" font-size="13" fill="#111827">${valueText}</text>
-    `;
-  });
-
-  return `
-    <div style="margin-top:22px;">
-      <h3 style="color:#0f766e; margin-bottom:10px;">${title}</h3>
-      <svg viewBox="0 0 ${width} ${height}" style="width:100%; height:auto; background:#ffffff; border:1px solid #dbeafe; border-radius:14px; padding:8px;">
-        ${bars}
-      </svg>
-    </div>
-  `;
-}
-
-function buildKpiCards(rows){
-  const top = rows[0];
-  const totalPower = rows.reduce((a,b)=>a+b.electrical_power_kw,0);
-  const totalAnnual = rows.reduce((a,b)=>a+b.annual_value_usd,0);
-  const totalCO2 = rows.reduce((a,b)=>a+b.co2_avoided_tpy,0);
-  const bestPayback = Math.min(...rows.map(r=>r.payback_years));
-
-  return `
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:18px;">
-      <div style="background:#f8fafc;border:1px solid #dbeafe;border-radius:14px;padding:16px;">
-        <div style="font-size:14px;color:#475569;">Best Opportunity</div>
-        <div style="font-size:26px;font-weight:700;color:#111827;margin-top:8px;">${top.source_id}</div>
-      </div>
-      <div style="background:#f8fafc;border:1px solid #dbeafe;border-radius:14px;padding:16px;">
-        <div style="font-size:14px;color:#475569;">Total Electrical Power</div>
-        <div style="font-size:26px;font-weight:700;color:#111827;margin-top:8px;">${formatNumber(totalPower,1)} kW</div>
-      </div>
-      <div style="background:#f8fafc;border:1px solid #dbeafe;border-radius:14px;padding:16px;">
-        <div style="font-size:14px;color:#475569;">Total Annual Value</div>
-        <div style="font-size:26px;font-weight:700;color:#111827;margin-top:8px;">${formatMoney(totalAnnual)}</div>
-      </div>
-      <div style="background:#f8fafc;border:1px solid #dbeafe;border-radius:14px;padding:16px;">
-        <div style="font-size:14px;color:#475569;">Total CO2 Avoided</div>
-        <div style="font-size:26px;font-weight:700;color:#111827;margin-top:8px;">${formatNumber(totalCO2,1)} t/y</div>
-      </div>
-      <div style="background:#f8fafc;border:1px solid #dbeafe;border-radius:14px;padding:16px;">
-        <div style="font-size:14px;color:#475569;">Best Payback</div>
-        <div style="font-size:26px;font-weight:700;color:#111827;margin-top:8px;">${formatNumber(bestPayback,2)} years</div>
-      </div>
-    </div>
-  `;
 }
 
 function formatMoney(value){
@@ -1002,80 +918,6 @@ function downloadReport(){
   a.click();
   URL.revokeObjectURL(a.href);
 }
-  const top = lastResults[0];
-  const rowsHtml = lastResults.map(r => `
-    <tr>
-      <td>${r.rank}</td>
-      <td>${r.source_id}</td>
-      <td>${r.plant_unit}</td>
-      <td>${r.technology}</td>
-      <td>${r.electrical_power_kw.toFixed(2)}</td>
-      <td>$${r.annual_value_usd.toFixed(2)}</td>
-      <td>$${r.capex_usd.toFixed(2)}</td>
-      <td>${r.payback_years.toFixed(2)}</td>
-      <td>$${r.npv_usd.toFixed(2)}</td>
-      <td>${r.irr_percent.toFixed(1)}%</td>
-      <td>${r.co2_avoided_tpy.toFixed(2)}</td>
-    </tr>
-  `).join("");
-
-  const html = `
-  <!DOCTYPE html>
-  <html>
-  <head>
-    <meta charset="UTF-8">
-    <title>ThermoNova_Report</title>
-    <style>
-      body{font-family:Arial;padding:30px;color:#1f2937}
-      h1{color:#1d4ed8}
-      h2{color:#0f766e}
-      table{border-collapse:collapse;width:100%;margin-top:20px}
-      th,td{border:1px solid #cbd5e1;padding:8px;text-align:left;font-size:14px}
-      th{background:#e2e8f0}
-      .box{background:#f8fafc;padding:14px;border-radius:12px;margin:12px 0}
-    </style>
-  </head>
-  <body>
-    <h1>ThermoNova Grid v4 Report</h1>
-    <div class="box">
-      <h2>Best Thermal Opportunity</h2>
-      <p>Source: ${top.source_id} / ${top.plant_unit}</p>
-      <p>Technology: ${top.technology}</p>
-      <p>Electrical power: ${top.electrical_power_kw.toFixed(2)} kW</p>
-      <p>Annual value: $${top.annual_value_usd.toFixed(2)}</p>
-      <p>Payback: ${top.payback_years.toFixed(2)} years</p>
-      <p>CO2 avoided: ${top.co2_avoided_tpy.toFixed(2)} t/year</p>
-      <p>${buildImplementationNarrative(top)}</p>
-    </div>
-    <h2>Ranked Opportunities</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Rank</th>
-          <th>Source</th>
-          <th>Plant Unit</th>
-          <th>Technology</th>
-          <th>Power kW</th>
-          <th>Annual Value USD</th>
-          <th>CAPEX USD</th>
-          <th>Payback</th>
-          <th>NPV USD</th>
-          <th>IRR %</th>
-          <th>CO2 Avoided</th>
-        </tr>
-      </thead>
-      <tbody>${rowsHtml}</tbody>
-    </table>
-  </body>
-  </html>`;
-
-  const blob = new Blob([html], {type:"text/html"});
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = "ThermoNova_Report.html";
-  a.click();
-  URL.revokeObjectURL(a.href);
-}
 
 document.getElementById("csvFile").addEventListener("change", async function(e){
   const file = e.target.files[0];
@@ -1097,7 +939,7 @@ document.getElementById("runBtn").addEventListener("click", function(){
     document.getElementById("statusBox").textContent = "Analysis completed successfully.";
   } catch(err){
     document.getElementById("statusBox").textContent = "Error: " + err.message;
-    document.getElementById("notesBox").value = "Execution error:\\n" + err.message;
+    document.getElementById("notesBox").value = "Execution error:\n" + err.message;
   }
 });
 
