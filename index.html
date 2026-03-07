@@ -1,217 +1,659 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-
-<title>ThermoNova Industrial Waste Heat Analysis</title>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ThermoNova Grid v2</title>
 <style>
-
+*{box-sizing:border-box}
 body{
-font-family:Arial;
-background:#f4f4f4;
-margin:0;
-padding:20px;
+  margin:0;
+  font-family:Arial,Helvetica,sans-serif;
+  background:#f3f6fb;
+  color:#1f2937;
+  line-height:1.7;
 }
-
-header{
-background:#343a40;
-color:white;
-padding:15px;
-text-align:center;
-font-size:22px;
+.container{
+  max-width:1200px;
+  margin:auto;
+  padding:20px;
 }
-
-section{
-background:white;
-padding:20px;
-margin-top:20px;
-border-radius:6px;
+.hero{
+  background:linear-gradient(135deg,#1e3a8a,#0f766e);
+  color:white;
+  padding:28px;
+  border-radius:18px;
+  margin-bottom:20px;
 }
-
-button{
-padding:10px 15px;
-background:#007bff;
-color:white;
-border:none;
-border-radius:5px;
-cursor:pointer;
+.hero h1{
+  margin:0 0 10px 0;
+  font-size:34px;
 }
-
-button:hover{
-background:#0056b3;
+.hero p{
+  font-size:20px;
+  margin:6px 0;
 }
-
-canvas{
-margin-top:20px;
+.card{
+  background:white;
+  border-radius:16px;
+  padding:22px;
+  margin-bottom:18px;
+  box-shadow:0 6px 20px rgba(0,0,0,0.08);
 }
-
+.card h2{
+  margin-top:0;
+  font-size:24px;
+  color:#1d4ed8;
+}
+.card h3{
+  font-size:21px;
+  margin-bottom:10px;
+  color:#0f766e;
+}
+.controls{
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px;
+  align-items:center;
+}
+button,.file-label{
+  display:inline-block;
+  background:#2563eb;
+  color:white;
+  padding:14px 18px;
+  border:none;
+  border-radius:12px;
+  cursor:pointer;
+  font-size:19px;
+  text-decoration:none;
+}
+button.secondary,.file-label.secondary{
+  background:#475569;
+}
+button.green{
+  background:#15803d;
+}
+input[type="file"]{
+  display:none;
+}
+.status{
+  margin-top:14px;
+  background:#eef2ff;
+  color:#1e3a8a;
+  border-radius:12px;
+  padding:14px;
+  font-size:18px;
+}
+.metrics{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:14px;
+}
+.metric{
+  background:#f8fafc;
+  border:1px solid #dbeafe;
+  border-radius:14px;
+  padding:16px;
+}
+.metric .label{
+  font-size:16px;
+  color:#475569;
+}
+.metric .value{
+  font-size:30px;
+  font-weight:700;
+  margin-top:8px;
+  color:#0f172a;
+}
+.table-wrap{
+  overflow:auto;
+  border:1px solid #dbeafe;
+  border-radius:14px;
+}
+table{
+  width:100%;
+  border-collapse:collapse;
+  min-width:1100px;
+}
+th,td{
+  padding:12px;
+  border-bottom:1px solid #e5e7eb;
+  text-align:left;
+  font-size:18px;
+}
+th{
+  background:#e0ecff;
+  color:#1e3a8a;
+}
+.chart-box{
+  margin-top:18px;
+}
+.bar-row{
+  display:grid;
+  grid-template-columns:180px 1fr 130px;
+  gap:12px;
+  align-items:center;
+  margin:12px 0;
+  font-size:18px;
+}
+.bar-track{
+  width:100%;
+  height:22px;
+  background:#e5e7eb;
+  border-radius:999px;
+  overflow:hidden;
+}
+.bar-fill{
+  height:100%;
+  background:linear-gradient(90deg,#22c55e,#2563eb);
+}
+.notice{
+  background:#f0fdf4;
+  border:1px solid #bbf7d0;
+  color:#166534;
+  border-radius:12px;
+  padding:14px;
+  font-size:19px;
+  margin-top:14px;
+}
+.notes{
+  width:100%;
+  min-height:140px;
+  padding:14px;
+  font-size:18px;
+  border-radius:12px;
+  border:1px solid #cbd5e1;
+  background:#f8fafc;
+}
+.badge{
+  display:inline-block;
+  padding:6px 10px;
+  border-radius:999px;
+  color:white;
+  font-size:15px;
+}
+.badge.high{background:#b91c1c}
+.badge.medium{background:#b45309}
+.badge.low{background:#15803d}
+.footer{
+  text-align:center;
+  color:#64748b;
+  padding:18px 0 30px 0;
+  font-size:18px;
+}
+@media (max-width:900px){
+  .metrics{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+  .hero h1{
+    font-size:28px;
+  }
+  .hero p{
+    font-size:18px;
+  }
+  .card h2{
+    font-size:22px;
+  }
+  th,td{
+    font-size:16px;
+  }
+  .metric .value{
+    font-size:25px;
+  }
+}
 </style>
-
 </head>
-
 <body>
+<div class="container">
 
-<header>
-ThermoNova Industrial Waste Heat Analysis
-</header>
+  <div class="hero">
+    <h1>ThermoNova Grid v2</h1>
+    <p>Industrial Waste Heat Recovery Analysis Platform</p>
+    <p>Hybrid engineering and investment view for industrial heat recovery opportunities</p>
+  </div>
 
-<section>
+  <div class="card">
+    <h2>1. Data Input</h2>
+    <div class="controls">
+      <label class="file-label" for="csvFile">Choose CSV File</label>
+      <input id="csvFile" type="file" accept=".csv,text/csv">
+      <button class="secondary" id="loadExampleBtn">Load Example Dataset</button>
+      <button class="green" id="runBtn">Run Analysis</button>
+      <button class="secondary" id="downloadReportBtn">Download HTML Report</button>
+    </div>
+    <div class="status" id="statusBox">Waiting for dataset.</div>
+  </div>
 
-<h2>Upload CSV Data</h2>
+  <div class="card">
+    <h2>2. Executive Summary</h2>
+    <div class="metrics">
+      <div class="metric">
+        <div class="label">Total Sources</div>
+        <div class="value" id="mTotal">0</div>
+      </div>
+      <div class="metric">
+        <div class="label">Valid Opportunities</div>
+        <div class="value" id="mValid">0</div>
+      </div>
+      <div class="metric">
+        <div class="label">Top Recoverable Power</div>
+        <div class="value" id="mTopPower">0 kW</div>
+      </div>
+      <div class="metric">
+        <div class="label">Total Annual Value</div>
+        <div class="value" id="mAnnual">$0</div>
+      </div>
+      <div class="metric">
+        <div class="label">Best Payback</div>
+        <div class="value" id="mPayback">-</div>
+      </div>
+      <div class="metric">
+        <div class="label">Top CAPEX</div>
+        <div class="value" id="mCapex">$0</div>
+      </div>
+      <div class="metric">
+        <div class="label">Best NPV</div>
+        <div class="value" id="mNPV">$0</div>
+      </div>
+      <div class="metric">
+        <div class="label">Average IRR</div>
+        <div class="value" id="mIRR">0%</div>
+      </div>
+    </div>
+    <div class="notice" id="topOpportunity">No analysis yet.</div>
+  </div>
 
-<input type="file" id="csvFile">
+  <div class="card">
+    <h2>3. Engineering Results</h2>
+    <div class="chart-box">
+      <h3>Recoverable Power by Source</h3>
+      <div id="powerBars"></div>
+    </div>
+    <div class="chart-box">
+      <h3>Annual Value by Source</h3>
+      <div id="valueBars"></div>
+    </div>
+  </div>
 
-<br><br>
+  <div class="card">
+    <h2>4. Ranked Opportunities</h2>
+    <div class="table-wrap">
+      <table id="resultsTable">
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Source ID</th>
+            <th>Plant Unit</th>
+            <th>Flow</th>
+            <th>Cp</th>
+            <th>DeltaT</th>
+            <th>Thermal Power kW</th>
+            <th>Electrical Power kW</th>
+            <th>Heat Quality</th>
+            <th>Technology</th>
+            <th>Annual Value USD</th>
+            <th>CAPEX USD</th>
+            <th>Payback</th>
+            <th>NPV USD</th>
+            <th>IRR %</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
 
-<button onclick="loadCSV()">Upload Data</button>
+  <div class="card">
+    <h2>5. Technical and Financial Notes</h2>
+    <textarea class="notes" id="notesBox" readonly>Upload a CSV file or load the example dataset, then press Run Analysis.</textarea>
+  </div>
 
-<p id="dataStatus"></p>
-
-</section>
-
-<section>
-
-<h2>Analysis Engine</h2>
-
-<button onclick="runAnalysis()">Run Analysis</button>
-
-<p id="analysisResult"></p>
-
-<canvas id="energyChart"></canvas>
-
-</section>
-
-<section>
-
-<h2>Download Report</h2>
-
-<button onclick="downloadReport()">Download Report</button>
-
-</section>
+  <div class="footer">ThermoNova Grid v2 - Industrial Browser MVP</div>
+</div>
 
 <script>
+const exampleCsv = `source_id,plant_unit,flow,cp,deltaT,operating_hours,electricity_price
+SRC001,Boiler A,2.5,4.18,120,6000,0.10
+SRC002,Boiler A,3.2,4.18,90,6000,0.10
+SRC003,Turbine B,1.8,4.18,150,6500,0.10
+SRC004,Process Line C,2.0,4.18,110,5800,0.10
+SRC005,Furnace D,2.7,4.18,130,6200,0.10`;
 
-let dataset = [];
+let currentCsvText = "";
+let lastResults = null;
 
-function loadCSV(){
-
-const file = document.getElementById("csvFile").files[0];
-
-const reader = new FileReader();
-
-reader.onload = function(e){
-
-const lines = e.target.result.split("\n");
-
-dataset = [];
-
-for(let i=1;i<lines.length;i++){
-
-const cols = lines[i].split(",");
-
-if(cols.length >= 3){
-
-dataset.push({
-
-flow:parseFloat(cols[0]),
-cp:parseFloat(cols[1]),
-deltaT:parseFloat(cols[2])
-
-});
-
+function splitCsvLine(line){
+  const out = [];
+  let cur = "";
+  let inQuotes = false;
+  for(let i=0;i<line.length;i++){
+    const ch = line[i];
+    if(ch === '"'){
+      inQuotes = !inQuotes;
+    } else if(ch === ',' && !inQuotes){
+      out.push(cur);
+      cur = "";
+    } else {
+      cur += ch;
+    }
+  }
+  out.push(cur);
+  return out;
 }
 
+function parseCSV(text){
+  const lines = text.trim().split(/\r?\n/).filter(Boolean);
+  if(lines.length < 2) throw new Error("CSV file is empty or missing data rows.");
+  const headers = splitCsvLine(lines[0]).map(h => h.trim());
+  const rows = [];
+  for(let i=1;i<lines.length;i++){
+    const parts = splitCsvLine(lines[i]);
+    if(parts.length !== headers.length) continue;
+    const obj = {};
+    headers.forEach((h, idx) => obj[h] = parts[idx].trim());
+    rows.push(obj);
+  }
+  return {headers, rows};
 }
 
-document.getElementById("dataStatus").innerHTML =
-"Dataset loaded with "+dataset.length+" records";
-
-};
-
-reader.readAsText(file);
-
+function heatQuality(deltaT){
+  if(deltaT >= 130) return "High";
+  if(deltaT >= 90) return "Medium";
+  return "Low";
 }
 
-function runAnalysis(){
-
-let energy=[];
-
-let totalPower=0;
-
-for(let i=0;i<dataset.length;i++){
-
-let Q = dataset[i].flow * dataset[i].cp * dataset[i].deltaT;
-
-let electrical = Q * 0.2;
-
-energy.push(electrical);
-
-totalPower += electrical;
-
+function heatBadgeClass(q){
+  if(q === "High") return "high";
+  if(q === "Medium") return "medium";
+  return "low";
 }
 
-document.getElementById("analysisResult").innerHTML =
-"Estimated recoverable electrical power: "+totalPower.toFixed(2)+" kW";
-
-drawChart(energy);
-
+function chooseTechnology(deltaT){
+  if(deltaT >= 130) return {name:"Steam / ORC Hybrid", eff:0.24};
+  if(deltaT >= 90) return {name:"Organic Rankine Cycle", eff:0.20};
+  return {name:"Heat Exchanger Recovery", eff:0.12};
 }
 
-function drawChart(data){
-
-const ctx=document.getElementById('energyChart');
-
-new Chart(ctx,{
-
-type:'bar',
-
-data:{
-
-labels:data.map((v,i)=>"Unit "+i),
-
-datasets:[{
-
-label:"Recoverable Power kW",
-
-data:data
-
-}]
-
+function estimateCapex(powerKW){
+  return powerKW * 1800;
 }
 
-});
+function estimateOpex(capex){
+  return capex * 0.04;
+}
 
+function estimateNPV(netAnnual, capex, years=10, rate=0.10){
+  let npv = -capex;
+  for(let t=1;t<=years;t++){
+    npv += netAnnual / Math.pow(1 + rate, t);
+  }
+  return npv;
+}
+
+function estimateIRR(netAnnual, capex){
+  if(capex <= 0) return 0;
+  const ratio = netAnnual / capex;
+  return Math.max(0, Math.min(60, ratio * 100));
+}
+
+function validateAndAnalyze(text){
+  const parsed = parseCSV(text);
+  const headers = parsed.headers;
+  const rows = parsed.rows;
+  const required = ["source_id","plant_unit","flow","cp","deltaT","operating_hours","electricity_price"];
+  const missing = required.filter(col => !headers.includes(col));
+  if(missing.length) throw new Error("Missing required columns: " + missing.join(", "));
+
+  const analyzed = rows.map((r, idx) => {
+    const flow = Number(r.flow);
+    const cp = Number(r.cp);
+    const deltaT = Number(r.deltaT);
+    const operatingHours = Number(r.operating_hours);
+    const electricityPrice = Number(r.electricity_price);
+
+    if([flow,cp,deltaT,operatingHours,electricityPrice].some(v => Number.isNaN(v))){
+      throw new Error("Numeric conversion error in row " + (idx + 1));
+    }
+
+    const thermalPowerKW = flow * cp * deltaT;
+    const tech = chooseTechnology(deltaT);
+    const electricalPowerKW = thermalPowerKW * tech.eff;
+    const annualEnergyKWh = electricalPowerKW * operatingHours;
+    const annualValueUSD = annualEnergyKWh * electricityPrice;
+    const capexUSD = estimateCapex(electricalPowerKW);
+    const opexUSD = estimateOpex(capexUSD);
+    const netAnnualUSD = annualValueUSD - opexUSD;
+    const paybackYears = netAnnualUSD > 0 ? capexUSD / netAnnualUSD : 999;
+    const npvUSD = estimateNPV(netAnnualUSD, capexUSD);
+    const irrPercent = estimateIRR(netAnnualUSD, capexUSD);
+    const quality = heatQuality(deltaT);
+
+    return {
+      source_id:r.source_id,
+      plant_unit:r.plant_unit,
+      flow:flow,
+      cp:cp,
+      deltaT:deltaT,
+      operating_hours:operatingHours,
+      electricity_price:electricityPrice,
+      thermal_power_kw:thermalPowerKW,
+      electrical_power_kw:electricalPowerKW,
+      heat_quality:quality,
+      technology:tech.name,
+      annual_value_usd:annualValueUSD,
+      capex_usd:capexUSD,
+      opex_usd:opexUSD,
+      payback_years:paybackYears,
+      npv_usd:npvUSD,
+      irr_percent:irrPercent
+    };
+  });
+
+  const maxPower = Math.max(...analyzed.map(r => r.electrical_power_kw));
+  const maxValue = Math.max(...analyzed.map(r => r.annual_value_usd));
+  const maxNPV = Math.max(...analyzed.map(r => r.npv_usd));
+  analyzed.forEach(r => {
+    const s1 = maxPower ? r.electrical_power_kw / maxPower : 0;
+    const s2 = maxValue ? r.annual_value_usd / maxValue : 0;
+    const s3 = maxNPV ? Math.max(0, r.npv_usd) / Math.max(1, maxNPV) : 0;
+    r.ranking_score = 0.45 * s1 + 0.35 * s2 + 0.20 * s3;
+  });
+
+  analyzed.sort((a,b) => b.ranking_score - a.ranking_score);
+  analyzed.forEach((r,i) => r.rank = i + 1);
+  return analyzed;
+}
+
+function setText(id, val){
+  document.getElementById(id).textContent = val;
+}
+
+function drawBars(containerId, rows, field, suffix){
+  const container = document.getElementById(containerId);
+  container.innerHTML = "";
+  const max = Math.max(...rows.map(r => r[field]));
+  rows.forEach(r => {
+    const pct = max ? (r[field] / max) * 100 : 0;
+    const row = document.createElement("div");
+    row.className = "bar-row";
+    row.innerHTML = `
+      <div>${r.source_id}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
+      <div>${r[field].toFixed(1)} ${suffix}</div>
+    `;
+    container.appendChild(row);
+  });
+}
+
+function renderResults(rows){
+  lastResults = rows;
+  const totalAnnual = rows.reduce((a,b)=>a+b.annual_value_usd,0);
+  const topPower = Math.max(...rows.map(r=>r.electrical_power_kw));
+  const bestPayback = Math.min(...rows.map(r=>r.payback_years));
+  const topCapex = Math.max(...rows.map(r=>r.capex_usd));
+  const bestNPV = Math.max(...rows.map(r=>r.npv_usd));
+  const avgIRR = rows.reduce((a,b)=>a+b.irr_percent,0) / rows.length;
+  const top = rows[0];
+
+  setText("mTotal", rows.length.toString());
+  setText("mValid", rows.length.toString());
+  setText("mTopPower", topPower.toFixed(1) + " kW");
+  setText("mAnnual", "$" + Math.round(totalAnnual).toLocaleString());
+  setText("mPayback", bestPayback.toFixed(1) + " y");
+  setText("mCapex", "$" + Math.round(topCapex).toLocaleString());
+  setText("mNPV", "$" + Math.round(bestNPV).toLocaleString());
+  setText("mIRR", avgIRR.toFixed(1) + "%");
+
+  document.getElementById("topOpportunity").innerHTML =
+    `Top opportunity: ${top.source_id} in ${top.plant_unit}. Recommended technology: ${top.technology}. 
+    Electrical power: ${top.electrical_power_kw.toFixed(2)} kW. Annual value: $${top.annual_value_usd.toFixed(2)}.`;
+
+  const tbody = document.querySelector("#resultsTable tbody");
+  tbody.innerHTML = "";
+  rows.forEach(r => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${r.rank}</td>
+      <td>${r.source_id}</td>
+      <td>${r.plant_unit}</td>
+      <td>${r.flow.toFixed(2)}</td>
+      <td>${r.cp.toFixed(2)}</td>
+      <td>${r.deltaT.toFixed(1)}</td>
+      <td>${r.thermal_power_kw.toFixed(2)}</td>
+      <td>${r.electrical_power_kw.toFixed(2)}</td>
+      <td><span class="badge ${heatBadgeClass(r.heat_quality)}">${r.heat_quality}</span></td>
+      <td>${r.technology}</td>
+      <td>$${r.annual_value_usd.toFixed(2)}</td>
+      <td>$${r.capex_usd.toFixed(2)}</td>
+      <td>${r.payback_years.toFixed(2)}</td>
+      <td>$${r.npv_usd.toFixed(2)}</td>
+      <td>${r.irr_percent.toFixed(1)}%</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  drawBars("powerBars", rows, "electrical_power_kw", "kW");
+  drawBars("valueBars", rows, "annual_value_usd", "USD");
+
+  document.getElementById("notesBox").value =
+`Engineering basis:
+Thermal Power = flow × cp × deltaT
+
+Financial basis:
+Annual Energy = Electrical Power × operating hours
+Annual Value = Annual Energy × electricity price
+CAPEX = Electrical Power × 1800
+OPEX = 4% of CAPEX
+NPV horizon = 10 years
+Discount rate = 10%
+
+This v2 model is hybrid:
+- engineering-oriented
+- investment-oriented`;
 }
 
 function downloadReport(){
+  if(!lastResults || !lastResults.length){
+    alert("Run the analysis first.");
+    return;
+  }
 
-let report="unit,power\n";
+  const rowsHtml = lastResults.map(r => `
+    <tr>
+      <td>${r.rank}</td>
+      <td>${r.source_id}</td>
+      <td>${r.plant_unit}</td>
+      <td>${r.technology}</td>
+      <td>${r.electrical_power_kw.toFixed(2)}</td>
+      <td>$${r.annual_value_usd.toFixed(2)}</td>
+      <td>$${r.capex_usd.toFixed(2)}</td>
+      <td>${r.payback_years.toFixed(2)}</td>
+      <td>$${r.npv_usd.toFixed(2)}</td>
+      <td>${r.irr_percent.toFixed(1)}%</td>
+    </tr>
+  `).join("");
 
-for(let i=0;i<dataset.length;i++){
+  const top = lastResults[0];
+  const html = `
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <meta charset="UTF-8">
+    <title>ThermoNova_Report</title>
+    <style>
+      body{font-family:Arial;padding:30px;color:#1f2937}
+      h1{color:#1d4ed8}
+      h2{color:#0f766e}
+      table{border-collapse:collapse;width:100%;margin-top:20px}
+      th,td{border:1px solid #cbd5e1;padding:8px;text-align:left;font-size:14px}
+      th{background:#e2e8f0}
+      .box{background:#f8fafc;padding:14px;border-radius:12px;margin:12px 0}
+    </style>
+  </head>
+  <body>
+    <h1>ThermoNova Grid v2 Report</h1>
+    <div class="box">
+      <h2>Executive Summary</h2>
+      <p>Top opportunity: ${top.source_id} / ${top.plant_unit}</p>
+      <p>Technology: ${top.technology}</p>
+      <p>Electrical power: ${top.electrical_power_kw.toFixed(2)} kW</p>
+      <p>Annual value: $${top.annual_value_usd.toFixed(2)}</p>
+      <p>Payback: ${top.payback_years.toFixed(2)} years</p>
+    </div>
+    <h2>Ranked Opportunities</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Rank</th>
+          <th>Source</th>
+          <th>Plant Unit</th>
+          <th>Technology</th>
+          <th>Power kW</th>
+          <th>Annual Value USD</th>
+          <th>CAPEX USD</th>
+          <th>Payback</th>
+          <th>NPV USD</th>
+          <th>IRR %</th>
+        </tr>
+      </thead>
+      <tbody>${rowsHtml}</tbody>
+    </table>
+  </body>
+  </html>`;
 
-let Q = dataset[i].flow * dataset[i].cp * dataset[i].deltaT;
-
-let electrical = Q * 0.2;
-
-report+=i+","+electrical+"\n";
-
+  const blob = new Blob([html], {type:"text/html"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "ThermoNova_Report.html";
+  a.click();
+  URL.revokeObjectURL(a.href);
 }
 
-const blob=new Blob([report],{type:"text/csv"});
+document.getElementById("csvFile").addEventListener("change", async function(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  currentCsvText = await file.text();
+  document.getElementById("statusBox").textContent = "Loaded file: " + file.name;
+});
 
-const a=document.createElement("a");
+document.getElementById("loadExampleBtn").addEventListener("click", function(){
+  currentCsvText = exampleCsv;
+  document.getElementById("statusBox").textContent = "Example dataset loaded.";
+});
 
-a.href=URL.createObjectURL(blob);
+document.getElementById("runBtn").addEventListener("click", function(){
+  try{
+    if(!currentCsvText) throw new Error("Please choose a CSV file or load the example dataset first.");
+    const rows = validateAndAnalyze(currentCsvText);
+    renderResults(rows);
+    document.getElementById("statusBox").textContent = "Analysis completed successfully.";
+  } catch(err){
+    document.getElementById("statusBox").textContent = "Error: " + err.message;
+    document.getElementById("notesBox").value = "Execution error:\n" + err.message;
+  }
+});
 
-a.download="thermonova_report.csv";
-
-a.click();
-
-}
-
+document.getElementById("downloadReportBtn").addEventListener("click", downloadReport);
 </script>
-
 </body>
 </html>
