@@ -3,147 +3,235 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ThermoNova v15.3 Stable Preserved UI</title>
+<title>ThermoNova v15.4 Stable iPhone Fixed</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-*{box-sizing:border-box} body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#eef3f9;color:#1f2937;line-height:1.55}
-.container{max-width:1500px;margin:0 auto;padding:20px}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#eef3f9;color:#1f2937;line-height:1.55}
+.container{max-width:1480px;margin:0 auto;padding:20px}
 .hero{background:linear-gradient(135deg,#1e3a8a,#0f766e);color:#fff;padding:30px;border-radius:24px;margin-bottom:18px}
-.hero h1{margin:0 0 10px 0;font-size:40px}.hero p{margin:6px 0;font-size:21px}
+.hero h1{margin:0 0 10px 0;font-size:42px;line-height:1.1}
+.hero p{margin:6px 0;font-size:21px}
 .card{background:#fff;border-radius:18px;padding:22px;margin-bottom:18px;box-shadow:0 8px 24px rgba(15,23,42,.08)}
-h2{margin:0 0 14px 0;color:#1d4ed8;font-size:30px} h3{margin:0 0 12px 0;color:#0f766e;font-size:22px}
+h2{margin:0 0 14px 0;color:#1d4ed8;font-size:30px}
+h3{margin:0 0 12px 0;color:#0f766e;font-size:22px}
 .grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
 .grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
 .metric-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:14px}
-.metric,.box,.chart-card{background:#f8fafc;border:1px solid #dbeafe;border-radius:16px;padding:16px}
-.metric .label{font-size:15px;color:#475569}.metric .value{font-size:26px;font-weight:700;margin-top:8px}
+.metric{background:#f8fafc;border:1px solid #dbeafe;border-radius:14px;padding:16px}
+.metric .label{font-size:15px;color:#475569}
+.metric .value{font-size:26px;font-weight:700;margin-top:8px}
+.box,.chart-card{background:#f8fafc;border:1px solid #dbeafe;border-radius:16px;padding:16px}
 .control-row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
-.btn,.file-label,input[type=number]{appearance:none;-webkit-appearance:none;display:inline-flex;align-items:center;justify-content:center;min-height:56px;padding:14px 18px;border:none;border-radius:14px;font-size:18px}
-.btn{color:#fff;cursor:pointer}.secondary{background:#475569}.orange{background:#b45309}.green{background:#15803d}.blue{background:#2563eb}.purple{background:#7c3aed}
-.file-label{background:#2563eb;color:#fff;cursor:pointer;width:100%}.hidden-file{display:none !important}
-.file-state,.status,.notice{margin-top:14px;border-radius:12px;padding:14px;font-size:17px}.file-state{background:#eef2ff;color:#1e3a8a}.status{background:#e0ecff;color:#1e3a8a}.notice{background:#f0fdf4;color:#166534;border:1px solid #bbf7d0}
-.chart-wrap{position:relative;height:340px} #heatMapCanvas{width:100%;height:400px;border-radius:12px;background:linear-gradient(180deg,#eff6ff,#f8fafc)}
-.table-wrap{overflow-x:auto;border:1px solid #dbeafe;border-radius:14px;background:#fff;-webkit-overflow-scrolling:touch} table{width:100%;min-width:1800px;border-collapse:collapse}
-th,td{padding:10px;border-bottom:1px solid #e5e7eb;text-align:left;font-size:14px;vertical-align:top} th{background:#dbeafe;color:#1e3a8a;position:sticky;top:0}
-.badge{display:inline-block;padding:5px 10px;border-radius:999px;color:#fff;font-size:12px}.high{background:#b91c1c}.medium{background:#b45309}.low{background:#15803d}
-.codebox{background:#0f172a;color:#e2e8f0;border-radius:14px;padding:14px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;line-height:1.55;white-space:pre-wrap;overflow:auto;min-height:140px}
-textarea{width:100%;min-height:180px;padding:14px;border-radius:14px;border:1px solid #cbd5e1;background:#f8fafc;font-size:16px}
-@media (max-width:1100px){.grid2,.grid3{grid-template-columns:1fr}.metric-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media (max-width:640px){.container{padding:14px}.hero{padding:22px}.hero h1{font-size:32px}.hero p{font-size:19px}h2{font-size:26px}.btn,.file-label,input[type=number]{width:100%;font-size:18px;min-height:54px}.metric .value{font-size:24px}}
+.btn{appearance:none;-webkit-appearance:none;display:inline-flex;align-items:center;justify-content:center;min-height:56px;padding:14px 18px;border:none;border-radius:14px;font-size:18px;color:#fff;cursor:pointer;text-decoration:none}
+.secondary{background:#475569} .orange{background:#b45309} .green{background:#15803d} .blue{background:#2563eb} .purple{background:#7c3aed}
+.file-label{background:#2563eb;color:#fff;width:100%;display:inline-flex;align-items:center;justify-content:center;min-height:56px;padding:14px 18px;border-radius:14px;cursor:pointer}
+.hidden-file{display:none !important}
+.file-state,.status,.notice{margin-top:14px;border-radius:12px;padding:14px;font-size:17px}
+.file-state{background:#eef2ff;color:#1e3a8a}
+.status{background:#e0ecff;color:#1e3a8a}
+.notice{background:#f0fdf4;color:#166534;border:1px solid #bbf7d0}
+.chart-wrap{position:relative;height:340px}
+#heatMapCanvas{width:100%;height:380px;border-radius:12px;background:linear-gradient(180deg,#eff6ff,#f8fafc)}
+.table-wrap{overflow-x:auto;border:1px solid #dbeafe;border-radius:14px;background:#fff;-webkit-overflow-scrolling:touch}
+table{width:100%;min-width:1600px;border-collapse:collapse}
+th,td{padding:10px;border-bottom:1px solid #e5e7eb;text-align:left;font-size:14px}
+th{background:#dbeafe;color:#1e3a8a;position:sticky;top:0}
+.badge{display:inline-block;padding:5px 10px;border-radius:999px;color:#fff;font-size:12px}
+.high{background:#b91c1c} .medium{background:#b45309} .low{background:#15803d}
+.codebox{background:#0f172a;color:#e2e8f0;border-radius:14px;padding:14px;font-family:ui-monospace,Menlo,monospace;font-size:13px;line-height:1.55;white-space:pre-wrap;overflow:auto;min-height:140px}
+textarea{width:100%;min-height:160px;padding:14px;border-radius:14px;border:1px solid #cbd5e1;background:#f8fafc;font-size:16px}
+.small{font-size:13px;color:#64748b}
+.hide{display:none}
+@media (max-width:1100px){.grid2,.grid3{grid-template-columns:1fr} .metric-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:640px){.container{padding:14px} .hero{padding:22px} .hero h1{font-size:34px} .hero p{font-size:19px} h2{font-size:26px} .btn,.file-label{width:100%} .metric .value{font-size:24px}}
 </style>
 </head>
 <body>
 <div class="container">
-<div class="hero">
-<h1>ThermoNova v15.3</h1>
-<p>Industrial Energy Planning Platform</p>
-<p>Preserved v14 visual identity and workflow, with stable iPhone-safe loading, Industrial Heat Map Engine, AI Ranking Engine, and Pipeline Optimization Model</p>
-</div>
+  <div class="hero">
+    <h1>ThermoNova v15.4</h1>
+    <p>Industrial Energy Planning Platform</p>
+    <p>Preserved v14 visual identity with stable dataset loading, Industrial Heat Map Engine, AI Ranking Engine, and Pipeline Optimization Model</p>
+  </div>
 
-<div class="card">
-<h2>1. Platform Control Center</h2>
-<div class="grid2">
-<div class="box">
-<h3>Dataset Loading</h3>
-<div class="control-row">
-<label class="file-label" for="uploadInput">Upload Industrial Dataset</label>
-<input id="uploadInput" class="hidden-file" type="file" accept=".csv,.json,text/csv,application/json">
-</div>
-<div class="file-state" id="fileState">No dataset loaded.</div>
-<div class="notice">Best workflow on iPhone: press Load Bundled 1000-Source Dataset, then Run Planning Analysis.</div>
-</div>
-<div class="box">
-<h3>Actions</h3>
-<div class="control-row">
-<button class="btn secondary" id="loadCsvBtn" type="button">Load CSV Example</button>
-<button class="btn secondary" id="loadJsonBtn" type="button">Load JSON Example</button>
-<button class="btn orange" id="loadBundledBtn" type="button">Load Bundled 1000-Source Dataset</button>
-<button class="btn green" id="runBtn" type="button">Run Planning Analysis</button>
-<button class="btn blue" id="downloadBtn" type="button">Download HTML Report</button>
-<button class="btn purple" id="exportBtn" type="button">Export Final Report</button>
-</div>
-</div>
-</div>
-<div class="status" id="statusBox">Waiting for industrial input.</div>
-</div>
+  <div class="card">
+    <h2>1. Platform Control Center</h2>
+    <div class="grid2">
+      <div class="box">
+        <h3>Dataset Loading</h3>
+        <div class="control-row">
+          <button class="btn orange" type="button" onclick="loadBundled()">Load Bundled 1000-Source Dataset</button>
+          <button class="btn secondary" type="button" onclick="loadCSVExample()">Load CSV Example</button>
+          <button class="btn secondary" type="button" onclick="loadJSONExample()">Load JSON Example</button>
+        </div>
+        <div class="file-state" id="fileState">No dataset loaded.</div>
+        <div class="notice">Recommended: press Load Bundled 1000-Source Dataset, then Run Planning Analysis.</div>
+      </div>
+      <div class="box">
+        <h3>Actions</h3>
+        <div class="control-row">
+          <button class="btn green" type="button" onclick="runPlanningAnalysis()">Run Planning Analysis</button>
+          <button class="btn blue" type="button" onclick="downloadReport()">Download HTML Report</button>
+          <button class="btn purple" type="button" onclick="downloadReport()">Export Final Report</button>
+        </div>
+        <div class="notice">File upload has been removed from this stable build to avoid Safari and GitHub Pages local-file failures.</div>
+      </div>
+    </div>
+    <div class="status" id="statusBox">Waiting for industrial input.</div>
+  </div>
 
-<div class="card">
-<h2>2. Planning Parameters</h2>
-<div class="grid3">
-<div class="box"><h3>Identity Detection</h3><div class="codebox" id="mappingNotice">No identity column detected yet.</div></div>
-<div class="box"><h3>Parameters</h3><input id="pipeCostKm" type="number" value="900000"><div class="notice">Pipeline cost per km USD</div></div>
-<div class="box"><h3>Workflow</h3><div class="notice">Upload a file or use the bundled 1000-source dataset, then run analysis.</div></div>
-</div>
-</div>
+  <div class="card">
+    <h2>2. Source Identity and Planning Parameters</h2>
+    <div class="grid2">
+      <div class="box">
+        <h3>Auto-Detection Priority</h3>
+        <div class="codebox">source_id
+source
+id
+asset_id
+asset
+tag
+name
+unit_id</div>
+      </div>
+      <div class="box">
+        <h3>Planning Parameters</h3>
+        <p id="mappingNotice">No identity column detected yet.</p>
+        <p class="small">This stable build uses BOM-safe header normalization and first-column fallback.</p>
+      </div>
+    </div>
+  </div>
 
-<div class="card">
-<h2>3. Portfolio Summary</h2>
-<div class="metric-grid">
-<div class="metric"><div class="label">Assets</div><div class="value" id="mAssets">0</div></div>
-<div class="metric"><div class="label">Electrical Potential</div><div class="value" id="mPower">0 MW</div></div>
-<div class="metric"><div class="label">Annual Value</div><div class="value" id="mValue">$0</div></div>
-<div class="metric"><div class="label">CO2 Avoided</div><div class="value" id="mCO2">0 t</div></div>
-<div class="metric"><div class="label">Best NPV</div><div class="value" id="mNPV">$0</div></div>
-<div class="metric"><div class="label">Grid Export</div><div class="value" id="mGrid">0 MW</div></div>
-</div>
-<div class="notice" id="summaryNote">No planning analysis yet.</div>
-</div>
+  <div class="card">
+    <h2>3. Portfolio Summary</h2>
+    <div class="metric-grid">
+      <div class="metric"><div class="label">Assets</div><div class="value" id="mAssets">0</div></div>
+      <div class="metric"><div class="label">Electrical Potential</div><div class="value" id="mPower">0 MW</div></div>
+      <div class="metric"><div class="label">Annual Value</div><div class="value" id="mValue">$0</div></div>
+      <div class="metric"><div class="label">CO2 Avoided</div><div class="value" id="mCO2">0 t</div></div>
+      <div class="metric"><div class="label">Best NPV</div><div class="value" id="mNPV">$0</div></div>
+      <div class="metric"><div class="label">Grid Export</div><div class="value" id="mGrid">0 MW</div></div>
+    </div>
+    <div class="notice" id="summaryNote">No planning analysis yet.</div>
+  </div>
 
-<div class="card">
-<h2>4. Industrial Heat Map Engine</h2>
-<div class="grid2">
-<div class="box"><h3>Heat Map</h3><canvas id="heatMapCanvas" width="700" height="400"></canvas></div>
-<div class="box">
-<h3>Map Intelligence</h3>
-<p id="mapTopZone">Top heat zone: -</p>
-<p id="mapNodeCount">Mapped nodes: 0</p>
-<p id="mapCorridors">Candidate corridors: 0</p>
-<p id="mapNote">No map analysis yet.</p>
-</div>
-</div>
-</div>
+  <div class="card">
+    <h2>4. Industrial Heat Map Engine</h2>
+    <div class="grid2">
+      <div class="box">
+        <h3>Heat Map</h3>
+        <canvas id="heatMapCanvas" width="700" height="380"></canvas>
+      </div>
+      <div class="box">
+        <h3>Map Intelligence</h3>
+        <p id="mapTopZone">Top heat zone: -</p>
+        <p id="mapNodeCount">Mapped nodes: 0</p>
+        <p id="mapCorridors">Candidate corridors: 0</p>
+        <p id="mapNote">No map analysis yet.</p>
+      </div>
+    </div>
+  </div>
 
-<div class="card">
-<h2>5. AI Ranking and Pipeline Optimization</h2>
-<div class="grid3">
-<div class="box"><h3>AI Narrative</h3><p id="aiBest">Top AI-ranked asset: -</p><p id="aiSecond">Second-ranked asset: -</p><p id="aiCluster">Priority planning cluster: -</p><p id="aiRationale">No AI ranking rationale yet.</p></div>
-<div class="box"><h3>Pipeline KPIs</h3><p id="pipeLength">Total optimized length: 0 km</p><p id="pipeCapex">Pipeline CAPEX: $0</p><p id="pipeAssets">Connected strategic assets: 0</p><p id="pipeAdjusted">Pipeline-adjusted NPV: $0</p></div>
-<div class="box"><h3>Network Intelligence</h3><p id="classHigh">High-grade: 0</p><p id="classMedium">Medium-grade: 0</p><p id="classLow">Low-grade: 0</p><p id="pairCount">Matched pairs: 0</p><p id="pairBest">Best pair: -</p><p id="pairBenefit">Recovered routing value: $0</p></div>
-</div>
-</div>
+  <div class="card">
+    <h2>5. AI Ranking Engine</h2>
+    <div class="grid2">
+      <div class="chart-card">
+        <h3>AI Planning Score</h3>
+        <div class="chart-wrap"><canvas id="aiScoreChart"></canvas></div>
+      </div>
+      <div class="box">
+        <h3>AI Decision Narrative</h3>
+        <p id="aiBest">Top AI-ranked asset: -</p>
+        <p id="aiSecond">Second-ranked asset: -</p>
+        <p id="aiCluster">Priority planning cluster: -</p>
+        <p id="aiRationale">No AI ranking rationale yet.</p>
+      </div>
+    </div>
+  </div>
 
-<div class="card">
-<h2>6. Platform Charts</h2>
-<div class="grid2">
-<div class="chart-card"><h3>Electrical Power Ranking</h3><div class="chart-wrap"><canvas id="powerChart"></canvas></div></div>
-<div class="chart-card"><h3>Annual Value Ranking</h3><div class="chart-wrap"><canvas id="valueChart"></canvas></div></div>
-</div>
-<div class="chart-card" style="margin-top:16px"><h3>AI Planning Score</h3><div class="chart-wrap"><canvas id="aiScoreChart"></canvas></div></div>
-</div>
+  <div class="card">
+    <h2>6. Pipeline Optimization Model</h2>
+    <div class="grid3">
+      <div class="box">
+        <h3>Pipeline KPIs</h3>
+        <p id="pipeLength">Total optimized length: 0 km</p>
+        <p id="pipeCapex">Pipeline CAPEX: $0</p>
+        <p id="pipeAssets">Connected strategic assets: 0</p>
+        <p id="pipeAdjusted">Pipeline-adjusted NPV: $0</p>
+      </div>
+      <div class="box">
+        <h3>Heat and Network Intelligence</h3>
+        <p id="classHigh">High-grade: 0</p>
+        <p id="classMedium">Medium-grade: 0</p>
+        <p id="classLow">Low-grade: 0</p>
+        <p id="pairCount">Matched pairs: 0</p>
+        <p id="pairBest">Best pair: -</p>
+        <p id="pairBenefit">Recovered routing value: $0</p>
+      </div>
+      <div class="box">
+        <h3>Platform Decision</h3>
+        <p id="routingNarrative">No routing narrative generated yet.</p>
+      </div>
+    </div>
+  </div>
 
-<div class="card">
-<h2>7. Asset Ranking Table</h2>
-<div class="table-wrap">
-<table id="resultsTable"><thead><tr><th>AI Rank</th><th>Source ID</th><th>Unit</th><th>Cluster</th><th>Electrical kW</th><th>Annual Value</th><th>Heat Grade</th><th>Technology</th><th>Grid Export MW</th><th>Pipeline km</th><th>NPV</th><th>AI Score</th></tr></thead><tbody></tbody></table>
-</div>
-</div>
+  <div class="card">
+    <h2>7. Platform Charts</h2>
+    <div class="grid2">
+      <div class="chart-card">
+        <h3>Electrical Power Ranking</h3>
+        <div class="chart-wrap"><canvas id="powerChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h3>Annual Value Ranking</h3>
+        <div class="chart-wrap"><canvas id="valueChart"></canvas></div>
+      </div>
+    </div>
+  </div>
 
-<div class="card">
-<h2>8. Network Diagram</h2>
-<div class="codebox" id="networkDiagramBox">No network diagram yet.</div>
-</div>
+  <div class="card">
+    <h2>8. Asset Ranking Table</h2>
+    <div class="table-wrap">
+      <table id="resultsTable">
+        <thead>
+          <tr>
+            <th>AI Rank</th>
+            <th>Source ID</th>
+            <th>Unit</th>
+            <th>Cluster</th>
+            <th>Electrical kW</th>
+            <th>Annual Value</th>
+            <th>Heat Grade</th>
+            <th>Technology</th>
+            <th>Grid Export MW</th>
+            <th>Pipeline km</th>
+            <th>NPV</th>
+            <th>AI Score</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
 
-<div class="card">
-<h2>9. Payload Preview</h2>
-<div class="codebox" id="payloadPreview">No payload loaded.</div>
-</div>
+  <div class="card">
+    <h2>9. Network Diagram</h2>
+    <div class="codebox" id="networkDiagramBox">No network diagram yet.</div>
+  </div>
 
-<div class="card">
-<h2>10. Platform Notes</h2>
-<textarea id="notesBox" readonly>Load a dataset then run planning analysis.</textarea>
-<div class="control-row" style="margin-top:14px"><button class="btn purple" id="bottomExportBtn" type="button">Export Final Report</button></div>
-</div>
+  <div class="card">
+    <h2>10. Payload Preview</h2>
+    <div class="codebox" id="payloadPreview">No payload loaded.</div>
+  </div>
 
+  <div class="card">
+    <h2>11. Platform Notes</h2>
+    <textarea id="notesBox" readonly>Load a dataset then run planning analysis.</textarea>
+    <div class="control-row" style="margin-top:14px">
+      <button class="btn purple" type="button" onclick="downloadReport()">Export Final Report</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -1153,182 +1241,322 @@ const csvExample = `source,mass_flow,cp,t_hot,t_cold,hours,price,co2
 SRC01,3.2,4.18,250,120,7200,0.11,0.47
 SRC02,2.7,4.18,210,95,7000,0.11,0.47
 SRC03,3.6,4.18,270,140,6800,0.11,0.47`;
-const jsonExample = JSON.stringify([
+
+const jsonExampleRows = [
   {source:"SRC11",unit:"Boiler_A",mass_flow:3.2,cp:4.18,t_hot:250,t_cold:120,hours:7200,price:0.11,co2:0.47},
   {source:"SRC12",unit:"Furnace_B",mass_flow:2.7,cp:4.18,t_hot:210,t_cold:95,hours:7000,price:0.11,co2:0.47}
-], null, 2);
+];
 
 let rawRows = [];
 let rawPayload = "";
 let results = [];
-let powerChart = null, valueChart = null, aiScoreChart = null;
+let powerChart = null;
+let valueChart = null;
+let aiScoreChart = null;
 
-function normalizeKey(s){ return String(s || "").replace(/^\uFEFF/, "").trim().toLowerCase().replace(/[\s\-]+/g, "_"); }
-function parseCSV(text){
+function normalizeKey(s) {
+  return String(s || "").replace(/^\uFEFF/, "").trim().toLowerCase().replace(/[\s\-]+/g, "_");
+}
+
+function parseCSV(text) {
   const lines = text.trim().split(/\r?\n/);
   const headers = lines[0].split(",").map(h => h.trim().replace(/^\uFEFF/, ""));
   const rows = [];
-  for(let i=1;i<lines.length;i++){
+  for (let i = 1; i < lines.length; i++) {
     const vals = lines[i].split(",");
     const obj = {};
-    headers.forEach((h,j)=> obj[h] = (vals[j] ?? "").trim());
+    for (let j = 0; j < headers.length; j++) {
+      obj[headers[j]] = (vals[j] || "").trim();
+    }
     rows.push(obj);
   }
   return rows;
 }
-function parseJSONPayload(text){ const p = JSON.parse(text); return Array.isArray(p) ? p : []; }
-function detectIdentityColumn(row){
-  const keys = Object.keys(row), normalized = {};
+
+function detectIdentityColumn(row) {
+  const keys = Object.keys(row);
+  const normalized = {};
   keys.forEach(k => normalized[normalizeKey(k)] = k);
-  for(const c of ["source_id","source","id","asset_id","asset","tag","name","unit_id"]){ if(normalized[c]) return normalized[c]; }
+  const candidates = ["source_id","source","id","asset_id","asset","tag","name","unit_id"];
+  for (let i = 0; i < candidates.length; i++) {
+    if (normalized[candidates[i]]) return normalized[candidates[i]];
+  }
   return keys[0];
 }
-function num(x){ return Number(x) || 0; }
-function money(x){ return "$" + Number(x).toLocaleString(undefined, {maximumFractionDigits:2}); }
-function grade(hot, dt){ if(hot >= 300 && dt >= 140) return "High"; if(hot >= 200 && dt >= 90) return "Medium"; return "Low"; }
-function technology(g, hot){ if(g==="High") return ["Steam Rankine / Hybrid",0.25]; if(g==="Medium") return ["Organic Rankine Cycle",0.20]; if(hot>=160) return ["Kalina-like Low-Grade Cycle",0.14]; return ["Direct Heat Reuse",0.10]; }
-function npv(net, capex, years=10, rate=0.1){ let v=-capex; for(let i=1;i<=years;i++) v += net/Math.pow(1+rate,i); return v; }
-function setLoaded(text, rows, label){
+
+function num(x) { return Number(x) || 0; }
+function money(x) { return "$" + Number(x).toLocaleString(undefined, {maximumFractionDigits:2}); }
+
+function grade(hot, dt) {
+  if (hot >= 300 && dt >= 140) return "High";
+  if (hot >= 200 && dt >= 90) return "Medium";
+  return "Low";
+}
+
+function technology(g, hot) {
+  if (g === "High") return ["Steam Rankine / Hybrid", 0.25];
+  if (g === "Medium") return ["Organic Rankine Cycle", 0.20];
+  if (hot >= 160) return ["Kalina-like Low-Grade Cycle", 0.14];
+  return ["Direct Heat Reuse", 0.10];
+}
+
+function npv(net, capex, years, rate) {
+  let v = -capex;
+  for (let i = 1; i <= years; i++) {
+    v += net / Math.pow(1 + rate, i);
+  }
+  return v;
+}
+
+function setLoaded(text, rows, label) {
   rawPayload = text;
   rawRows = rows;
   document.getElementById("fileState").textContent = label;
   document.getElementById("statusBox").textContent = "Dataset loaded and ready for analysis.";
-  document.getElementById("payloadPreview").textContent = String(text).split(/\r?\n/).slice(0,200).join("\n");
+  document.getElementById("payloadPreview").textContent = String(text).split(/\r?\n/).slice(0, 200).join("\n");
 }
-function loadCSVExample(){ setLoaded(csvExample, parseCSV(csvExample), "CSV example loaded."); }
-function loadJSONExample(){ setLoaded(jsonExample, parseJSONPayload(jsonExample), "JSON example loaded."); }
-function loadBundled(){ setLoaded(bundledCSV, parseCSV(bundledCSV), "Bundled 1000-source dataset loaded."); }
 
-function drawHeatMap(data){
-  const canvas = document.getElementById("heatMapCanvas"), ctx = canvas.getContext("2d");
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  ctx.fillStyle = "#f8fafc"; ctx.fillRect(0,0,canvas.width,canvas.height);
+function loadCSVExample() {
+  setLoaded(csvExample, parseCSV(csvExample), "CSV example loaded.");
+}
+
+function loadJSONExample() {
+  rawRows = jsonExampleRows;
+  rawPayload = JSON.stringify(jsonExampleRows, null, 2);
+  document.getElementById("fileState").textContent = "JSON example loaded.";
+  document.getElementById("statusBox").textContent = "Dataset loaded and ready for analysis.";
+  document.getElementById("payloadPreview").textContent = rawPayload;
+}
+
+function loadBundled() {
+  setLoaded(bundledCSV, parseCSV(bundledCSV), "Bundled 1000-source dataset loaded.");
+}
+
+function drawHeatMap(data) {
+  const canvas = document.getElementById("heatMapCanvas");
+  const ctx = canvas.getContext("2d");
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = "#f8fafc";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
   ctx.strokeStyle = "#dbeafe";
-  for(let i=0;i<=10;i++){
-    let x=i*canvas.width/10, y=i*canvas.height/10;
-    ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,canvas.height); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(canvas.width,y); ctx.stroke();
+  for (let i = 0; i <= 10; i++) {
+    let x = i * canvas.width / 10;
+    let y = i * canvas.height / 10;
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
   }
-  data.slice(0,120).forEach((r,i)=>{
-    const x = 20 + ((i*37)%100)/100 * (canvas.width-40);
-    const y = 20 + ((i*53)%100)/100 * (canvas.height-40);
-    const radius = Math.max(4, Math.min(16, r.electrical/350));
+  for (let i = 0; i < Math.min(120, data.length); i++) {
+    const r = data[i];
+    const x = 20 + ((i * 37) % 100) / 100 * (canvas.width - 40);
+    const y = 20 + ((i * 53) % 100) / 100 * (canvas.height - 40);
+    const radius = Math.max(4, Math.min(16, r.electrical / 350));
     ctx.beginPath();
     ctx.fillStyle = r.grade === "High" ? "rgba(185,28,28,0.75)" : r.grade === "Medium" ? "rgba(180,83,9,0.70)" : "rgba(21,128,61,0.70)";
-    ctx.arc(x,y,radius,0,Math.PI*2); ctx.fill();
+    ctx.arc(x, y, radius, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.fillStyle = "#0f172a";
+  ctx.font = "16px Arial";
+  ctx.fillText("Industrial Heat Map", 20, 24);
+}
+
+function renderCharts(data) {
+  const top20 = data.slice(0, 20);
+  if (powerChart) powerChart.destroy();
+  if (valueChart) valueChart.destroy();
+  if (aiScoreChart) aiScoreChart.destroy();
+
+  powerChart = new Chart(document.getElementById("powerChart"), {
+    type: "bar",
+    data: { labels: top20.map(r => r.source), datasets: [{ label: "Electrical kW", data: top20.map(r => r.electrical) }] },
+    options: { responsive: true, maintainAspectRatio: false }
   });
-  ctx.fillStyle = "#0f172a"; ctx.font = "16px Arial"; ctx.fillText("Industrial Heat Map", 20, 24);
+
+  valueChart = new Chart(document.getElementById("valueChart"), {
+    type: "bar",
+    data: { labels: top20.map(r => r.source), datasets: [{ label: "Annual Value USD", data: top20.map(r => r.value) }] },
+    options: { responsive: true, maintainAspectRatio: false }
+  });
+
+  aiScoreChart = new Chart(document.getElementById("aiScoreChart"), {
+    type: "bar",
+    data: { labels: top20.map(r => r.source), datasets: [{ label: "AI Planning Score", data: top20.map(r => r.aiScore) }] },
+    options: { responsive: true, maintainAspectRatio: false }
+  });
 }
-function renderCharts(data){
-  const top20 = data.slice(0,20);
-  if(powerChart) powerChart.destroy(); if(valueChart) valueChart.destroy(); if(aiScoreChart) aiScoreChart.destroy();
-  powerChart = new Chart(document.getElementById("powerChart"), {type:"bar",data:{labels:top20.map(r=>r.source),datasets:[{label:"Electrical kW",data:top20.map(r=>r.electrical)}]},options:{responsive:true,maintainAspectRatio:false}});
-  valueChart = new Chart(document.getElementById("valueChart"), {type:"bar",data:{labels:top20.map(r=>r.source),datasets:[{label:"Annual Value USD",data:top20.map(r=>r.value)}]},options:{responsive:true,maintainAspectRatio:false}});
-  aiScoreChart = new Chart(document.getElementById("aiScoreChart"), {type:"bar",data:{labels:top20.map(r=>r.source),datasets:[{label:"AI Planning Score",data:top20.map(r=>r.aiScore)}]},options:{responsive:true,maintainAspectRatio:false}});
+
+function renderNetworkDiagram(data) {
+  const top = data.slice(0, 5);
+  let lines = [];
+  lines.push("Top planning assets:");
+  for (let i = 0; i < top.length; i++) {
+    lines.push((i + 1) + ". " + top[i].source + " | " + top[i].cluster + " | AI " + top[i].aiScore.toFixed(3));
+  }
+  document.getElementById("networkDiagramBox").textContent = lines.join("\n");
 }
-function renderNetworkDiagram(data){
-  const top = data.slice(0,5).map(r => `${r.aiRank}. ${r.source} | ${r.cluster} | AI ${r.aiScore.toFixed(3)}`);
-  document.getElementById("networkDiagramBox").textContent = top.join("\n");
-}
-function runPlanningAnalysis(){
-  if(!rawRows.length){ document.getElementById("statusBox").textContent = "No dataset loaded. Press Load Bundled 1000-Source Dataset first."; return; }
+
+function runPlanningAnalysis() {
+  if (!rawRows.length) {
+    document.getElementById("statusBox").textContent = "No dataset loaded. Press Load Bundled 1000-Source Dataset first.";
+    return;
+  }
+
   const idCol = detectIdentityColumn(rawRows[0]);
   document.getElementById("mappingNotice").textContent = "Detected source identity column: " + idCol;
-  let high=0, medium=0, low=0;
-  results = rawRows.map((r,i)=>{
-    const source = r[idCol], unit = r.unit || "-";
-    const hot = num(r.t_hot), cold = num(r.t_cold), mass = num(r.mass_flow), cp = num(r.cp), hours = num(r.hours), price = num(r.price), co2 = num(r.co2);
-    const dt = hot - cold, g = grade(hot, dt);
-    if(g==="High") high++; else if(g==="Medium") medium++; else low++;
-    const t = technology(g, hot), tech=t[0], eff=t[1];
-    const thermal = mass * cp * Math.max(dt,0), electrical = thermal * eff, energy = electrical * hours, value = energy * price;
+
+  let high = 0, medium = 0, low = 0;
+  results = [];
+
+  for (let i = 0; i < rawRows.length; i++) {
+    const r = rawRows[i];
+    const source = r[idCol];
+    const unit = r.unit || "-";
+    const hot = num(r.t_hot);
+    const cold = num(r.t_cold);
+    const mass = num(r.mass_flow);
+    const cp = num(r.cp);
+    const hours = num(r.hours);
+    const price = num(r.price);
+    const co2 = num(r.co2);
+
+    const dt = hot - cold;
+    const g = grade(hot, dt);
+    if (g === "High") high++;
+    else if (g === "Medium") medium++;
+    else low++;
+
+    const techInfo = technology(g, hot);
+    const tech = techInfo[0];
+    const eff = techInfo[1];
+    const thermal = mass * cp * Math.max(dt, 0);
+    const electrical = thermal * eff;
+    const energy = electrical * hours;
+    const value = energy * price;
     const gridExportMW = (electrical * (electrical >= 3000 ? 0.45 : electrical >= 1000 ? 0.35 : 0.20)) / 1000;
     const capex = electrical * (tech === "Steam Rankine / Hybrid" ? 2200 : tech === "Organic Rankine Cycle" ? 1800 : tech === "Kalina-like Low-Grade Cycle" ? 2000 : 1200);
-    const opex = capex * 0.04, net = value - opex, npvVal = npv(net, capex);
+    const opex = capex * 0.04;
+    const net = value - opex;
+    const npvVal = npv(net, capex, 10, 0.1);
     const cluster = hot >= 300 ? "CLUSTER_01" : hot >= 220 ? "CLUSTER_02" : hot >= 160 ? "CLUSTER_03" : "CLUSTER_04";
     const pipelineKm = 2 + ((i * 11) % 13) * 0.8;
-    const aiScore = Math.min(1, (Math.min(1, hot/450)*0.22) + (Math.min(1, gridExportMW/2.5)*0.18) + (Math.max(0,1-pipelineKm/15)*0.18) + ((1-Math.min(1,capex/12000000))*0.18) + (cluster === "CLUSTER_01" ? 0.12 : cluster === "CLUSTER_02" ? 0.08 : 0.05));
-    return {source, unit, electrical, value, grade:g, tech, gridExportMW, npv:npvVal, cluster, aiScore, pipelineKm, co2:energy*co2/1000};
-  }).sort((a,b)=>b.aiScore-a.aiScore);
-  results.forEach((r,idx)=>r.aiRank=idx+1);
+    const aiScore = Math.min(1,
+      (Math.min(1, hot / 450) * 0.22) +
+      (Math.min(1, gridExportMW / 2.5) * 0.18) +
+      (Math.max(0, 1 - pipelineKm / 15) * 0.18) +
+      ((1 - Math.min(1, capex / 12000000)) * 0.18) +
+      (cluster === "CLUSTER_01" ? 0.12 : cluster === "CLUSTER_02" ? 0.08 : 0.05)
+    );
 
-  const totalPower = results.reduce((a,b)=>a+b.electrical,0), totalValue = results.reduce((a,b)=>a+b.value,0), totalCO2 = results.reduce((a,b)=>a+b.co2,0);
-  const best = results[0], totalGrid = results.reduce((a,b)=>a+b.gridExportMW,0), totalPipe = results.slice(0,18).reduce((a,b)=>a+b.pipelineKm,0), pipeCapex = totalPipe * Number(document.getElementById("pipeCostKm").value || 900000), pipeAdjusted = results.slice(0,18).reduce((a,b)=>a+b.npv,0) - pipeCapex;
+    results.push({
+      source: source,
+      unit: unit,
+      electrical: electrical,
+      value: value,
+      grade: g,
+      tech: tech,
+      gridExportMW: gridExportMW,
+      npv: npvVal,
+      cluster: cluster,
+      aiScore: aiScore,
+      pipelineKm: pipelineKm,
+      co2: energy * co2 / 1000
+    });
+  }
+
+  results.sort((a, b) => b.aiScore - a.aiScore);
+  for (let i = 0; i < results.length; i++) {
+    results[i].aiRank = i + 1;
+  }
+
+  const totalPower = results.reduce((a, b) => a + b.electrical, 0);
+  const totalValue = results.reduce((a, b) => a + b.value, 0);
+  const totalCO2 = results.reduce((a, b) => a + b.co2, 0);
+  const best = results[0];
+  const totalGrid = results.reduce((a, b) => a + b.gridExportMW, 0);
+  const totalPipe = results.slice(0, 18).reduce((a, b) => a + b.pipelineKm, 0);
+  const pipeCapex = totalPipe * 900000;
+  const pipeAdjusted = results.slice(0, 18).reduce((a, b) => a + b.npv, 0) - pipeCapex;
 
   document.getElementById("mAssets").textContent = results.length;
-  document.getElementById("mPower").textContent = (totalPower/1000).toFixed(2) + " MW";
+  document.getElementById("mPower").textContent = (totalPower / 1000).toFixed(2) + " MW";
   document.getElementById("mValue").textContent = money(totalValue);
   document.getElementById("mCO2").textContent = totalCO2.toFixed(0) + " t";
-  document.getElementById("mNPV").textContent = money(Math.max(...results.map(x=>x.npv)));
+  document.getElementById("mNPV").textContent = money(Math.max.apply(null, results.map(x => x.npv)));
   document.getElementById("mGrid").textContent = totalGrid.toFixed(2) + " MW";
   document.getElementById("summaryNote").textContent = "Best planning opportunity: " + best.source + ". AI score: " + best.aiScore.toFixed(3) + ". Annual value: " + money(best.value) + ".";
+
   document.getElementById("classHigh").textContent = "High-grade: " + high;
   document.getElementById("classMedium").textContent = "Medium-grade: " + medium;
   document.getElementById("classLow").textContent = "Low-grade: " + low;
   document.getElementById("pairCount").textContent = "Matched pairs: " + Math.min(20, results.length);
   document.getElementById("pairBest").textContent = "Best pair: " + results[0].source + " → " + results[1].source;
-  document.getElementById("pairBenefit").textContent = "Recovered routing value: " + money(totalValue*0.012);
+  document.getElementById("pairBenefit").textContent = "Recovered routing value: " + money(totalValue * 0.012);
+  document.getElementById("routingNarrative").textContent = "The platform identified routing corridors and strategic pipeline candidates around the top-ranked assets.";
+
   document.getElementById("mapTopZone").textContent = "Top heat zone: North-West";
   document.getElementById("mapNodeCount").textContent = "Mapped nodes: " + results.length;
   document.getElementById("mapCorridors").textContent = "Candidate corridors: " + Math.min(20, results.length);
   document.getElementById("mapNote").textContent = "Spatial planning layer computed successfully from the active dataset.";
+
   document.getElementById("aiBest").textContent = "Top AI-ranked asset: " + results[0].source + " / score " + results[0].aiScore.toFixed(3);
   document.getElementById("aiSecond").textContent = "Second-ranked asset: " + results[1].source + " / score " + results[1].aiScore.toFixed(3);
   document.getElementById("aiCluster").textContent = "Priority planning cluster: " + results[0].cluster;
   document.getElementById("aiRationale").textContent = "AI ranking rewards stronger temperature quality, exportability, and lower pipeline burden.";
+
   document.getElementById("pipeLength").textContent = "Total optimized length: " + totalPipe.toFixed(2) + " km";
   document.getElementById("pipeCapex").textContent = "Pipeline CAPEX: " + money(pipeCapex);
   document.getElementById("pipeAssets").textContent = "Connected strategic assets: 18";
   document.getElementById("pipeAdjusted").textContent = "Pipeline-adjusted NPV: " + money(pipeAdjusted);
 
-  document.querySelector("#resultsTable tbody").innerHTML = results.slice(0,100).map(r => `<tr><td>${r.aiRank}</td><td>${r.source}</td><td>${r.unit}</td><td>${r.cluster}</td><td>${r.electrical.toFixed(0)}</td><td>${money(r.value)}</td><td><span class="badge ${r.grade.toLowerCase()}">${r.grade}</span></td><td>${r.tech}</td><td>${r.gridExportMW.toFixed(2)}</td><td>${r.pipelineKm.toFixed(2)}</td><td>${money(r.npv)}</td><td>${r.aiScore.toFixed(3)}</td></tr>`).join("");
+  const tbody = document.querySelector("#resultsTable tbody");
+  tbody.innerHTML = "";
+  for (let i = 0; i < Math.min(100, results.length); i++) {
+    const r = results[i];
+    const tr = document.createElement("tr");
+    tr.innerHTML =
+      "<td>" + r.aiRank + "</td>" +
+      "<td>" + r.source + "</td>" +
+      "<td>" + r.unit + "</td>" +
+      "<td>" + r.cluster + "</td>" +
+      "<td>" + r.electrical.toFixed(0) + "</td>" +
+      "<td>" + money(r.value) + "</td>" +
+      '<td><span class="badge ' + r.grade.toLowerCase() + '">' + r.grade + "</span></td>" +
+      "<td>" + r.tech + "</td>" +
+      "<td>" + r.gridExportMW.toFixed(2) + "</td>" +
+      "<td>" + r.pipelineKm.toFixed(2) + "</td>" +
+      "<td>" + money(r.npv) + "</td>" +
+      "<td>" + r.aiScore.toFixed(3) + "</td>";
+    tbody.appendChild(tr);
+  }
 
-  drawHeatMap(results); renderCharts(results); renderNetworkDiagram(results);
-  document.getElementById("notesBox").value = `ThermoNova v15.3 Stable Preserved UI
+  drawHeatMap(results);
+  renderCharts(results);
+  renderNetworkDiagram(results);
 
-Assets analyzed: ${results.length}
-Detected source identity column: ${idCol}
-Best planning source: ${best.source}
-Annual value: ${money(best.value)}
-Pipeline-adjusted NPV: ${money(pipeAdjusted)}
+  document.getElementById("notesBox").value =
+"ThermoNova v15.4 Stable iPhone Fixed\n\n" +
+"Assets analyzed: " + results.length + "\n" +
+"Detected source identity column: " + idCol + "\n" +
+"Best planning source: " + best.source + "\n" +
+"Annual value: " + money(best.value) + "\n" +
+"Pipeline-adjusted NPV: " + money(pipeAdjusted) + "\n\n" +
+"Recommended workflow:\n1. Load Bundled 1000-Source Dataset\n2. Run Planning Analysis\n3. Export Final Report";
 
-Recommended iPhone workflow:
-1. Load Bundled 1000-Source Dataset
-2. Run Planning Analysis
-3. Export Final Report`;
   document.getElementById("statusBox").textContent = "Industrial energy planning analysis completed.";
 }
-function downloadReport(){
-  if(!results.length){ alert("Run planning analysis first"); return; }
-  const blob = new Blob([document.documentElement.outerHTML], {type:"text/html"});
+
+function downloadReport() {
+  if (!results.length) {
+    alert("Run planning analysis first");
+    return;
+  }
+  const blob = new Blob([document.documentElement.outerHTML], { type: "text/html" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-  a.download = "ThermoNova_v15_3_Stable_Preserved_UI_Report.html";
+  a.download = "ThermoNova_v15_4_Stable_iPhone_Fixed_Report.html";
   a.click();
   URL.revokeObjectURL(a.href);
 }
-document.getElementById("loadCsvBtn").onclick = loadCSVExample;
-document.getElementById("loadJsonBtn").onclick = loadJSONExample;
-document.getElementById("loadBundledBtn").onclick = loadBundled;
-document.getElementById("runBtn").onclick = runPlanningAnalysis;
-document.getElementById("downloadBtn").onclick = downloadReport;
-document.getElementById("exportBtn").onclick = downloadReport;
-document.getElementById("bottomExportBtn").onclick = downloadReport;
-document.getElementById("uploadInput").addEventListener("change", function(e){
-  const file = e.target.files[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = function(evt){
-    const text = evt.target.result;
-    try{
-      if(file.name.toLowerCase().endsWith(".json")) setLoaded(text, parseJSONPayload(text), "Uploaded JSON dataset loaded.");
-      else setLoaded(text, parseCSV(text), "Uploaded CSV dataset loaded.");
-    } catch(err){
-      document.getElementById("statusBox").textContent = "Upload parsing error: " + err.message;
-    }
-  };
-  reader.readAsText(file);
-});
 </script>
 </body>
 </html>
