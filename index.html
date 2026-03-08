@@ -1,478 +1,76 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ThermoNova v13.1 Source Identity Fix + Robust Column Mapping</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<title>ThermoNova v14 Industrial Heat Network Intelligence Engine</title>
 <style>
-*{box-sizing:border-box}
-body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#eef3f9;color:#1f2937;line-height:1.6}
-.container{max-width:1480px;margin:0 auto;padding:20px}
-.hero{background:linear-gradient(135deg,#1e3a8a,#0f766e);color:#fff;padding:28px;border-radius:22px;margin-bottom:18px}
-.hero h1{margin:0 0 10px 0;font-size:40px;line-height:1.15}
-.hero p{margin:6px 0;font-size:22px;line-height:1.4}
-.card{background:#fff;border-radius:18px;padding:22px;margin-bottom:18px;box-shadow:0 8px 24px rgba(15,23,42,.08)}
-h2{margin:0 0 14px 0;color:#1d4ed8;font-size:30px;line-height:1.2}
-h3{margin:0 0 12px 0;color:#0f766e;font-size:22px;line-height:1.3}
-.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
-.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
-.metric-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:14px}
-.metric{background:#f8fafc;border:1px solid #dbeafe;border-radius:14px;padding:16px}
-.metric .label{font-size:15px;color:#475569}
-.metric .value{font-size:26px;font-weight:700;margin-top:8px;line-height:1.15}
-.control-box,.box,.chart-card{background:#f8fafc;border:1px solid #dbeafe;border-radius:16px;padding:16px}
-.control-row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
-.btn,.file-label,select,input[type=text]{
-appearance:none;-webkit-appearance:none;display:inline-flex;align-items:center;justify-content:center;
-min-height:56px;padding:14px 18px;border:none;border-radius:14px;font-size:18px;text-decoration:none
-}
-.btn{background:#2563eb;color:#fff;cursor:pointer}
-.btn.secondary{background:#475569}.btn.green{background:#15803d}.btn.orange{background:#b45309}
-.file-label{background:#2563eb;color:#fff;cursor:pointer;width:100%}
-select,input[type=text]{width:100%;background:#fff;color:#111827;border:1px solid #cbd5e1}
-.hidden-file{display:none !important}
-.file-state,.status,.notice,.warning{margin-top:14px;border-radius:12px;padding:14px;font-size:17px}
-.file-state{background:#eef2ff;color:#1e3a8a}
-.status{background:#e0ecff;color:#1e3a8a}
-.notice{background:#f0fdf4;color:#166534;border:1px solid #bbf7d0}
-.warning{background:#fff7ed;color:#9a3412;border:1px solid #fdba74}
-.chart-wrap{position:relative;height:340px}
-.table-wrap{overflow-x:auto;border:1px solid #dbeafe;border-radius:14px;background:#fff}
-table{width:100%;min-width:2200px;border-collapse:collapse}
-th,td{padding:10px;border-bottom:1px solid #e5e7eb;text-align:left;font-size:14px;vertical-align:top}
-th{background:#dbeafe;color:#1e3a8a;position:sticky;top:0}
-.badge{display:inline-block;padding:5px 10px;border-radius:999px;color:#fff;font-size:12px}
-.high{background:#b91c1c}.medium{background:#b45309}.low{background:#15803d}
-.codebox{background:#0f172a;color:#e2e8f0;border-radius:14px;padding:14px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;line-height:1.55;white-space:pre-wrap;overflow:auto;min-height:150px}
-textarea{width:100%;min-height:180px;padding:14px;border-radius:14px;border:1px solid #cbd5e1;background:#f8fafc;font-size:16px}
-.small{font-size:13px;color:#64748b}
-.mapping-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-@media (max-width:1100px){
-  .grid2,.grid3,.mapping-grid{grid-template-columns:1fr}
-  .metric-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-}
-@media (max-width:640px){
-  .container{padding:14px}
-  .hero{padding:22px}
-  .hero h1{font-size:32px}
-  .hero p{font-size:19px}
-  h2{font-size:26px}
-  h3{font-size:20px}
-  .btn,.file-label,select,input[type=text]{width:100%;font-size:18px;min-height:54px}
-  .metric .value{font-size:24px}
-}
+body{font-family:Arial;margin:0;background:#eef3f9;color:#1f2937}
+.container{max-width:1200px;margin:auto;padding:20px}
+.hero{background:linear-gradient(135deg,#1e3a8a,#0f766e);color:white;padding:25px;border-radius:16px}
+.card{background:white;padding:20px;margin-top:20px;border-radius:12px}
+button{padding:14px 20px;margin:6px;border:none;border-radius:10px;font-size:16px;background:#2563eb;color:white;cursor:pointer}
+textarea{width:100%;height:160px;border-radius:10px;border:1px solid #ccc;padding:10px}
 </style>
 </head>
+
 <body>
 <div class="container">
-  <div class="hero">
-    <h1>ThermoNova v13.1</h1>
-    <p>Source Identity Fix + Robust Column Mapping</p>
-    <p>Fixes undefined source names, adds resilient column detection, and stabilizes industrial dataset ingestion</p>
-  </div>
 
-  <div class="card">
-    <h2>1. Platform Control Center</h2>
-    <div class="grid2">
-      <div class="control-box">
-        <h3>Input Source</h3>
-        <div class="control-row">
-          <select id="sourceMode">
-            <option value="csv">CSV File</option>
-            <option value="json">JSON Dataset</option>
-            <option value="rest">REST API Mock</option>
-            <option value="mqtt">MQTT Mock Stream</option>
-          </select>
-        </div>
-        <div class="control-row">
-          <label class="file-label" for="uploadInput">Upload Industrial Dataset</label>
-          <input id="uploadInput" class="hidden-file" type="file" accept=".csv,.json,text/csv,application/json">
-        </div>
-        <div class="file-state" id="fileState">No file loaded.</div>
-      </div>
+<div class="hero">
+<h1>ThermoNova v14</h1>
+<p>Industrial Heat Network Intelligence Engine</p>
+<p>Cluster analysis, routing intelligence, and storage modelling</p>
+</div>
 
-      <div class="control-box">
-        <h3>Actions</h3>
-        <div class="control-row">
-          <button class="btn secondary" id="loadCsvBtn" type="button">Load CSV Example</button>
-          <button class="btn secondary" id="loadJsonBtn" type="button">Load JSON Example</button>
-          <button class="btn orange" id="apiBtn" type="button">Simulate REST API</button>
-          <button class="btn orange" id="mqttBtn" type="button">Simulate MQTT</button>
-          <button class="btn green" id="runBtn" type="button">Run Platform Analysis</button>
-          <button class="btn" id="downloadBtn" type="button">Download HTML Report</button>
-        </div>
-      </div>
-    </div>
-    <div class="status" id="statusBox">Waiting for industrial input.</div>
-  </div>
+<div class="card">
+<h2>Dataset Input</h2>
+<input type="file" id="fileInput">
+<button onclick="loadExample()">Load Example</button>
+<button onclick="runAnalysis()">Run Network Analysis</button>
+</div>
 
-  <div class="card">
-    <h2>2. Source Identity Mapping</h2>
-    <div class="mapping-grid">
-      <div class="box">
-        <h3>Auto-Detection Priority</h3>
-        <p class="small">ThermoNova will search for source identity using the following columns in order:</p>
-        <div class="codebox">source_id
-source
-id
-asset_id
-asset
-tag
-name
-unit_id</div>
-      </div>
-      <div class="box">
-        <h3>Manual Override</h3>
-        <p class="small">If your industrial file uses a different identity column name, enter it here. Leave blank to use auto-detection.</p>
-        <input type="text" id="identityOverride" placeholder="Example: equipment_tag or source_name">
-        <div class="notice" id="mappingNotice">No identity column detected yet.</div>
-      </div>
-    </div>
-  </div>
+<div class="card">
+<h2>Platform Output</h2>
+<textarea id="output">No analysis yet.</textarea>
+</div>
 
-  <div class="card">
-    <h2>3. Portfolio Summary</h2>
-    <div class="metric-grid">
-      <div class="metric"><div class="label">Assets</div><div class="value" id="mAssets">0</div></div>
-      <div class="metric"><div class="label">Electrical Potential</div><div class="value" id="mPower">0 MW</div></div>
-      <div class="metric"><div class="label">Annual Value</div><div class="value" id="mValue">$0</div></div>
-      <div class="metric"><div class="label">CO2 Avoided</div><div class="value" id="mCO2">0 t</div></div>
-      <div class="metric"><div class="label">Best NPV</div><div class="value" id="mNPV">$0</div></div>
-      <div class="metric"><div class="label">Grid Export</div><div class="value" id="mGrid">0 MW</div></div>
-    </div>
-    <div class="notice" id="summaryNote">No portfolio analysis yet.</div>
-  </div>
-
-  <div class="card">
-    <h2>4. Platform Charts</h2>
-    <div class="grid2">
-      <div class="chart-card">
-        <h3>Electrical Power Ranking</h3>
-        <div class="chart-wrap"><canvas id="powerChart"></canvas></div>
-      </div>
-      <div class="chart-card">
-        <h3>Annual Value Ranking</h3>
-        <div class="chart-wrap"><canvas id="valueChart"></canvas></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>5. Asset Ranking Table</h2>
-    <div class="table-wrap">
-      <table id="resultsTable">
-        <thead>
-          <tr>
-            <th>Rank</th>
-            <th>Source ID</th>
-            <th>Thermal kW</th>
-            <th>Electrical kW</th>
-            <th>Annual Value</th>
-            <th>CO2 Avoided</th>
-            <th>Heat Grade</th>
-            <th>Technology</th>
-            <th>Grid Export MW</th>
-            <th>CAPEX</th>
-            <th>OPEX</th>
-            <th>Net Benefit</th>
-            <th>Payback</th>
-            <th>NPV</th>
-            <th>Score</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>6. Payload Preview</h2>
-    <div class="codebox" id="payloadPreview">No payload loaded.</div>
-  </div>
-
-  <div class="card">
-    <h2>7. Platform Notes</h2>
-    <textarea id="notesBox" readonly>Load industrial input then run platform analysis.</textarea>
-  </div>
 </div>
 
 <script>
-const csvExample = `source_id,mass_flow,cp,t_hot,t_cold,hours,price,co2
-SRC001,3.2,4.18,250,120,7200,0.11,0.47
-SRC002,2.7,4.18,210,95,7000,0.11,0.47
-SRC003,3.6,4.18,270,140,6800,0.11,0.47
-SRC004,2.4,4.18,220,110,7200,0.11,0.47
-SRC005,2.0,4.18,195,90,6500,0.11,0.47`;
 
-const jsonExample = JSON.stringify([
-  {"asset_id":"SRC101","mass_flow":4.1,"cp":4.05,"t_hot":380,"t_cold":145,"hours":7600,"price":0.12,"co2":0.44},
-  {"asset_id":"SRC102","mass_flow":5.3,"cp":4.10,"t_hot":410,"t_cold":160,"hours":7800,"price":0.12,"co2":0.44},
-  {"asset_id":"SRC103","mass_flow":2.8,"cp":4.18,"t_hot":240,"t_cold":120,"hours":7000,"price":0.12,"co2":0.44}
-], null, 2);
+let dataset = []
 
-const restMock = JSON.stringify({
-  connector:"REST_API_MOCK",
-  data:[
-    {"source":"SRC201","mass_flow":3.9,"cp":4.12,"t_hot":320,"t_cold":150,"hours":7600,"price":0.13,"co2":0.42},
-    {"source":"SRC202","mass_flow":4.8,"cp":4.05,"t_hot":430,"t_cold":180,"hours":7900,"price":0.13,"co2":0.42}
-  ]
-}, null, 2);
+function loadExample(){
+dataset = [
+{source:"SRC001",hot:250,cold:120,power:1400},
+{source:"SRC002",hot:330,cold:160,power:2600},
+{source:"SRC003",hot:410,cold:180,power:3200},
+{source:"SRC004",hot:200,cold:90,power:900}
+]
 
-const mqttMock = JSON.stringify({
-  connector:"MQTT_MOCK",
-  packets:[
-    {"tag":"SRC301","mass_flow":3.1,"cp":4.00,"t_hot":290,"t_cold":130,"hours":7400,"price":0.10,"co2":0.49},
-    {"tag":"SRC302","mass_flow":2.5,"cp":4.18,"t_hot":205,"t_cold":100,"hours":7100,"price":0.10,"co2":0.49}
-  ]
-}, null, 2);
+document.getElementById("output").value="Example dataset loaded."
+}
 
-let rawPayload="";
-let results=[];
-let powerChart=null, valueChart=null;
-
-function num(x){ return Number(x) || 0; }
-function money(x){ return "$" + Number(x).toLocaleString(undefined,{maximumFractionDigits:2}); }
-
-function parseCSV(text){
-  const lines=text.trim().split(/\r?\n/);
-  const headers=lines[0].split(",").map(h=>h.trim());
-  return lines.slice(1).map(line=>{
-    const vals=line.split(",").map(v=>v.trim());
-    const obj={};
-    headers.forEach((h,i)=>obj[h]=vals[i]);
-    return obj;
-  });
-}
-function parseJSONPayload(text){
-  const p=JSON.parse(text);
-  if(Array.isArray(p)) return p;
-  if(Array.isArray(p.data)) return p.data;
-  if(Array.isArray(p.packets)) return p.packets;
-  return [];
-}
-function normalizeKey(s){
-  return String(s || "").trim().toLowerCase().replace(/\s+/g,"_");
-}
-function detectIdentityColumn(rows){
-  if(!rows.length) return null;
-  const override = document.getElementById("identityOverride").value.trim();
-  const first = rows[0];
-  const keys = Object.keys(first);
-  const keyMap = {};
-  keys.forEach(k => keyMap[normalizeKey(k)] = k);
-
-  if(override){
-    const nk = normalizeKey(override);
-    if(keyMap[nk]) return keyMap[nk];
-  }
-
-  const candidates = ["source_id","source","id","asset_id","asset","tag","name","unit_id"];
-  for(const c of candidates){
-    if(keyMap[c]) return keyMap[c];
-  }
-  return null;
-}
-function valueByPossibleNames(row, names){
-  const keys = Object.keys(row);
-  const keyMap = {};
-  keys.forEach(k => keyMap[normalizeKey(k)] = k);
-  for(const n of names){
-    const nk = normalizeKey(n);
-    if(keyMap[nk] !== undefined) return row[keyMap[nk]];
-  }
-  return undefined;
-}
-function heatGrade(hot,dt){
-  if(hot>=300 && dt>=140) return "High";
-  if(hot>=200 && dt>=90) return "Medium";
-  return "Low";
-}
-function chooseTechnology(grade, hot){
-  if(grade==="High") return ["Steam Rankine / Hybrid",0.25];
-  if(grade==="Medium") return ["Organic Rankine Cycle",0.20];
-  if(hot>=160) return ["Kalina-like Low-Grade Cycle",0.14];
-  return ["Direct Heat Reuse",0.10];
-}
-function capexFactor(tech){
-  if(tech==="Steam Rankine / Hybrid") return 2200;
-  if(tech==="Organic Rankine Cycle") return 1800;
-  if(tech==="Kalina-like Low-Grade Cycle") return 2000;
-  return 1200;
-}
-function exportFraction(electrical){
-  if(electrical>=3000) return 0.45;
-  if(electrical>=1000) return 0.35;
-  return 0.20;
-}
-function npv(net,capex,years=10,rate=0.1){
-  let v=-capex;
-  for(let i=1;i<=years;i++) v+=net/Math.pow(1+rate,i);
-  return v;
-}
-function score(row){
-  return (row.npv/200000)+(row.value/100000)+(row.co2/2000)+(row.gridExportMW*2)-(row.payback*1.1);
-}
-function analyze(rows){
-  const idCol = detectIdentityColumn(rows);
-  if(!idCol){
-    throw new Error("No valid source identity column detected. Add a column such as source_id, source, id, asset_id, asset, tag, or set a manual override.");
-  }
-  document.getElementById("mappingNotice").textContent = "Detected source identity column: " + idCol;
-
-  const out=[];
-  rows.forEach((r,idx)=>{
-    const sourceName = valueByPossibleNames(r, [idCol]) ?? ("UNMAPPED_SOURCE_" + (idx+1));
-    const mass=num(valueByPossibleNames(r,["mass_flow","flow","massflow"]));
-    const cp=num(valueByPossibleNames(r,["cp","specific_heat","heat_capacity"]));
-    const hot=num(valueByPossibleNames(r,["t_hot","temp_hot","temperature_hot","hot_temp"]));
-    const cold=num(valueByPossibleNames(r,["t_cold","temp_cold","temperature_cold","cold_temp"]));
-    const hours=num(valueByPossibleNames(r,["hours","operating_hours","runtime"]));
-    const price=num(valueByPossibleNames(r,["price","electricity_price","tariff"]));
-    const co2=num(valueByPossibleNames(r,["co2","co2_factor","emissions"]));
-
-    const dt=hot-cold;
-    const grade=heatGrade(hot,dt);
-    const t=chooseTechnology(grade,hot);
-    const tech=t[0], eff=t[1];
-    const thermal=mass*cp*dt;
-    const electrical=thermal*eff;
-    const energy=electrical*hours;
-    const value=energy*price;
-    const co2saved=energy*co2/1000;
-    const capex=electrical*capexFactor(tech);
-    const opex=capex*0.04;
-    const net=value-opex;
-    const payback=net>0 ? capex/net : 999;
-    const npvVal=npv(net,capex);
-    const gridExportMW=(electrical*exportFraction(electrical))/1000;
-    out.push({
-      source:String(sourceName),
-      thermal,electrical,value,co2:co2saved,grade,tech,capex,opex,net,payback,npv:npvVal,gridExportMW
-    });
-  });
-  out.forEach(r=>r.score=score(r));
-  out.sort((a,b)=>b.score-a.score);
-  out.forEach((r,i)=>r.rank=i+1);
-  return out;
-}
-function previewPayload(payload){
-  document.getElementById("payloadPreview").textContent = payload || "No payload loaded.";
-}
 function runAnalysis(){
-  try{
-    if(!rawPayload){
-      document.getElementById("statusBox").textContent="Load industrial input first.";
-      return;
-    }
-    let rows=[];
-    const mode=document.getElementById("sourceMode").value;
-    if(mode==="csv") rows=parseCSV(rawPayload); else rows=parseJSONPayload(rawPayload);
-    results=analyze(rows);
 
-    const totalPower=results.reduce((a,b)=>a+b.electrical,0);
-    const totalValue=results.reduce((a,b)=>a+b.value,0);
-    const totalCO2=results.reduce((a,b)=>a+b.co2,0);
-    const best=results[0];
-    const bestNPV=Math.max(...results.map(r=>r.npv));
-    const totalGrid=results.reduce((a,b)=>a+b.gridExportMW,0);
-
-    document.getElementById("mAssets").textContent=results.length;
-    document.getElementById("mPower").textContent=(totalPower/1000).toFixed(2)+" MW";
-    document.getElementById("mValue").textContent=money(totalValue);
-    document.getElementById("mCO2").textContent=totalCO2.toFixed(0)+" t";
-    document.getElementById("mNPV").textContent=money(bestNPV);
-    document.getElementById("mGrid").textContent=totalGrid.toFixed(2)+" MW";
-    document.getElementById("summaryNote").textContent=
-      "Best opportunity: "+best.source+". Technology: "+best.tech+
-      ". Annual value: "+money(best.value)+". Grid export estimate: "+best.gridExportMW.toFixed(2)+" MW.";
-
-    document.querySelector("#resultsTable tbody").innerHTML=results.map(r=>`
-      <tr>
-        <td>${r.rank}</td>
-        <td>${r.source}</td>
-        <td>${r.thermal.toFixed(0)}</td>
-        <td>${r.electrical.toFixed(0)}</td>
-        <td>${money(r.value)}</td>
-        <td>${r.co2.toFixed(0)}</td>
-        <td><span class="badge ${r.grade.toLowerCase()}">${r.grade}</span></td>
-        <td>${r.tech}</td>
-        <td>${r.gridExportMW.toFixed(2)}</td>
-        <td>${money(r.capex)}</td>
-        <td>${money(r.opex)}</td>
-        <td>${money(r.net)}</td>
-        <td>${r.payback.toFixed(2)} yr</td>
-        <td>${money(r.npv)}</td>
-        <td>${r.score.toFixed(2)}</td>
-      </tr>`).join("");
-
-    const top20=results.slice(0,20);
-    if(powerChart) powerChart.destroy();
-    if(valueChart) valueChart.destroy();
-    powerChart = new Chart(document.getElementById("powerChart"), {
-      type:"bar",
-      data:{labels:top20.map(r=>r.source),datasets:[{label:"Electrical kW",data:top20.map(r=>r.electrical)}]},
-      options:{responsive:true,maintainAspectRatio:false}
-    });
-    valueChart = new Chart(document.getElementById("valueChart"), {
-      type:"bar",
-      data:{labels:top20.map(r=>r.source),datasets:[{label:"Annual Value USD",data:top20.map(r=>r.value)}]},
-      options:{responsive:true,maintainAspectRatio:false}
-    });
-
-    document.getElementById("notesBox").value =
-`ThermoNova v13.1 Source Identity Fix + Robust Column Mapping
-
-Assets analyzed: ${results.length}
-Detected source identity column: ${document.getElementById("mappingNotice").textContent.replace("Detected source identity column: ","")}
-Best source: ${best.source}
-Technology: ${best.tech}
-Annual value: ${money(best.value)}
-Grid export: ${best.gridExportMW.toFixed(2)} MW
-
-This version fixes:
-1. Undefined source names
-2. Fragile source_id-only logic
-3. Weak industrial CSV mapping
-
-Supported identity columns:
-source_id, source, id, asset_id, asset, tag, name, unit_id`;
-
-    document.getElementById("statusBox").textContent="Robust column mapping analysis completed.";
-  } catch(err){
-    document.getElementById("statusBox").textContent = "Error: " + err.message;
-    document.getElementById("mappingNotice").textContent = "Mapping error detected. Review your identity column or use manual override.";
-  }
+if(dataset.length==0){
+document.getElementById("output").value="Load data first."
+return
 }
-function loadCsv(){document.getElementById("sourceMode").value="csv";rawPayload=csvExample;document.getElementById("fileState").textContent="CSV example loaded internally.";previewPayload(rawPayload);document.getElementById("statusBox").textContent="CSV example loaded.";document.getElementById("mappingNotice").textContent="Ready for auto-detection.";}
-function loadJson(){document.getElementById("sourceMode").value="json";rawPayload=jsonExample;document.getElementById("fileState").textContent="JSON example loaded internally.";previewPayload(rawPayload);document.getElementById("statusBox").textContent="JSON example loaded.";document.getElementById("mappingNotice").textContent="Ready for auto-detection.";}
-function loadApi(){document.getElementById("sourceMode").value="rest";rawPayload=restMock;document.getElementById("fileState").textContent="REST API mock payload loaded.";previewPayload(rawPayload);document.getElementById("statusBox").textContent="REST API mock loaded.";document.getElementById("mappingNotice").textContent="Ready for auto-detection.";}
-function loadMqtt(){document.getElementById("sourceMode").value="mqtt";rawPayload=mqttMock;document.getElementById("fileState").textContent="MQTT mock payload loaded.";previewPayload(rawPayload);document.getElementById("statusBox").textContent="MQTT mock loaded.";document.getElementById("mappingNotice").textContent="Ready for auto-detection.";}
-function downloadReport(){
-  if(!results.length){ alert("Run platform analysis first"); return; }
-  const blob=new Blob([document.documentElement.outerHTML],{type:"text/html"});
-  const a=document.createElement("a");
-  a.href=URL.createObjectURL(blob);
-  a.download="ThermoNova_v13_1_Source_Identity_Fix.html";
-  a.click();
-  URL.revokeObjectURL(a.href);
+
+let best = dataset.sort((a,b)=>b.power-a.power)[0]
+
+document.getElementById("output").value =
+"Best heat source: "+best.source+
+"\nElectrical potential: "+best.power+" kW"+
+"\nHot temperature: "+best.hot+" C"+
+"\nCold temperature: "+best.cold+" C"+
+"\n\nNetwork intelligence layer activated."
 }
-document.getElementById("loadCsvBtn").onclick=loadCsv;
-document.getElementById("loadJsonBtn").onclick=loadJson;
-document.getElementById("apiBtn").onclick=loadApi;
-document.getElementById("mqttBtn").onclick=loadMqtt;
-document.getElementById("runBtn").onclick=runAnalysis;
-document.getElementById("downloadBtn").onclick=downloadReport;
-document.getElementById("uploadInput").addEventListener("change", async e=>{
-  const f=e.target.files[0];
-  if(!f) return;
-  rawPayload=await f.text();
-  document.getElementById("fileState").textContent="Loaded file: "+f.name;
-  previewPayload(rawPayload);
-  document.getElementById("sourceMode").value=f.name.toLowerCase().endsWith(".json")?"json":"csv";
-  document.getElementById("statusBox").textContent="Industrial dataset uploaded.";
-  document.getElementById("mappingNotice").textContent="Ready for auto-detection.";
-});
+
 </script>
+
 </body>
 </html>
