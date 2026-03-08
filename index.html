@@ -1,853 +1,220 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ThermoNova v15 Industrial Energy Planning Platform</title>
+<title>ThermoNova v15.1 Industrial Energy Planning Platform</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-*{box-sizing:border-box}
-body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#eef3f9;color:#1f2937;line-height:1.6}
-.container{max-width:1520px;margin:0 auto;padding:20px}
-.hero{background:linear-gradient(135deg,#1e3a8a,#0f766e);color:#fff;padding:28px;border-radius:22px;margin-bottom:18px}
-.hero h1{margin:0 0 10px 0;font-size:40px;line-height:1.15}
-.hero p{margin:6px 0;font-size:21px;line-height:1.45}
-.card{background:#fff;border-radius:18px;padding:22px;margin-bottom:18px;box-shadow:0 8px 24px rgba(15,23,42,.08)}
-h2{margin:0 0 14px 0;color:#1d4ed8;font-size:30px;line-height:1.2}
-h3{margin:0 0 12px 0;color:#0f766e;font-size:22px;line-height:1.3}
-.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
-.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
-.grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
-.metric-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:14px}
-.metric{background:#f8fafc;border:1px solid #dbeafe;border-radius:14px;padding:16px}
-.metric .label{font-size:15px;color:#475569}
-.metric .value{font-size:26px;font-weight:700;margin-top:8px;line-height:1.15}
-.control-box,.box,.chart-card{background:#f8fafc;border:1px solid #dbeafe;border-radius:16px;padding:16px}
-.control-row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
-.btn,.file-label,select,input[type=text],input[type=number]{
-appearance:none;-webkit-appearance:none;display:inline-flex;align-items:center;justify-content:center;
-min-height:56px;padding:14px 18px;border:none;border-radius:14px;font-size:18px;text-decoration:none
-}
-.btn{background:#2563eb;color:#fff;cursor:pointer}
-.btn.secondary{background:#475569}.btn.green{background:#15803d}.btn.orange{background:#b45309}.btn.purple{background:#7c3aed}
-.file-label{background:#2563eb;color:#fff;cursor:pointer;width:100%}
-select,input[type=text],input[type=number]{width:100%;background:#fff;color:#111827;border:1px solid #cbd5e1}
-.hidden-file{display:none !important}
-.file-state,.status,.notice,.warning{margin-top:14px;border-radius:12px;padding:14px;font-size:17px}
-.file-state{background:#eef2ff;color:#1e3a8a}
-.status{background:#e0ecff;color:#1e3a8a}
-.notice{background:#f0fdf4;color:#166534;border:1px solid #bbf7d0}
-.warning{background:#fff7ed;color:#9a3412;border:1px solid #fdba74}
-.chart-wrap{position:relative;height:340px}
-.tall-chart{height:420px}
-.table-wrap{overflow-x:auto;border:1px solid #dbeafe;border-radius:14px;background:#fff;-webkit-overflow-scrolling:touch}
-table{width:100%;min-width:2400px;border-collapse:collapse}
-th,td{padding:10px;border-bottom:1px solid #e5e7eb;text-align:left;font-size:14px;vertical-align:top}
-th{background:#dbeafe;color:#1e3a8a;position:sticky;top:0}
-.badge{display:inline-block;padding:5px 10px;border-radius:999px;color:#fff;font-size:12px}
-.high{background:#b91c1c}.medium{background:#b45309}.low{background:#15803d}
-.codebox{background:#0f172a;color:#e2e8f0;border-radius:14px;padding:14px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;line-height:1.55;white-space:pre-wrap;overflow:auto;min-height:150px}
-textarea{width:100%;min-height:180px;padding:14px;border-radius:14px;border:1px solid #cbd5e1;background:#f8fafc;font-size:16px}
-.small{font-size:13px;color:#64748b}
-.mapping-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.network-svg{background:#fff;border:1px solid #dbeafe;border-radius:14px;padding:10px;overflow:auto}
-.map-box{background:#fff;border:1px solid #dbeafe;border-radius:14px;padding:12px}
-#heatMapCanvas{width:100%;height:420px;border-radius:12px;background:linear-gradient(180deg,#eff6ff,#f8fafc)}
-.section-subtle{color:#475569;font-size:16px}
-@media (max-width:1100px){
-  .grid2,.grid3,.grid4,.mapping-grid{grid-template-columns:1fr}
-  .metric-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-}
-@media (max-width:640px){
-  .container{padding:14px}
-  .hero{padding:22px}
-  .hero h1{font-size:32px}
-  .hero p{font-size:19px}
-  h2{font-size:26px}
-  h3{font-size:20px}
-  .btn,.file-label,select,input[type=text],input[type=number]{width:100%;font-size:18px;min-height:54px}
-  .metric .value{font-size:24px}
-}
+body{font-family:Arial;margin:0;background:#eef3f9;color:#111}
+.container{max-width:1200px;margin:auto;padding:20px}
+.card{background:#fff;border-radius:16px;padding:20px;margin-bottom:20px}
+h1{font-size:34px;margin:0 0 10px 0}
+h2{font-size:24px;color:#1d4ed8}
+button{padding:14px 20px;border-radius:12px;border:none;margin:6px;font-size:18px;color:white;cursor:pointer}
+.gray{background:#475569}
+.orange{background:#b45309}
+.green{background:#15803d}
+.blue{background:#2563eb}
+.purple{background:#7c3aed}
+.status{margin-top:12px;padding:14px;border-radius:12px;background:#e0ecff}
 </style>
 </head>
+
 <body>
 <div class="container">
-  <div class="hero">
-    <h1>ThermoNova v15</h1>
-    <p>Industrial Energy Planning Platform</p>
-    <p>Preserves ThermoNova v14 network intelligence and adds Industrial Heat Map Engine, AI Ranking Engine, and Pipeline Optimization Model for decision-grade industrial energy planning</p>
-  </div>
 
-  <div class="card">
-    <h2>1. Platform Control Center</h2>
-    <div class="grid2">
-      <div class="control-box">
-        <h3>Input Source</h3>
-        <div class="control-row">
-          <select id="sourceMode">
-            <option value="csv">CSV File</option>
-            <option value="json">JSON Dataset</option>
-            <option value="rest">REST API Mock</option>
-            <option value="mqtt">MQTT Mock Stream</option>
-          </select>
-        </div>
-        <div class="control-row">
-          <label class="file-label" for="uploadInput">Upload Industrial Dataset</label>
-          <input id="uploadInput" class="hidden-file" type="file" accept=".csv,.json,text/csv,application/json">
-        </div>
-        <div class="file-state" id="fileState">No file loaded.</div>
-      </div>
+<div class="card">
+<h1>ThermoNova v15.1</h1>
+<p>Industrial Waste Heat Planning Platform</p>
+</div>
 
-      <div class="control-box">
-        <h3>Actions</h3>
-        <div class="control-row">
-          <button class="btn secondary" id="loadCsvBtn" type="button">Load CSV Example</button>
-          <button class="btn secondary" id="loadJsonBtn" type="button">Load JSON Example</button>
-          <button class="btn orange" id="apiBtn" type="button">Simulate REST API</button>
-          <button class="btn orange" id="mqttBtn" type="button">Simulate MQTT</button>
-          <button class="btn green" id="runBtn" type="button">Run Planning Analysis</button>
-          <button class="btn" id="downloadBtn" type="button">Download HTML Report</button>
-          <button class="btn purple" id="exportTopBtn" type="button">Export Final Report</button>
-        </div>
-      </div>
-    </div>
-    <div class="status" id="statusBox">Waiting for industrial input.</div>
-  </div>
+<div class="card">
+<h2>Actions</h2>
+<button class="gray" onclick="loadCSVExample()">Load CSV Example</button>
+<button class="gray" onclick="loadJSONExample()">Load JSON Example</button>
+<button class="orange" onclick="simulateAPI()">Simulate REST API</button>
+<button class="orange" onclick="simulateMQTT()">Simulate MQTT</button>
+<button class="green" onclick="runAnalysis()">Run Planning Analysis</button>
+<button class="blue" onclick="downloadReport()">Download HTML Report</button>
+<button class="purple" onclick="downloadReport()">Export Final Report</button>
 
-  <div class="card">
-    <h2>2. Source Identity and Planning Parameters</h2>
-    <div class="mapping-grid">
-      <div class="box">
-        <h3>Auto-Detection Priority</h3>
-        <div class="codebox">source_id
-source
-id
-asset_id
-asset
-tag
-name
-unit_id</div>
-        <p class="small">v15 preserves the resilient source-mapping logic from v13.1 and the full network workflow from v14.</p>
-      </div>
-      <div class="box">
-        <h3>Manual Override and Planning Parameters</h3>
-        <input type="text" id="identityOverride" placeholder="Manual source identity column override">
-        <div class="grid2" style="margin-top:12px">
-          <div>
-            <label class="small">Network clustering threshold °C</label>
-            <input type="number" id="clusterThreshold" value="40">
-          </div>
-          <div>
-            <label class="small">Storage dispatch hours</label>
-            <input type="number" id="storageHours" value="6">
-          </div>
-        </div>
-        <div class="grid2" style="margin-top:12px">
-          <div>
-            <label class="small">Pipeline cost per km USD</label>
-            <input type="number" id="pipeCostKm" value="900000">
-          </div>
-          <div>
-            <label class="small">Grid node count</label>
-            <input type="number" id="gridNodes" value="6">
-          </div>
-        </div>
-        <div class="notice" id="mappingNotice">No identity column detected yet.</div>
-      </div>
-    </div>
-  </div>
+<input type="file" id="fileUpload" style="margin-top:12px"/>
+<div class="status" id="status">Waiting for dataset.</div>
+</div>
 
-  <div class="card">
-    <h2>3. Portfolio Summary</h2>
-    <div class="metric-grid">
-      <div class="metric"><div class="label">Assets</div><div class="value" id="mAssets">0</div></div>
-      <div class="metric"><div class="label">Electrical Potential</div><div class="value" id="mPower">0 MW</div></div>
-      <div class="metric"><div class="label">Annual Value</div><div class="value" id="mValue">$0</div></div>
-      <div class="metric"><div class="label">CO2 Avoided</div><div class="value" id="mCO2">0 t</div></div>
-      <div class="metric"><div class="label">Best NPV</div><div class="value" id="mNPV">$0</div></div>
-      <div class="metric"><div class="label">Grid Export</div><div class="value" id="mGrid">0 MW</div></div>
-    </div>
-    <div class="notice" id="summaryNote">No planning analysis yet.</div>
-  </div>
+<div class="card">
+<h2>Portfolio Results</h2>
+<canvas id="powerChart" height="100"></canvas>
+</div>
 
-  <div class="card">
-    <h2>4. Heat Network Intelligence</h2>
-    <div class="grid4">
-      <div class="box">
-        <h3>Heat Classification</h3>
-        <p id="classHigh">High-grade: 0</p>
-        <p id="classMedium">Medium-grade: 0</p>
-        <p id="classLow">Low-grade: 0</p>
-      </div>
-      <div class="box">
-        <h3>Network Clusters</h3>
-        <p id="clusterCount">Clusters: 0</p>
-        <p id="clusterTop">Top cluster: -</p>
-        <p id="clusterPower">Cluster power: 0 MW</p>
-      </div>
-      <div class="box">
-        <h3>Pinch-Like Pairing</h3>
-        <p id="pairCount">Matched pairs: 0</p>
-        <p id="pairBest">Best pair: -</p>
-        <p id="pairBenefit">Recovered routing value: $0</p>
-      </div>
-      <div class="box">
-        <h3>Thermal Storage</h3>
-        <p id="storageCap">Storage capacity: 0 MWhth</p>
-        <p id="storagePower">Dispatchable output: 0 MW</p>
-        <p id="storageValue">Storage uplift: $0</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>5. Industrial Heat Map Engine</h2>
-    <p class="section-subtle">Spatial planning layer showing industrial heat density, candidate corridors, and top planning nodes.</p>
-    <div class="grid2">
-      <div class="map-box">
-        <h3>Heat Map</h3>
-        <canvas id="heatMapCanvas" width="680" height="420"></canvas>
-      </div>
-      <div class="box">
-        <h3>Map Intelligence</h3>
-        <p id="mapTopZone">Top heat zone: -</p>
-        <p id="mapNodeCount">Mapped nodes: 0</p>
-        <p id="mapCorridors">Candidate corridors: 0</p>
-        <p id="mapNote">No map analysis yet.</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>6. AI Ranking Engine</h2>
-    <p class="section-subtle">Weighted planning score combining temperature quality, route feasibility, grid proximity, CAPEX intensity, exportability, and dispatch value.</p>
-    <div class="grid2">
-      <div class="chart-card">
-        <h3>AI Planning Score</h3>
-        <div class="chart-wrap tall-chart"><canvas id="aiScoreChart"></canvas></div>
-      </div>
-      <div class="box">
-        <h3>AI Decision Narrative</h3>
-        <p id="aiBest">Top AI-ranked asset: -</p>
-        <p id="aiSecond">Second-ranked asset: -</p>
-        <p id="aiCluster">Priority planning cluster: -</p>
-        <p id="aiRationale">No AI ranking rationale yet.</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>7. Pipeline Optimization Model</h2>
-    <p class="section-subtle">Network layout planning with estimated corridor lengths, pipeline CAPEX, and pipeline-adjusted project value.</p>
-    <div class="grid3">
-      <div class="box">
-        <h3>Pipeline KPIs</h3>
-        <p id="pipeLength">Total optimized length: 0 km</p>
-        <p id="pipeCapex">Pipeline CAPEX: $0</p>
-        <p id="pipeAssets">Connected strategic assets: 0</p>
-        <p id="pipeAdjusted">Pipeline-adjusted NPV: $0</p>
-      </div>
-      <div class="box">
-        <h3>Planning Decision</h3>
-        <p id="pipeDecision1">-</p>
-        <p id="pipeDecision2">-</p>
-        <p id="pipeDecision3">-</p>
-        <p id="pipeDecision4">-</p>
-      </div>
-      <div class="box">
-        <h3>Utility and Network Relevance</h3>
-        <p id="utility1">-</p>
-        <p id="utility2">-</p>
-        <p id="utility3">-</p>
-        <p id="utility4">-</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>8. Best Opportunity and Network Routing</h2>
-    <div class="grid2">
-      <div class="box">
-        <h3>Best Opportunity</h3>
-        <p id="bestIdentity">-</p>
-        <p id="bestThermal">-</p>
-        <p id="bestElectrical">-</p>
-        <p id="bestAnnual">-</p>
-        <p id="bestPayback">-</p>
-        <p id="bestCO2">-</p>
-        <p id="bestGrid">-</p>
-      </div>
-      <div class="box">
-        <h3>Network Decision Narrative</h3>
-        <p id="bestNarrative1">-</p>
-        <p id="bestNarrative2">-</p>
-        <p id="bestNarrative3">-</p>
-        <p id="bestNarrative4">-</p>
-        <p id="bestNarrative5">-</p>
-      </div>
-    </div>
-    <div class="warning" id="routingNarrative">No routing narrative generated yet.</div>
-  </div>
-
-  <div class="card">
-    <h2>9. Heat Network Diagram</h2>
-    <div class="network-svg" id="networkDiagramBox">No network diagram yet.</div>
-  </div>
-
-  <div class="card">
-    <h2>10. Platform Charts</h2>
-    <div class="grid2">
-      <div class="chart-card">
-        <h3>Electrical Power Ranking</h3>
-        <div class="chart-wrap"><canvas id="powerChart"></canvas></div>
-      </div>
-      <div class="chart-card">
-        <h3>Annual Value Ranking</h3>
-        <div class="chart-wrap"><canvas id="valueChart"></canvas></div>
-      </div>
-    </div>
-    <div class="grid2" style="margin-top:16px">
-      <div class="chart-card">
-        <h3>Cluster Power</h3>
-        <div class="chart-wrap"><canvas id="clusterChart"></canvas></div>
-      </div>
-      <div class="chart-card">
-        <h3>Technology Mix</h3>
-        <div class="chart-wrap"><canvas id="techChart"></canvas></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>11. Asset Ranking Table</h2>
-    <div class="table-wrap">
-      <table id="resultsTable">
-        <thead>
-          <tr>
-            <th>Rank</th>
-            <th>AI Rank</th>
-            <th>Source ID</th>
-            <th>Cluster</th>
-            <th>Thermal kW</th>
-            <th>Electrical kW</th>
-            <th>Annual Value</th>
-            <th>CO2 Avoided</th>
-            <th>Heat Grade</th>
-            <th>Technology</th>
-            <th>Power Block</th>
-            <th>Grid Export MW</th>
-            <th>Storage MWhth</th>
-            <th>Pipeline km</th>
-            <th>CAPEX</th>
-            <th>OPEX</th>
-            <th>Net Benefit</th>
-            <th>Payback</th>
-            <th>NPV</th>
-            <th>AI Score</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>12. Top Heat Routing Opportunities</h2>
-    <div class="table-wrap">
-      <table id="pairTable">
-        <thead>
-          <tr>
-            <th>Rank</th>
-            <th>Hot Source</th>
-            <th>Cold Sink Proxy</th>
-            <th>Temperature Match °C</th>
-            <th>Routing Feasibility</th>
-            <th>Transfer kW</th>
-            <th>Estimated Annual Value</th>
-            <th>Estimated Pipeline km</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>13. Payload Preview</h2>
-    <div class="codebox" id="payloadPreview">No payload loaded.</div>
-  </div>
-
-  <div class="card">
-    <h2>14. Platform Notes</h2>
-    <textarea id="notesBox" readonly>Load industrial input then run planning analysis.</textarea>
-    <div class="control-row" style="margin-top:14px">
-      <button class="btn purple" id="bottomExportBtn" type="button">Export Final Report</button>
-    </div>
-  </div>
 </div>
 
 <script>
-const csvExample = `source_id,mass_flow,cp,t_hot,t_cold,hours,price,co2
-SRC001,3.2,4.18,250,120,7200,0.11,0.47
-SRC002,2.7,4.18,210,95,7000,0.11,0.47
-SRC003,3.6,4.18,270,140,6800,0.11,0.47
-SRC004,2.4,4.18,220,110,7200,0.11,0.47
-SRC005,2.0,4.18,195,90,6500,0.11,0.47
-SRC006,4.3,4.12,365,155,7700,0.12,0.44
-SRC007,5.1,4.08,410,175,7900,0.12,0.44
-SRC008,2.2,4.18,185,85,6400,0.10,0.49`;
 
-const jsonExample = JSON.stringify([
-  {"asset_id":"SRC101","mass_flow":4.1,"cp":4.05,"t_hot":380,"t_cold":145,"hours":7600,"price":0.12,"co2":0.44},
-  {"asset_id":"SRC102","mass_flow":5.3,"cp":4.10,"t_hot":410,"t_cold":160,"hours":7800,"price":0.12,"co2":0.44},
-  {"asset_id":"SRC103","mass_flow":2.8,"cp":4.18,"t_hot":240,"t_cold":120,"hours":7000,"price":0.12,"co2":0.44},
-  {"asset_id":"SRC104","mass_flow":2.2,"cp":4.18,"t_hot":190,"t_cold":90,"hours":6500,"price":0.11,"co2":0.46}
-], null, 2);
+let rawData = []
+let results = []
 
-const restMock = JSON.stringify({
-  connector:"REST_API_MOCK",
-  data:[
-    {"source":"SRC201","mass_flow":3.9,"cp":4.12,"t_hot":320,"t_cold":150,"hours":7600,"price":0.13,"co2":0.42},
-    {"source":"SRC202","mass_flow":4.8,"cp":4.05,"t_hot":430,"t_cold":180,"hours":7900,"price":0.13,"co2":0.42},
-    {"source":"SRC203","mass_flow":2.6,"cp":4.15,"t_hot":235,"t_cold":110,"hours":7100,"price":0.13,"co2":0.42}
-  ]
-}, null, 2);
+function normalizeKey(s){
+return String(s || "")
+.replace(/^\\uFEFF/,"")
+.trim()
+.toLowerCase()
+.replace(/[\\s\\-]+/g,"_")
+}
 
-const mqttMock = JSON.stringify({
-  connector:"MQTT_MOCK",
-  packets:[
-    {"tag":"SRC301","mass_flow":3.1,"cp":4.00,"t_hot":290,"t_cold":130,"hours":7400,"price":0.10,"co2":0.49},
-    {"tag":"SRC302","mass_flow":2.5,"cp":4.18,"t_hot":205,"t_cold":100,"hours":7100,"price":0.10,"co2":0.49},
-    {"tag":"SRC303","mass_flow":1.9,"cp":4.20,"t_hot":175,"t_cold":85,"hours":6800,"price":0.10,"co2":0.49}
-  ]
-}, null, 2);
+function detectIdentityColumn(row){
 
-let rawPayload="";
-let results=[];
-let routingPairs=[];
-let clusterSummary=[];
-let mapNodes=[];
-let powerChart=null, valueChart=null, clusterChart=null, techChart=null, aiScoreChart=null;
+let keys = Object.keys(row)
+let normalized = {}
 
-function num(x){ return Number(x) || 0; }
-function money(x){ return "$" + Number(x).toLocaleString(undefined,{maximumFractionDigits:2}); }
-function normalizeKey(s){ return String(s || "").trim().toLowerCase().replace(/\s+/g,"_"); }
+keys.forEach(k=>{
+normalized[normalizeKey(k)] = k
+})
+
+let candidates = [
+"source_id","source","id","asset_id","asset","tag","name","unit_id"
+]
+
+for(let c of candidates){
+if(normalized[c]) return normalized[c]
+}
+
+/* fallback = first column */
+return keys[0]
+
+}
 
 function parseCSV(text){
-  const lines=text.trim().split(/\\r?\\n/);
-  const headers=lines[0].split(",").map(h=>h.trim());
-  return lines.slice(1).map(line=>{
-    const vals=line.split(",").map(v=>v.trim());
-    const obj={};
-    headers.forEach((h,i)=>obj[h]=vals[i]);
-    return obj;
-  });
+
+let lines = text.trim().split(/\\r?\\n/)
+let headers = lines[0].split(",").map(h=>h.trim())
+
+let rows=[]
+
+for(let i=1;i<lines.length;i++){
+
+let vals = lines[i].split(",")
+
+let obj={}
+
+headers.forEach((h,j)=>{
+obj[h]=vals[j]
+})
+
+rows.push(obj)
 }
-function parseJSONPayload(text){
-  const p=JSON.parse(text);
-  if(Array.isArray(p)) return p;
-  if(Array.isArray(p.data)) return p.data;
-  if(Array.isArray(p.packets)) return p.packets;
-  return [];
+
+return rows
 }
-function detectIdentityColumn(rows){
-  if(!rows.length) return null;
-  const override = document.getElementById("identityOverride").value.trim();
-  const keys = Object.keys(rows[0]);
-  const keyMap = {};
-  keys.forEach(k => keyMap[normalizeKey(k)] = k);
-  if(override){
-    const nk = normalizeKey(override);
-    if(keyMap[nk]) return keyMap[nk];
-  }
-  const candidates = ["source_id","source","id","asset_id","asset","tag","name","unit_id"];
-  for(const c of candidates){ if(keyMap[c]) return keyMap[c]; }
-  return null;
+
+function runAnalysis(){
+
+if(!rawData.length){
+document.getElementById("status").innerText="No dataset loaded."
+return
 }
-function valueByPossibleNames(row, names){
-  const keys = Object.keys(row);
-  const keyMap = {};
-  keys.forEach(k => keyMap[normalizeKey(k)] = k);
-  for(const n of names){
-    const nk = normalizeKey(n);
-    if(keyMap[nk] !== undefined) return row[keyMap[nk]];
-  }
-  return undefined;
+
+let idCol = detectIdentityColumn(rawData[0])
+
+results = rawData.map(r=>{
+
+let hot = Number(r.t_hot)
+let cold = Number(r.t_cold)
+let mass = Number(r.mass_flow)
+let cp = Number(r.cp)
+let hours = Number(r.hours)
+let price = Number(r.price)
+
+let thermal = mass*cp*(hot-cold)
+let electrical = thermal*0.20
+let value = electrical*hours*price
+
+return {
+id:r[idCol],
+electrical,
+value
 }
-function heatGrade(hot,dt){
-  if(hot>=300 && dt>=140) return "High";
-  if(hot>=200 && dt>=90) return "Medium";
-  return "Low";
+
+})
+
+renderCharts()
+
+document.getElementById("status").innerText=
+"Analysis complete. Identity column detected: "+idCol
+
 }
-function chooseTechnology(grade, hot){
-  if(grade==="High") return ["Steam Rankine / Hybrid",0.25];
-  if(grade==="Medium") return ["Organic Rankine Cycle",0.20];
-  if(hot>=160) return ["Kalina-like Low-Grade Cycle",0.14];
-  return ["Direct Heat Reuse",0.10];
+
+function renderCharts(){
+
+let labels = results.slice(0,20).map(r=>r.id)
+let data = results.slice(0,20).map(r=>r.electrical)
+
+new Chart(document.getElementById("powerChart"),{
+type:"bar",
+data:{
+labels:labels,
+datasets:[{label:"Electrical kW",data:data}]
 }
-function capexFactor(tech){
-  if(tech==="Steam Rankine / Hybrid") return 2200;
-  if(tech==="Organic Rankine Cycle") return 1800;
-  if(tech==="Kalina-like Low-Grade Cycle") return 2000;
-  return 1200;
+})
+
 }
-function exportFraction(electrical){
-  if(electrical>=3000) return 0.45;
-  if(electrical>=1000) return 0.35;
-  return 0.20;
-}
-function powerBlockSize(electrical){
-  if(electrical>=5000) return "5+ MW block";
-  if(electrical>=2000) return "2–5 MW block";
-  if(electrical>=500) return "0.5–2 MW block";
-  return "<0.5 MW modular block";
-}
-function npv(net,capex,years=10,rate=0.1){
-  let v=-capex;
-  for(let i=1;i<=years;i++) v+=net/Math.pow(1+rate,i);
-  return v;
-}
-function analyze(rows){
-  const idCol = detectIdentityColumn(rows);
-  if(!idCol){
-    throw new Error("No valid source identity column detected. Add source_id, source, id, asset_id, asset, tag, name, or use manual override.");
-  }
-  document.getElementById("mappingNotice").textContent = "Detected source identity column: " + idCol;
-  const out=[];
-  rows.forEach((r,idx)=>{
-    const sourceName = valueByPossibleNames(r,[idCol]) ?? ("UNMAPPED_SOURCE_" + (idx+1));
-    const mass=num(valueByPossibleNames(r,["mass_flow","flow","massflow"]));
-    const cp=num(valueByPossibleNames(r,["cp","specific_heat","heat_capacity"]));
-    const hot=num(valueByPossibleNames(r,["t_hot","temp_hot","temperature_hot","hot_temp"]));
-    const cold=num(valueByPossibleNames(r,["t_cold","temp_cold","temperature_cold","cold_temp"]));
-    const hours=num(valueByPossibleNames(r,["hours","operating_hours","runtime"]));
-    const price=num(valueByPossibleNames(r,["price","electricity_price","tariff"]));
-    const co2=num(valueByPossibleNames(r,["co2","co2_factor","emissions"]));
-    const dt=hot-cold;
-    const grade=heatGrade(hot,dt);
-    const t=chooseTechnology(grade,hot);
-    const tech=t[0], eff=t[1];
-    const thermal=mass*cp*dt;
-    const electrical=thermal*eff;
-    const energy=electrical*hours;
-    const value=energy*price;
-    const co2saved=energy*co2/1000;
-    const capex=electrical*capexFactor(tech);
-    const opex=capex*0.04;
-    const net=value-opex;
-    const payback=net>0 ? capex/net : 999;
-    const npvVal=npv(net,capex);
-    const gridExportMW=(electrical*exportFraction(electrical))/1000;
-    out.push({source:String(sourceName),thermal,electrical,value,co2:co2saved,grade,tech,capex,opex,net,payback,npv:npvVal,gridExportMW,hot,cold,dt,hours,price,mass,cp});
-  });
-  return out;
-}
-function clusterAssets(data){
-  const threshold = num(document.getElementById("clusterThreshold").value) || 40;
-  const sorted = [...data].sort((a,b)=>b.hot-a.hot);
-  let clusterId = 0, lastHot = null;
-  sorted.forEach(item=>{
-    if(lastHot === null || Math.abs(lastHot - item.hot) > threshold){ clusterId += 1; }
-    item.cluster = "CLUSTER_" + String(clusterId).padStart(2,"0");
-    lastHot = item.hot;
-  });
-  const map = {};
-  sorted.forEach(r=>{
-    if(!map[r.cluster]) map[r.cluster] = {cluster:r.cluster,count:0,power:0,value:0,avgHot:0};
-    map[r.cluster].count += 1;
-    map[r.cluster].power += r.electrical;
-    map[r.cluster].value += r.value;
-    map[r.cluster].avgHot += r.hot;
-  });
-  const summary = Object.values(map).map(c=>{ c.avgHot = c.avgHot / c.count; return c; }).sort((a,b)=>b.power-a.power);
-  const clusterPowerMap = {};
-  summary.forEach(c=>clusterPowerMap[c.cluster] = c.power/1000);
-  sorted.forEach(r=>r.clusterPowerMW = clusterPowerMap[r.cluster] || 0);
-  return {sorted, summary};
-}
-function computeStorage(data){
-  const hours = num(document.getElementById("storageHours").value) || 6;
-  data.forEach(r=>{
-    const storageMWhth = (r.thermal/1000) * hours * (r.grade==="High" ? 0.35 : r.grade==="Medium" ? 0.25 : 0.15);
-    const storageDispatchMW = storageMWhth / Math.max(hours,1);
-    const storageValueUplift = storageDispatchMW * 1000 * 400 * 0.03;
-    r.storageMWhth = storageMWhth;
-    r.storageDispatchMW = storageDispatchMW;
-    r.storageValueUplift = storageValueUplift;
-    r.net += storageValueUplift;
-    r.npv = npv(r.net, r.capex);
-  });
-}
-function buildRoutingPairs(data){
-  const sources = [...data].sort((a,b)=>b.hot-a.hot);
-  const sinks = [...data].sort((a,b)=>a.cold-b.cold);
-  const pairs = [];
-  for(let i=0;i<Math.min(60,sources.length);i++){
-    const hot = sources[i];
-    let best = null;
-    for(let j=0;j<Math.min(120,sinks.length);j++){
-      const sink = sinks[j];
-      if(sink.source === hot.source) continue;
-      const match = hot.hot - sink.cold;
-      if(match <= 35) continue;
-      const transfer = Math.min(hot.thermal*0.28, sink.thermal*0.22);
-      const feasibility = match >= 180 ? "High" : match >= 100 ? "Medium" : "Low";
-      const annualValue = transfer * 7000 * 0.02;
-      const pipeKm = 1 + ((i+j) % 17) * 0.7;
-      if(!best || annualValue > best.annualValue){ best = {hot:hot.source,sink:sink.source,match,transfer,feasibility,annualValue,pipeKm}; }
-    }
-    if(best) pairs.push(best);
-  }
-  pairs.sort((a,b)=>b.annualValue-a.annualValue);
-  return pairs.slice(0,20).map((p,i)=>({...p, rank:i+1}));
-}
-function buildMapNodes(data){
-  return data.map((r,i)=>{
-    const x = ((i * 37) % 100) / 100;
-    const y = ((i * 53) % 100) / 100;
-    return {...r, mapX:x, mapY:y, zone:(x<0.5 && y<0.5) ? "North-West" : (x>=0.5 && y<0.5) ? "North-East" : (x<0.5 && y>=0.5) ? "South-West" : "South-East"};
-  });
-}
-function drawHeatMap(nodes, pairs){
-  const canvas = document.getElementById("heatMapCanvas");
-  const ctx = canvas.getContext("2d");
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  ctx.fillStyle = "#f8fafc"; ctx.fillRect(0,0,canvas.width,canvas.height);
-  ctx.strokeStyle = "#dbeafe"; ctx.lineWidth = 1;
-  for(let i=0;i<=10;i++){
-    const x = i * (canvas.width/10), y = i * (canvas.height/10);
-    ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,canvas.height); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(canvas.width,y); ctx.stroke();
-  }
-  const pairMap = {}; nodes.forEach(n=>pairMap[n.source]=n);
-  ctx.lineWidth = 2;
-  pairs.slice(0,8).forEach((p,idx)=>{
-    const a = pairMap[p.hot], b = pairMap[p.sink]; if(!a || !b) return;
-    ctx.strokeStyle = idx < 3 ? "#7c3aed" : "#94a3b8";
-    ctx.beginPath();
-    ctx.moveTo(20 + a.mapX*(canvas.width-40), 20 + a.mapY*(canvas.height-40));
-    ctx.lineTo(20 + b.mapX*(canvas.width-40), 20 + b.mapY*(canvas.height-40));
-    ctx.stroke();
-  });
-  nodes.slice(0,120).forEach(n=>{
-    const x = 20 + n.mapX*(canvas.width-40), y = 20 + n.mapY*(canvas.height-40);
-    const radius = Math.max(4, Math.min(16, n.electrical/350));
-    ctx.beginPath();
-    ctx.fillStyle = n.grade === "High" ? "rgba(185,28,28,0.75)" : n.grade === "Medium" ? "rgba(180,83,9,0.70)" : "rgba(21,128,61,0.70)";
-    ctx.arc(x,y,radius,0,Math.PI*2); ctx.fill();
-  });
-  ctx.fillStyle = "#0f172a"; ctx.font = "16px Arial";
-  ctx.fillText("Industrial Heat Map", 20, 24);
-  ctx.fillText("Higher circles indicate stronger electrical recovery potential", 20, 44);
-}
-function buildPipelineModel(data){
-  const pipeCostKm = num(document.getElementById("pipeCostKm").value) || 900000;
-  const nodes = num(document.getElementById("gridNodes").value) || 6;
-  const strategic = data.slice(0, Math.min(nodes*3, 24));
-  strategic.forEach((r,i)=>{ r.pipelineKm = 2 + ((i*11)%13) * 0.8; r.pipelineCapex = r.pipelineKm * pipeCostKm; });
-  const totalLength = strategic.reduce((a,b)=>a+b.pipelineKm,0);
-  const totalCapex = strategic.reduce((a,b)=>a+b.pipelineCapex,0);
-  const adjustedNpv = strategic.reduce((a,b)=>a+b.npv,0) - totalCapex;
-  return {strategic, totalLength, totalCapex, adjustedNpv};
-}
-function applyAiRanking(data, pipelineModel){
-  const strategicSet = new Map(pipelineModel.strategic.map(r=>[r.source,r]));
-  data.forEach(r=>{
-    const tempScore = Math.min(1, r.hot/450);
-    const exportScore = Math.min(1, r.gridExportMW/2.5);
-    const storageScore = Math.min(1, r.storageDispatchMW/8);
-    const capexPenalty = Math.min(1, r.capex/12000000);
-    const clusterScore = Math.min(1, r.clusterPowerMW/1400);
-    const pipeBonus = strategicSet.has(r.source) ? Math.max(0, 1 - (strategicSet.get(r.source).pipelineKm/15)) : 0.25;
-    r.aiScore = (tempScore*0.22) + (exportScore*0.18) + (storageScore*0.12) + (clusterScore*0.12) + (pipeBonus*0.18) + ((1-capexPenalty)*0.18);
-  });
-  data.sort((a,b)=>b.aiScore-a.aiScore);
-  data.forEach((r,i)=>r.aiRank=i+1);
-}
-function renderNetworkDiagram(data, pairs, clusters, pipelineModel){
-  const topAssets = data.slice(0,5), topCluster = clusters[0], topPair = pairs[0];
-  const svg = `<svg viewBox="0 0 1180 340" width="100%" height="340">
-    <rect x="25" y="30" width="210" height="74" rx="14" fill="#dbeafe" stroke="#1d4ed8"></rect>
-    <text x="130" y="58" text-anchor="middle" font-size="20" fill="#1f2937">Heat Cluster</text>
-    <text x="130" y="84" text-anchor="middle" font-size="16" fill="#1f2937">${topCluster ? topCluster.cluster : "-"}</text>
-    <rect x="270" y="30" width="220" height="74" rx="14" fill="#dcfce7" stroke="#15803d"></rect>
-    <text x="380" y="58" text-anchor="middle" font-size="20" fill="#1f2937">Routing</text>
-    <text x="380" y="84" text-anchor="middle" font-size="15" fill="#1f2937">${topPair ? topPair.hot+" → "+topPair.sink : "-"}</text>
-    <rect x="515" y="30" width="220" height="74" rx="14" fill="#fef3c7" stroke="#b45309"></rect>
-    <text x="625" y="58" text-anchor="middle" font-size="20" fill="#1f2937">Thermal Storage</text>
-    <text x="625" y="84" text-anchor="middle" font-size="16" fill="#1f2937">Dispatch smoothing</text>
-    <rect x="760" y="30" width="180" height="74" rx="14" fill="#ede9fe" stroke="#7c3aed"></rect>
-    <text x="850" y="58" text-anchor="middle" font-size="20" fill="#1f2937">AI Ranking</text>
-    <text x="850" y="84" text-anchor="middle" font-size="16" fill="#1f2937">${data[0] ? data[0].source : "-"}</text>
-    <rect x="965" y="30" width="190" height="74" rx="14" fill="#e0f2fe" stroke="#0284c7"></rect>
-    <text x="1060" y="58" text-anchor="middle" font-size="20" fill="#1f2937">Pipelines</text>
-    <text x="1060" y="84" text-anchor="middle" font-size="16" fill="#1f2937">${pipelineModel.totalLength.toFixed(1)} km</text>
-    <line x1="235" y1="67" x2="270" y2="67" stroke="#334155" stroke-width="4"></line>
-    <line x1="490" y1="67" x2="515" y2="67" stroke="#334155" stroke-width="4"></line>
-    <line x1="735" y1="67" x2="760" y2="67" stroke="#334155" stroke-width="4"></line>
-    <line x1="940" y1="67" x2="965" y2="67" stroke="#334155" stroke-width="4"></line>
-    <rect x="25" y="160" width="1130" height="145" rx="16" fill="#f8fafc" stroke="#cbd5e1"></rect>
-    <text x="45" y="190" font-size="18" fill="#1f2937">Top Planning Assets:</text>
-    ${topAssets.map((r,i)=>`<text x="${45 + i*220}" y="225" font-size="15" fill="#1f2937">${i+1}. ${r.source}</text><text x="${45 + i*220}" y="248" font-size="14" fill="#475569">${r.cluster}</text><text x="${45 + i*220}" y="271" font-size="14" fill="#475569">${(r.electrical/1000).toFixed(2)} MW</text><text x="${45 + i*220}" y="294" font-size="14" fill="#475569">AI ${r.aiScore.toFixed(3)}</text>`).join("")}
-  </svg>`;
-  document.getElementById("networkDiagramBox").innerHTML = svg;
-}
-function previewPayload(payload){
-  const lines = String(payload || "").split(/\\r?\\n/).slice(0,200).join("\\n");
-  document.getElementById("payloadPreview").textContent = lines || "No payload loaded.";
-}
+
 function downloadReport(){
-  if(!results.length){ alert("Run planning analysis first"); return; }
-  const blob=new Blob([document.documentElement.outerHTML],{type:"text/html"});
-  const a=document.createElement("a");
-  a.href=URL.createObjectURL(blob);
-  a.download="ThermoNova_v15_Industrial_Energy_Planning_Report.html";
-  a.click();
-  URL.revokeObjectURL(a.href);
+
+let blob = new Blob([document.documentElement.outerHTML],{type:"text/html"})
+let a=document.createElement("a")
+a.href=URL.createObjectURL(blob)
+a.download="ThermoNova_v15_Industrial_Report.html"
+a.click()
+
 }
-function runPlanningAnalysis(){
-  try{
-    if(!rawPayload){ document.getElementById("statusBox").textContent="Load industrial input first."; return; }
-    let rows=[]; const mode=document.getElementById("sourceMode").value;
-    if(mode==="csv") rows=parseCSV(rawPayload); else rows=parseJSONPayload(rawPayload);
-    results = analyze(rows);
-    const clustered = clusterAssets(results); results = clustered.sorted; clusterSummary = clustered.summary;
-    computeStorage(results); routingPairs = buildRoutingPairs(results); mapNodes = buildMapNodes(results);
-    const pipelineModel = buildPipelineModel(results); applyAiRanking(results, pipelineModel);
-    const totalPower=results.reduce((a,b)=>a+b.electrical,0), totalValue=results.reduce((a,b)=>a+b.value,0), totalCO2=results.reduce((a,b)=>a+b.co2,0);
-    const best=results[0], bestNPV=Math.max(...results.map(r=>r.npv)), totalGrid=results.reduce((a,b)=>a+b.gridExportMW,0);
-    const high=results.filter(r=>r.grade==="High").length, medium=results.filter(r=>r.grade==="Medium").length, low=results.filter(r=>r.grade==="Low").length;
-    const steam=results.filter(r=>r.tech==="Steam Rankine / Hybrid").length, orc=results.filter(r=>r.tech==="Organic Rankine Cycle").length, kalina=results.filter(r=>r.tech==="Kalina-like Low-Grade Cycle").length, reuse=results.filter(r=>r.tech==="Direct Heat Reuse").length;
-    const totalStorage=results.reduce((a,b)=>a+b.storageMWhth,0), totalDispatch=results.reduce((a,b)=>a+b.storageDispatchMW,0), storageValue=results.reduce((a,b)=>a+b.storageValueUplift,0), pairValue=routingPairs.reduce((a,b)=>a+b.annualValue,0);
 
-    document.getElementById("mAssets").textContent=results.length;
-    document.getElementById("mPower").textContent=(totalPower/1000).toFixed(2)+" MW";
-    document.getElementById("mValue").textContent=money(totalValue);
-    document.getElementById("mCO2").textContent=totalCO2.toFixed(0)+" t";
-    document.getElementById("mNPV").textContent=money(bestNPV);
-    document.getElementById("mGrid").textContent=totalGrid.toFixed(2)+" MW";
-    document.getElementById("summaryNote").textContent="Best planning opportunity: "+best.source+". AI score: "+best.aiScore.toFixed(3)+". Technology: "+best.tech+". Cluster: "+best.cluster+". Annual value: "+money(best.value)+". Pipeline-adjusted platform NPV: "+money(pipelineModel.adjustedNpv)+".";
+function loadCSVExample(){
 
-    document.getElementById("classHigh").textContent="High-grade: "+high;
-    document.getElementById("classMedium").textContent="Medium-grade: "+medium;
-    document.getElementById("classLow").textContent="Low-grade: "+low;
-    document.getElementById("clusterCount").textContent="Clusters: "+clusterSummary.length;
-    document.getElementById("clusterTop").textContent="Top cluster: "+(clusterSummary[0] ? clusterSummary[0].cluster : "-");
-    document.getElementById("clusterPower").textContent="Cluster power: "+(clusterSummary[0] ? (clusterSummary[0].power/1000).toFixed(2) : "0")+" MW";
-    document.getElementById("pairCount").textContent="Matched pairs: "+routingPairs.length;
-    document.getElementById("pairBest").textContent="Best pair: "+(routingPairs[0] ? routingPairs[0].hot+" → "+routingPairs[0].sink : "-");
-    document.getElementById("pairBenefit").textContent="Recovered routing value: "+money(pairValue);
-    document.getElementById("storageCap").textContent="Storage capacity: "+totalStorage.toFixed(2)+" MWhth";
-    document.getElementById("storagePower").textContent="Dispatchable output: "+totalDispatch.toFixed(2)+" MW";
-    document.getElementById("storageValue").textContent="Storage uplift: "+money(storageValue);
+let csv=`source,mass_flow,cp,t_hot,t_cold,hours,price
+SRC01,3.2,4.18,250,120,7200,0.11
+SRC02,2.7,4.18,210,95,7000,0.11
+SRC03,3.6,4.18,270,140,6800,0.11`
 
-    const zoneMap = {}; mapNodes.forEach(n=>{ zoneMap[n.zone] = (zoneMap[n.zone]||0) + n.electrical; });
-    const topZone = Object.entries(zoneMap).sort((a,b)=>b[1]-a[1])[0];
-    document.getElementById("mapTopZone").textContent="Top heat zone: "+(topZone ? topZone[0] : "-");
-    document.getElementById("mapNodeCount").textContent="Mapped nodes: "+mapNodes.length;
-    document.getElementById("mapCorridors").textContent="Candidate corridors: "+routingPairs.length;
-    document.getElementById("mapNote").textContent="Heat map identifies density concentration and corridor opportunities before physical network investment.";
+rawData = parseCSV(csv)
 
-    document.getElementById("aiBest").textContent="Top AI-ranked asset: "+results[0].source+" / score "+results[0].aiScore.toFixed(3);
-    document.getElementById("aiSecond").textContent="Second-ranked asset: "+(results[1] ? results[1].source+" / score "+results[1].aiScore.toFixed(3) : "-");
-    document.getElementById("aiCluster").textContent="Priority planning cluster: "+(clusterSummary[0] ? clusterSummary[0].cluster : "-");
-    document.getElementById("aiRationale").textContent="AI ranking rewards stronger temperature quality, higher exportability, better storage dispatch, lower pipeline burden, and lower CAPEX intensity.";
+document.getElementById("status").innerText="CSV example loaded"
 
-    document.getElementById("pipeLength").textContent="Total optimized length: "+pipelineModel.totalLength.toFixed(2)+" km";
-    document.getElementById("pipeCapex").textContent="Pipeline CAPEX: "+money(pipelineModel.totalCapex);
-    document.getElementById("pipeAssets").textContent="Connected strategic assets: "+pipelineModel.strategic.length;
-    document.getElementById("pipeAdjusted").textContent="Pipeline-adjusted NPV: "+money(pipelineModel.adjustedNpv);
-    document.getElementById("pipeDecision1").textContent="Prioritize network build around the highest AI-ranked strategic assets.";
-    document.getElementById("pipeDecision2").textContent="Use cluster-led backbone routing before extending to peripheral assets.";
-    document.getElementById("pipeDecision3").textContent="Thermal storage reduces overbuilding risk in pipeline and export design.";
-    document.getElementById("pipeDecision4").textContent="Pipeline optimization changes the platform from source analytics to infrastructure planning.";
-    document.getElementById("utility1").textContent="Useful for utility-side distributed generation planning.";
-    document.getElementById("utility2").textContent="Supports industrial park heat sharing and power export coordination.";
-    document.getElementById("utility3").textContent="Can inform phased rollout of thermal and electrical infrastructure.";
-    document.getElementById("utility4").textContent="Creates a pipeline-aware shortlist for investment and policy execution.";
-
-    document.getElementById("bestIdentity").textContent="Best source: "+best.source+" / AI rank: "+best.aiRank+" / Cluster: "+best.cluster+" / Grade: "+best.grade;
-    document.getElementById("bestThermal").textContent="Thermal potential: "+best.thermal.toFixed(2)+" kW";
-    document.getElementById("bestElectrical").textContent="Electrical potential: "+best.electrical.toFixed(2)+" kW";
-    document.getElementById("bestAnnual").textContent="Annual value: "+money(best.value)+" / NPV: "+money(best.npv);
-    document.getElementById("bestPayback").textContent="Payback: "+best.payback.toFixed(2)+" years";
-    document.getElementById("bestCO2").textContent="CO2 avoided: "+best.co2.toFixed(2)+" t/year";
-    document.getElementById("bestGrid").textContent="Exportable power: "+best.gridExportMW.toFixed(2)+" MW / Storage dispatch: "+best.storageDispatchMW.toFixed(2)+" MW";
-    document.getElementById("bestNarrative1").textContent="v15 preserves the v14 network engine and v13.1 source resilience.";
-    document.getElementById("bestNarrative2").textContent="Industrial Heat Map adds spatial planning rather than source-only ranking.";
-    document.getElementById("bestNarrative3").textContent="AI Ranking prioritizes infrastructure-ready assets, not only hotter assets.";
-    document.getElementById("bestNarrative4").textContent="Pipeline Optimization introduces corridor length and cost into planning logic.";
-    document.getElementById("bestNarrative5").textContent="The platform now resembles industrial energy infrastructure planning software rather than a hackathon calculator.";
-    document.getElementById("routingNarrative").textContent="Planning narrative: the platform identified "+routingPairs.length+" routing corridors and a strategic pipeline program of "+pipelineModel.totalLength.toFixed(2)+" km. This shifts ThermoNova from simple recovery estimation to phased industrial network planning.";
-
-    document.querySelector("#resultsTable tbody").innerHTML=results.slice(0,100).map(r=>{
-      const strategic = pipelineModel.strategic.find(x=>x.source===r.source); const pipeKm = strategic ? strategic.pipelineKm : 0;
-      return `<tr><td>${r.aiRank}</td><td>${r.aiRank}</td><td>${r.source}</td><td>${r.cluster}</td><td>${r.thermal.toFixed(0)}</td><td>${r.electrical.toFixed(0)}</td><td>${money(r.value)}</td><td>${r.co2.toFixed(0)}</td><td><span class="badge ${r.grade.toLowerCase()}">${r.grade}</span></td><td>${r.tech}</td><td>${powerBlockSize(r.electrical)}</td><td>${r.gridExportMW.toFixed(2)}</td><td>${r.storageMWhth.toFixed(2)}</td><td>${pipeKm.toFixed(2)}</td><td>${money(r.capex)}</td><td>${money(r.opex)}</td><td>${money(r.net)}</td><td>${r.payback.toFixed(2)} yr</td><td>${money(r.npv)}</td><td>${r.aiScore.toFixed(3)}</td></tr>`;
-    }).join("");
-
-    document.querySelector("#pairTable tbody").innerHTML=routingPairs.map(p=>`<tr><td>${p.rank}</td><td>${p.hot}</td><td>${p.sink}</td><td>${p.match.toFixed(1)}</td><td>${p.feasibility}</td><td>${p.transfer.toFixed(2)}</td><td>${money(p.annualValue)}</td><td>${p.pipeKm.toFixed(2)}</td></tr>`).join("");
-
-    const top20=results.slice(0,20);
-    if(powerChart) powerChart.destroy(); if(valueChart) valueChart.destroy(); if(clusterChart) clusterChart.destroy(); if(techChart) techChart.destroy(); if(aiScoreChart) aiScoreChart.destroy();
-    powerChart = new Chart(document.getElementById("powerChart"), {type:"bar",data:{labels:top20.map(r=>r.source),datasets:[{label:"Electrical kW",data:top20.map(r=>r.electrical)}]},options:{responsive:true,maintainAspectRatio:false}});
-    valueChart = new Chart(document.getElementById("valueChart"), {type:"bar",data:{labels:top20.map(r=>r.source),datasets:[{label:"Annual Value USD",data:top20.map(r=>r.value)}]},options:{responsive:true,maintainAspectRatio:false}});
-    clusterChart = new Chart(document.getElementById("clusterChart"), {type:"bar",data:{labels:clusterSummary.slice(0,12).map(c=>c.cluster),datasets:[{label:"Cluster Power MW",data:clusterSummary.slice(0,12).map(c=>c.power/1000)}]},options:{responsive:true,maintainAspectRatio:false}});
-    techChart = new Chart(document.getElementById("techChart"), {type:"pie",data:{labels:["Steam Rankine / Hybrid","Organic Rankine Cycle","Kalina-like Low-Grade Cycle","Direct Heat Reuse"],datasets:[{data:[steam,orc,kalina,reuse]}]},options:{responsive:true,maintainAspectRatio:false}});
-    aiScoreChart = new Chart(document.getElementById("aiScoreChart"), {type:"bar",data:{labels:top20.map(r=>r.source),datasets:[{label:"AI Planning Score",data:top20.map(r=>r.aiScore)}]},options:{responsive:true,maintainAspectRatio:false}});
-
-    drawHeatMap(mapNodes, routingPairs); renderNetworkDiagram(results, routingPairs, clusterSummary, pipelineModel);
-    document.getElementById("notesBox").value = `ThermoNova v15 Industrial Energy Planning Platform
-
-Assets analyzed: ${results.length}
-Detected source identity column: ${document.getElementById("mappingNotice").textContent.replace("Detected source identity column: ","")}
-Best planning source: ${best.source}
-Best cluster: ${best.cluster}
-Technology: ${best.tech}
-Annual value: ${money(best.value)}
-NPV: ${money(best.npv)}
-Exportable power: ${best.gridExportMW.toFixed(2)} MW
-AI score: ${best.aiScore.toFixed(3)}
-
-v15 preserved from prior versions:
-1. Hidden upload workflow from v14
-2. Full network clustering
-3. Pinch-like routing
-4. Thermal storage layer
-5. Download HTML Report
-6. Source identity resilience from v13.1
-
-New layers added in v15:
-1. Industrial Heat Map Engine
-2. AI Ranking Engine
-3. Pipeline Optimization Model`;
-    document.getElementById("statusBox").textContent="Industrial energy planning analysis completed.";
-  } catch(err){
-    document.getElementById("statusBox").textContent="Error: "+err.message;
-    document.getElementById("mappingNotice").textContent="Mapping or planning error detected. Review identity column or dataset structure.";
-  }
 }
-function loadCsv(){document.getElementById("sourceMode").value="csv";rawPayload=csvExample;document.getElementById("fileState").textContent="CSV example loaded internally.";previewPayload(rawPayload);document.getElementById("statusBox").textContent="CSV example loaded.";document.getElementById("mappingNotice").textContent="Ready for auto-detection.";}
-function loadJson(){document.getElementById("sourceMode").value="json";rawPayload=jsonExample;document.getElementById("fileState").textContent="JSON example loaded internally.";previewPayload(rawPayload);document.getElementById("statusBox").textContent="JSON example loaded.";document.getElementById("mappingNotice").textContent="Ready for auto-detection.";}
-function loadApi(){document.getElementById("sourceMode").value="rest";rawPayload=restMock;document.getElementById("fileState").textContent="REST API mock payload loaded.";previewPayload(rawPayload);document.getElementById("statusBox").textContent="REST API mock loaded.";document.getElementById("mappingNotice").textContent="Ready for auto-detection.";}
-function loadMqtt(){document.getElementById("sourceMode").value="mqtt";rawPayload=mqttMock;document.getElementById("fileState").textContent="MQTT mock payload loaded.";previewPayload(rawPayload);document.getElementById("statusBox").textContent="MQTT mock loaded.";document.getElementById("mappingNotice").textContent="Ready for auto-detection.";}
 
-document.getElementById("loadCsvBtn").onclick=loadCsv;
-document.getElementById("loadJsonBtn").onclick=loadJson;
-document.getElementById("apiBtn").onclick=loadApi;
-document.getElementById("mqttBtn").onclick=loadMqtt;
-document.getElementById("runBtn").onclick=runPlanningAnalysis;
-document.getElementById("downloadBtn").onclick=downloadReport;
-document.getElementById("exportTopBtn").onclick=downloadReport;
-document.getElementById("bottomExportBtn").onclick=downloadReport;
-document.getElementById("uploadInput").addEventListener("change", async e=>{
-  const f=e.target.files[0]; if(!f) return;
-  rawPayload=await f.text();
-  document.getElementById("fileState").textContent="Loaded file: "+f.name;
-  previewPayload(rawPayload);
-  document.getElementById("sourceMode").value=f.name.toLowerCase().endsWith(".json")?"json":"csv";
-  document.getElementById("statusBox").textContent="Industrial dataset uploaded.";
-  document.getElementById("mappingNotice").textContent="Ready for auto-detection.";
-});
+function loadJSONExample(){
+
+rawData=[
+{source:"SRC01",mass_flow:3.2,cp:4.18,t_hot:250,t_cold:120,hours:7200,price:0.11},
+{source:"SRC02",mass_flow:2.7,cp:4.18,t_hot:210,t_cold:95,hours:7000,price:0.11}
+]
+
+document.getElementById("status").innerText="JSON example loaded"
+
+}
+
+function simulateAPI(){loadJSONExample()}
+function simulateMQTT(){loadJSONExample()}
+
+document.getElementById("fileUpload").addEventListener("change",async e=>{
+
+let file=e.target.files[0]
+
+let text = await file.text()
+
+if(file.name.endsWith(".csv")){
+rawData=parseCSV(text)
+}else{
+rawData=JSON.parse(text)
+}
+
+document.getElementById("status").innerText="Dataset uploaded"
+
+})
+
 </script>
+
 </body>
 </html>
